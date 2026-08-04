@@ -1,0 +1,69 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout>
+  <div class="min-h-screen flex flex-col">
+    <!-- Mock Nav Bar -->
+    <header class="h-16 px-4 lg:px-6 flex items-center justify-between border-b border-hairline bg-canvas">
+      <div class="font-bold text-ink text-lg tracking-tight flex items-center gap-2">
+        <div class="w-6 h-6 bg-brand rounded-sm"></div>
+        SplitBugs
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="w-8 h-8 rounded-full bg-canvas-soft border border-hairline"></div>
+      </div>
+    </header>
+
+    <main class="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-24">
+      <div class="flex items-center justify-between mb-8">
+        <h1 class="text-3xl lg:text-4xl font-bold tracking-tight">Dashboard</h1>
+        <button class="bg-primary text-on-primary px-4 py-2 rounded-pill font-medium hover:opacity-90 transition-opacity">
+          + New Group
+        </button>
+      </div>
+
+      <!-- Mock Groups Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        <a href="/groups/mock-group-1" class="group block p-6 bg-canvas border border-hairline rounded-md hover:border-hairline-strong transition-colors shadow-sm hover:shadow-md">
+          <div class="flex justify-between items-start mb-4">
+            <h2 class="text-xl font-bold group-hover:text-brand transition-colors">Trip to Bali</h2>
+            <span class="px-2 py-1 bg-canvas-soft border border-hairline rounded-full text-xs font-medium text-mute">Settled</span>
+          </div>
+          <p class="text-body text-sm mb-4">You are all settled up in this group.</p>
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full bg-brand/20 flex items-center justify-center text-[10px] font-bold text-brand">A</div>
+            <div class="w-6 h-6 rounded-full bg-success/20 flex items-center justify-center text-[10px] font-bold text-success -ml-1 border border-canvas">B</div>
+          </div>
+        </a>
+
+        <a href="/groups/mock-group-2" class="group block p-6 bg-canvas border border-hairline rounded-md hover:border-hairline-strong transition-colors shadow-sm hover:shadow-md">
+          <div class="flex justify-between items-start mb-4">
+            <h2 class="text-xl font-bold group-hover:text-brand transition-colors">Apartment</h2>
+            <span class="px-2 py-1 bg-warning/10 border border-warning/20 rounded-full text-xs font-medium text-warning-deep">Owes you</span>
+          </div>
+          <p class="text-body text-sm mb-4">You are owed <span class="font-bold text-ink">$145.00</span></p>
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full bg-brand/20 flex items-center justify-center text-[10px] font-bold text-brand">A</div>
+            <div class="w-6 h-6 rounded-full bg-success/20 flex items-center justify-center text-[10px] font-bold text-success -ml-1 border border-canvas">K</div>
+            <div class="w-6 h-6 rounded-full bg-warning/20 flex items-center justify-center text-[10px] font-bold text-warning-deep -ml-1 border border-canvas">J</div>
+          </div>
+        </a>
+
+        <a href="/groups/mock-group-3" class="group block p-6 bg-canvas border border-hairline rounded-md hover:border-hairline-strong transition-colors shadow-sm hover:shadow-md">
+          <div class="flex justify-between items-start mb-4">
+            <h2 class="text-xl font-bold group-hover:text-brand transition-colors">Dinner with Friends</h2>
+            <span class="px-2 py-1 bg-error/10 border border-error/20 rounded-full text-xs font-medium text-error-deep">You owe</span>
+          </div>
+          <p class="text-body text-sm mb-4">You owe <span class="font-bold text-ink">$32.50</span></p>
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full bg-brand/20 flex items-center justify-center text-[10px] font-bold text-brand">A</div>
+            <div class="w-6 h-6 rounded-full bg-warning/20 flex items-center justify-center text-[10px] font-bold text-warning-deep -ml-1 border border-canvas">M</div>
+          </div>
+        </a>
+
+      </div>
+    </main>
+  </div>
+</Layout>
