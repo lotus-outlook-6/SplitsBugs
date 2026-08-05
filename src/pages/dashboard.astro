@@ -2,14 +2,23 @@
 import Layout from '../layouts/Layout.astro';
 ---
 
+<style is:global>
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+</style>
+
 <Layout>
   <div class="min-h-screen flex flex-col">
     <!-- Mock Nav Bar -->
     <header class="h-16 px-4 lg:px-6 flex items-center justify-between border-b border-hairline bg-canvas">
-      <div class="font-bold text-ink text-lg tracking-tight flex items-center gap-2">
-        <div class="w-6 h-6 bg-brand rounded-sm"></div>
-        SplitBugs
-      </div>
+      <a href="/dashboard" class="flex items-center">
+        <img src="/SplitBugs-Brand/logos/logo-wordmark.svg" alt="SplitBugs" class="h-6" />
+      </a>
       <div class="flex items-center gap-4">
         <div class="w-8 h-8 rounded-full bg-canvas-soft border border-hairline"></div>
       </div>
@@ -18,52 +27,283 @@ import Layout from '../layouts/Layout.astro';
     <main class="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-24">
       <div class="flex items-center justify-between mb-8">
         <h1 class="text-3xl lg:text-4xl font-bold tracking-tight">Dashboard</h1>
-        <button class="bg-primary text-on-primary px-4 py-2 rounded-pill font-medium hover:opacity-90 transition-opacity">
+        <button id="newGroupBtn" class="bg-primary text-on-primary px-4 py-2 rounded-pill font-medium hover:opacity-90 transition-opacity cursor-pointer">
           + New Group
         </button>
       </div>
 
-      <!-- Mock Groups Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        
-        <a href="/groups/mock-group-1" class="group block p-6 bg-canvas border border-hairline rounded-md hover:border-hairline-strong transition-colors shadow-sm hover:shadow-md">
-          <div class="flex justify-between items-start mb-4">
-            <h2 class="text-xl font-bold group-hover:text-brand transition-colors">Trip to Bali</h2>
-            <span class="px-2 py-1 bg-canvas-soft border border-hairline rounded-full text-xs font-medium text-mute">Settled</span>
-          </div>
-          <p class="text-body text-sm mb-4">You are all settled up in this group.</p>
-          <div class="flex items-center gap-2">
-            <div class="w-6 h-6 rounded-full bg-brand/20 flex items-center justify-center text-[10px] font-bold text-brand">A</div>
-            <div class="w-6 h-6 rounded-full bg-success/20 flex items-center justify-center text-[10px] font-bold text-success -ml-1 border border-canvas">B</div>
-          </div>
-        </a>
-
-        <a href="/groups/mock-group-2" class="group block p-6 bg-canvas border border-hairline rounded-md hover:border-hairline-strong transition-colors shadow-sm hover:shadow-md">
-          <div class="flex justify-between items-start mb-4">
-            <h2 class="text-xl font-bold group-hover:text-brand transition-colors">Apartment</h2>
-            <span class="px-2 py-1 bg-warning/10 border border-warning/20 rounded-full text-xs font-medium text-warning-deep">Owes you</span>
-          </div>
-          <p class="text-body text-sm mb-4">You are owed <span class="font-bold text-ink">$145.00</span></p>
-          <div class="flex items-center gap-2">
-            <div class="w-6 h-6 rounded-full bg-brand/20 flex items-center justify-center text-[10px] font-bold text-brand">A</div>
-            <div class="w-6 h-6 rounded-full bg-success/20 flex items-center justify-center text-[10px] font-bold text-success -ml-1 border border-canvas">K</div>
-            <div class="w-6 h-6 rounded-full bg-warning/20 flex items-center justify-center text-[10px] font-bold text-warning-deep -ml-1 border border-canvas">J</div>
-          </div>
-        </a>
-
-        <a href="/groups/mock-group-3" class="group block p-6 bg-canvas border border-hairline rounded-md hover:border-hairline-strong transition-colors shadow-sm hover:shadow-md">
-          <div class="flex justify-between items-start mb-4">
-            <h2 class="text-xl font-bold group-hover:text-brand transition-colors">Dinner with Friends</h2>
-            <span class="px-2 py-1 bg-error/10 border border-error/20 rounded-full text-xs font-medium text-error-deep">You owe</span>
-          </div>
-          <p class="text-body text-sm mb-4">You owe <span class="font-bold text-ink">$32.50</span></p>
-          <div class="flex items-center gap-2">
-            <div class="w-6 h-6 rounded-full bg-brand/20 flex items-center justify-center text-[10px] font-bold text-brand">A</div>
-            <div class="w-6 h-6 rounded-full bg-warning/20 flex items-center justify-center text-[10px] font-bold text-warning-deep -ml-1 border border-canvas">M</div>
-          </div>
-        </a>
-
+      <!-- Dynamic Groups Grid -->
+      <div id="groupsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Groups will be populated here via JS -->
       </div>
     </main>
+
+    <!-- New Group Modal -->
+    <dialog id="newGroupModal" class="bg-transparent p-0 m-auto backdrop:bg-ink/50 backdrop:backdrop-blur-sm open:flex flex-col items-center justify-center w-full max-w-lg">
+      <div class="bg-canvas border border-hairline rounded-lg shadow-lg w-full p-6 text-left">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-xl font-bold">Create New Group</h2>
+          <button id="closeGroupBtn" class="text-mute hover:text-ink transition-colors cursor-pointer">✕</button>
+        </div>
+        
+        <form id="newGroupForm" class="space-y-4" method="dialog">
+          <div>
+            <label class="block text-sm font-medium text-ink mb-1">Group Name</label>
+            <input type="text" id="groupName" autocomplete="off" required placeholder="e.g. Trip to Bali, Apartment" class="w-full bg-canvas text-ink border border-hairline rounded-sm px-3 h-10 text-sm focus:outline-none focus:border-hairline-strong transition-colors" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-ink mb-1">Currency</label>
+            <select id="groupCurrency" class="w-full bg-canvas text-ink border border-hairline rounded-sm px-3 h-10 text-sm focus:outline-none focus:border-hairline-strong transition-colors">
+              <option value="$">USD ($)</option>
+              <option value="€">EUR (€)</option>
+              <option value="£">GBP (£)</option>
+              <option value="₹" selected>INR (₹)</option>
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-ink mb-1">Members</label>
+            <div class="relative">
+              <input type="text" id="memberInput" autocomplete="off" placeholder="Type a name and press Enter" class="w-full bg-canvas text-ink border border-hairline rounded-sm px-3 h-10 text-sm focus:outline-none focus:border-hairline-strong transition-colors" />
+            </div>
+            <p class="text-xs text-mute mt-1">Press enter to add next member</p>
+            <div id="membersTags" class="flex flex-nowrap overflow-x-auto gap-2 mt-4 pb-2 scrollbar-hide">
+              <!-- Member list will be rendered here -->
+            </div>
+          </div>
+
+          <div class="pt-2 flex flex-col gap-3">
+            <button type="submit" class="w-full bg-primary text-on-primary px-4 py-2 rounded-pill font-medium hover:opacity-90 transition-opacity cursor-pointer">Create Group</button>
+            <button type="button" id="cancelGroupBtn" class="w-full bg-canvas text-ink px-4 py-2 rounded-pill font-medium border border-hairline hover:bg-canvas-soft transition-colors cursor-pointer">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </dialog>
+
+    <!-- Custom Toast Notification -->
+    <div id="toastNotification" class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-ink text-canvas px-4 py-3 rounded-md shadow-lg text-sm font-medium transition-all duration-300 translate-y-20 opacity-0 pointer-events-none z-50 flex items-center gap-2">
+      <svg id="toastIconSuccess" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-success hidden"><path d="M20 6L9 17l-5-5"/></svg>
+      <svg id="toastIconError" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-error hidden"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="toastMessage">Success</span>
+    </div>
+
   </div>
+  
+  <script>
+    function showToast(message: string, isError = false) {
+      const toast = document.getElementById('toastNotification');
+      const toastMsg = document.getElementById('toastMessage');
+      const iconSuccess = document.getElementById('toastIconSuccess');
+      const iconError = document.getElementById('toastIconError');
+      if (toast && toastMsg && iconSuccess && iconError) {
+        
+        const activeDialog = document.querySelector('dialog[open]');
+        if (activeDialog) {
+          activeDialog.appendChild(toast);
+        } else {
+          document.body.appendChild(toast);
+        }
+
+        toastMsg.textContent = message;
+        if (isError) {
+          iconSuccess.classList.add('hidden');
+          iconError.classList.remove('hidden');
+        } else {
+          iconError.classList.add('hidden');
+          iconSuccess.classList.remove('hidden');
+        }
+        toast.classList.remove('translate-y-20', 'opacity-0');
+        setTimeout(() => {
+          toast.classList.add('translate-y-20', 'opacity-0');
+        }, 3000);
+      }
+    }
+    const newGroupBtn = document.getElementById('newGroupBtn');
+    const newGroupModal = document.getElementById('newGroupModal') as HTMLDialogElement;
+    const closeGroupBtn = document.getElementById('closeGroupBtn');
+    const cancelGroupBtn = document.getElementById('cancelGroupBtn');
+    const newGroupForm = document.getElementById('newGroupForm') as HTMLFormElement;
+    const groupsGrid = document.getElementById('groupsGrid');
+
+    const memberInput = document.getElementById('memberInput') as HTMLInputElement;
+    const membersTags = document.getElementById('membersTags');
+    let currentMembers: string[] = ['Name (You)'];
+
+    function renderTags() {
+      if (!membersTags) return;
+      membersTags.innerHTML = '';
+      currentMembers.forEach((m, idx) => {
+        const isYou = m === 'Name (You)';
+        const item = document.createElement('div');
+        
+        let borderClass = isYou ? 'border-brand shadow-sm' : 'border-hairline';
+        let clickAttr = isYou ? '' : `onclick="removeMember(${idx})"`;
+        let cursorClass = isYou ? 'cursor-default' : 'cursor-pointer hover:bg-hairline hover:text-error transition-colors';
+        
+        item.className = `flex items-center gap-1.5 bg-canvas-soft border ${borderClass} rounded-pill px-4 py-1.5 text-sm font-medium whitespace-nowrap select-none flex-shrink-0 ${cursorClass}`;
+        item.innerHTML = `
+          <span>${m}</span>
+        `;
+        if (!isYou) {
+          item.setAttribute('onclick', `removeMember(${idx})`);
+        }
+        membersTags.appendChild(item);
+      });
+    }
+
+    (window as any).removeMember = function(idx: number) {
+      currentMembers.splice(idx, 1);
+      renderTags();
+    };
+
+    if (memberInput) {
+      memberInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          let val = memberInput.value.trim();
+          if (val) {
+            if (!/^[A-Za-z\s]+$/.test(val)) {
+              showToast("Only alphabets and spaces are allowed for names.", true);
+              return;
+            }
+            
+            val = val.replace(/\s+/g, ' '); // clean extra spaces
+            
+            let uniqueVal = val;
+            let counter = 2;
+            while (currentMembers.includes(uniqueVal)) {
+              uniqueVal = `${val} (${counter})`;
+              counter++;
+            }
+            
+            currentMembers.push(uniqueVal);
+            memberInput.value = '';
+            renderTags();
+          }
+        }
+      });
+    }
+
+    function resetModal() {
+      const nameInput = document.getElementById('groupName') as HTMLInputElement;
+      if (nameInput) nameInput.value = '';
+      if (memberInput) memberInput.value = '';
+      currentMembers = ['Name (You)'];
+      renderTags();
+    }
+
+    if (newGroupBtn && newGroupModal) {
+      newGroupBtn.addEventListener('click', () => {
+        resetModal();
+        newGroupModal.showModal();
+      });
+      closeGroupBtn?.addEventListener('click', () => {
+        resetModal();
+        newGroupModal.close();
+      });
+      cancelGroupBtn?.addEventListener('click', () => {
+        resetModal();
+        newGroupModal.close();
+      });
+      newGroupModal.addEventListener('click', (e) => {
+        const d = newGroupModal.getBoundingClientRect();
+        if (e.clientX < d.left || e.clientX > d.right || e.clientY < d.top || e.clientY > d.bottom) {
+          resetModal();
+          newGroupModal.close();
+        }
+      });
+    }
+
+    function renderGroups() {
+      if (!groupsGrid) return;
+      const dataStr = localStorage.getItem('splitsbug_data');
+      if (!dataStr) {
+        groupsGrid.innerHTML = `<div class="col-span-full p-12 text-center border border-hairline border-dashed rounded-lg bg-canvas-soft text-mute">No groups yet. Create one to get started!</div>`;
+        return;
+      }
+
+      const data = JSON.parse(dataStr);
+      const groups = Object.values(data.groups || {});
+
+      if (groups.length === 0) {
+        groupsGrid.innerHTML = `<div class="col-span-full p-12 text-center border border-hairline border-dashed rounded-lg bg-canvas-soft text-mute">No groups yet. Create one to get started!</div>`;
+        return;
+      }
+
+      groupsGrid.innerHTML = '';
+      groups.forEach((group: any) => {
+        // Calculate total balances for this user to show owes/owed status (Simplified)
+        // For phase 2, we just render a simple card to prove it works dynamically.
+        
+        let membersHTML = '';
+        const bgColors = ['bg-brand/20 text-brand', 'bg-success/20 text-success', 'bg-warning/20 text-warning-deep', 'bg-error/20 text-error-deep'];
+        
+        group.members.slice(0, 4).forEach((m: string, i: number) => {
+          const letter = m.charAt(0).toUpperCase();
+          const color = bgColors[i % bgColors.length];
+          const margin = i > 0 ? '-ml-1 border border-canvas' : '';
+          membersHTML += `<div class="w-6 h-6 rounded-full ${color} flex items-center justify-center text-[10px] font-bold ${margin}">${letter}</div>`;
+        });
+        if (group.members.length > 4) {
+          membersHTML += `<div class="w-6 h-6 rounded-full bg-canvas-soft border border-hairline flex items-center justify-center text-[10px] font-medium text-mute -ml-1 border-canvas">+${group.members.length - 4}</div>`;
+        }
+
+        const card = `
+          <a href="/group?id=${group.id}" class="group block p-6 bg-canvas border border-hairline rounded-md hover:border-hairline-strong transition-colors shadow-sm hover:shadow-md">
+            <div class="flex justify-between items-start mb-4">
+              <h2 class="text-xl font-bold group-hover:text-brand transition-colors">${group.name}</h2>
+            </div>
+            <p class="text-body text-sm mb-4">${group.members.length} members</p>
+            <div class="flex items-center gap-2">
+              ${membersHTML}
+            </div>
+          </a>
+        `;
+        groupsGrid.insertAdjacentHTML('beforeend', card);
+      });
+    }
+
+    if (newGroupForm) {
+      newGroupForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const nameInput = document.getElementById('groupName') as HTMLInputElement;
+        const currencySelect = document.getElementById('groupCurrency') as HTMLSelectElement;
+        
+        const name = nameInput.value.trim();
+        const currency = currencySelect.value;
+        
+        if (currentMembers.length <= 1) {
+          showToast("Please add at least one more member.", true);
+          return;
+        }
+
+        const groupId = name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
+
+        const newGroup = {
+          id: groupId,
+          name: name,
+          currency: currency,
+          createdBy: 'Name (You)',
+          members: [...currentMembers],
+          expenses: []
+        };
+
+        let dataStr = localStorage.getItem('splitsbug_data');
+        let data = dataStr ? JSON.parse(dataStr) : { groups: {} };
+        
+        data.groups[groupId] = newGroup;
+        localStorage.setItem('splitsbug_data', JSON.stringify(data));
+
+        nameInput.value = '';
+        currentMembers = ['Name (You)'];
+        renderTags();
+        newGroupModal.close();
+        renderGroups();
+      });
+    }
+
+    // Initial render
+    renderGroups();
+  </script>
 </Layout>

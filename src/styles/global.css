@@ -19,6 +19,9 @@
   --color-warning: #f59e0b;
   --color-danger: #ef4444;
 
+  --color-primary: #171717;
+  --color-on-primary: #ffffff;
+
   --radius-xs: 4px;
   --radius-sm: 6px;
   --radius-md: 8px;
@@ -40,5 +43,10 @@
   }
   input[type='number'] {
     -moz-appearance: textfield;
+  }
+
+  /* Make buttons show a hand cursor */
+  button {
+    cursor: pointer;
   }
 }

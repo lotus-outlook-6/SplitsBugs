@@ -1,0 +1,822 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<style is:global>
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .is-equally .split-participant-label {
+    pointer-events: none;
+    opacity: 0.5;
+  }
+</style>
+
+<Layout>
+  <div class="min-h-screen flex flex-col bg-canvas-soft">
+    <!-- Mock Nav Bar -->
+    <header class="h-16 px-4 lg:px-6 flex items-center justify-between border-b border-hairline bg-canvas">
+      <div class="font-bold text-ink text-lg tracking-tight flex items-center gap-3">
+        <a href="/dashboard" class="w-10 h-10 flex items-center justify-center rounded-full bg-canvas-soft border border-hairline hover:bg-hairline transition-colors text-ink shadow-sm" title="Go back">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+        </a>
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="w-8 h-8 rounded-full bg-canvas-soft border border-hairline"></div>
+      </div>
+    </header>
+
+    <main class="flex-1 max-w-[1200px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      
+      <!-- Group Header -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 id="groupTitle" class="text-3xl lg:text-4xl font-bold tracking-tight mb-2">Loading...</h1>
+          <p id="groupSubtitle" class="text-body text-sm">Created by... • 0 members</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <button id="deleteGroupBtn" class="bg-error/10 text-error-deep border border-error/20 px-3 py-2 rounded-pill font-medium hover:bg-error/20 transition-colors shadow-sm flex items-center gap-2" title="Delete Group">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2M10 11v6M14 11v6"/></svg>
+            <span class="hidden md:inline">Delete</span>
+          </button>
+          <button id="settleUpBtn" class="bg-canvas text-ink border border-hairline px-4 py-2 rounded-pill font-medium hover:bg-canvas-soft transition-colors shadow-sm">
+            Settle Up
+          </button>
+          <button id="addExpenseBtn" class="bg-ink text-canvas px-4 py-2 rounded-pill font-medium hover:opacity-90 transition-opacity shadow-sm">
+            + Add Expense
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main Activity Feed (2/3 width on desktop) -->
+        <div class="lg:col-span-2 space-y-6">
+          <section class="bg-canvas border border-hairline rounded-lg shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-hairline bg-canvas-soft flex justify-between items-center">
+              <h2 class="text-lg font-bold">Activity</h2>
+              <span class="text-xs font-medium text-mute uppercase tracking-wider">August 2026</span>
+            </div>
+            
+            <div id="activityFeed" class="divide-y divide-hairline">
+              <!-- Activities will be added here via JS -->
+            </div>
+          </section>
+        </div>
+        
+        <!-- Sidebar: Balances (1/3 width on desktop) -->
+        <div class="lg:col-span-1 space-y-6">
+          <section class="bg-canvas border border-hairline rounded-lg shadow-sm p-6">
+            <h2 class="text-lg font-bold mb-4">Balances</h2>
+            
+            <div id="balancesContainer" class="space-y-4">
+              <!-- Balances will be added here via JS -->
+            </div>
+            
+            
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <!-- Add Expense Modal -->
+    <dialog id="addExpenseModal" class="bg-transparent p-0 m-auto backdrop:bg-ink/50 backdrop:backdrop-blur-sm open:flex flex-col items-center justify-center w-full max-w-lg">
+      <div class="bg-canvas border border-hairline rounded-lg shadow-lg w-full p-6 text-left">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-xl font-bold">Add an expense</h2>
+          <button id="closeExpenseBtn" class="text-mute hover:text-ink transition-colors">✕</button>
+        </div>
+        
+        <form id="addExpenseForm" class="space-y-4" method="dialog">
+          <div>
+            <label class="block text-sm font-medium text-ink mb-1">Description</label>
+            <input type="text" id="expenseDescription" autocomplete="off" required placeholder="e.g. Dinner, Taxi, Groceries" class="w-full bg-canvas text-ink border border-hairline rounded-sm px-3 h-10 text-sm focus:outline-none focus:border-hairline-strong transition-colors" />
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-ink mb-1">Amount</label>
+            <div class="relative flex h-10">
+              <!-- Custom Currency Dropdown -->
+              <div class="relative h-full" id="currencyDropdown">
+                <button type="button" id="currencyBtn" class="flex items-center gap-1.5 h-full bg-canvas-soft border-y border-l border-r border-hairline text-ink text-sm px-3 rounded-l-sm focus:outline-none font-medium hover:bg-canvas transition-colors">
+                  <span id="currencySymbol">$</span>
+                  <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-mute">
+                    <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+                
+                <div id="currencyMenu" class="hidden absolute left-0 top-full mt-1 w-20 bg-canvas border border-hairline rounded-md shadow-lg z-50 py-1">
+                  <button type="button" class="currency-option w-full text-left px-3 py-1.5 text-sm hover:bg-canvas-soft transition-colors" data-symbol="$">USD ($)</button>
+                  <button type="button" class="currency-option w-full text-left px-3 py-1.5 text-sm hover:bg-canvas-soft transition-colors" data-symbol="€">EUR (€)</button>
+                  <button type="button" class="currency-option w-full text-left px-3 py-1.5 text-sm hover:bg-canvas-soft transition-colors" data-symbol="£">GBP (£)</button>
+                  <button type="button" class="currency-option w-full text-left px-3 py-1.5 text-sm hover:bg-canvas-soft transition-colors" data-symbol="₹">INR (₹)</button>
+                </div>
+              </div>
+              
+              <input type="number" id="expenseAmount" required min="0.01" placeholder="0.00" step="0.01" onkeydown="if(['e','E','+','-'].includes(event.key)) event.preventDefault();" class="w-full bg-canvas text-ink border-y border-r border-hairline rounded-r-sm px-3 h-full text-sm focus:outline-none focus:border-hairline-strong transition-colors" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-ink mb-1">Paid by</label>
+              <div class="relative h-full" id="paidByMenuContainer">
+                <button type="button" id="paidByBtn" class="w-full bg-canvas-soft border border-hairline rounded-sm px-3 h-10 text-sm text-left flex items-center justify-between hover:bg-hairline transition-colors">
+                  <span id="paidByText">Loading...</span>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-mute"><path d="m6 9 6 6 6-6"/></svg>
+                </button>
+                <div id="paidByMenu" class="hidden absolute top-full left-0 w-full mt-1 bg-canvas border border-hairline rounded-sm shadow-md z-10 py-1">
+                  <!-- Members populated via JS -->
+                </div>
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-ink mb-1">Split</label>
+              <div class="relative h-10" id="splitDropdown">
+                <button type="button" id="splitBtn" class="flex items-center justify-between w-full h-full bg-canvas text-ink border border-hairline rounded-sm px-3 text-sm focus:outline-none focus:border-hairline-strong transition-colors hover:bg-canvas-soft">
+                  <span id="splitText">Equally</span>
+                  <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-mute">
+                    <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+                <div id="splitMenu" class="hidden absolute left-0 top-full mt-1 w-full bg-canvas border border-hairline rounded-md shadow-lg z-50 py-1">
+                  <button type="button" class="split-option w-full text-left px-3 py-1.5 text-sm hover:bg-canvas-soft transition-colors" data-value="Equally">Equally</button>
+                  <button type="button" class="split-option w-full text-left px-3 py-1.5 text-sm hover:bg-canvas-soft transition-colors" data-value="Exactly">Exactly</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="splitParticipantsContainer" class="group mt-4 pt-4 border-t border-hairline">
+            <label class="block text-sm font-medium text-ink mb-2">Split with:</label>
+            <div id="splitParticipantsList" class="flex flex-wrap gap-2 mt-2">
+              <!-- Checkboxes populated via JS -->
+            </div>
+          </div>
+
+          <div class="mt-8 flex justify-end gap-3 pt-4 border-t border-hairline">
+            <button type="button" id="cancelExpenseBtn" class="bg-canvas text-ink px-4 py-2 rounded-pill font-medium border border-hairline hover:bg-canvas-soft transition-colors">Cancel</button>
+            <button type="submit" class="bg-primary text-on-primary px-4 py-2 rounded-pill font-medium hover:opacity-90 transition-opacity">Save Expense</button>
+          </div>
+        </form>
+      </div>
+    </dialog>
+
+    <!-- Settle Up Modal -->
+    <dialog id="settleUpModal" class="bg-transparent p-0 m-auto backdrop:bg-ink/50 backdrop:backdrop-blur-sm open:flex flex-col items-center justify-center w-full max-w-sm">
+      <div id="settleUpCard" class="bg-canvas border border-hairline rounded-lg shadow-lg w-full transition-all duration-300 overflow-hidden">
+        <!-- Main Content -->
+        <div id="settleUpContent" class="p-6 text-center transition-opacity duration-300">
+          <div class="w-12 h-12 bg-success/10 text-success rounded-full flex items-center justify-center text-xl mx-auto mb-4">
+            💸
+          </div>
+          <h2 class="text-xl font-bold mb-2">Settle Up</h2>
+          <p class="text-body text-sm mb-4 text-mute">Record a cash or online payment to settle a debt.</p>
+          
+          <form id="settleUpForm" class="flex flex-col gap-3" method="dialog">
+            <div class="text-left mb-4">
+              <label class="block text-sm font-medium text-ink mb-2">Select debt to settle:</label>
+              <div id="settleDebtList" class="flex flex-col gap-2 max-h-48 overflow-y-auto">
+                <div class="text-sm text-mute text-center py-4">Loading...</div>
+              </div>
+              <input type="hidden" id="settleDebtValue" required />
+            </div>
+            
+            <button type="submit" class="w-full bg-primary text-on-primary px-4 py-2 rounded-pill font-medium hover:opacity-90 transition-opacity cursor-pointer">Record Payment</button>
+            <button type="button" id="cancelSettleBtn" class="w-full bg-canvas text-ink px-4 py-2 rounded-pill font-medium border border-hairline hover:bg-canvas-soft transition-colors cursor-pointer">Cancel</button>
+          </form>
+        </div>
+
+        <!-- Success Animation State -->
+        <div id="settleUpSuccess" class="hidden flex-col items-center justify-center p-8 text-center h-48 opacity-0 transition-opacity duration-300">
+          <div class="w-16 h-16 bg-success rounded-full flex items-center justify-center text-canvas mb-4 shadow-md animate-[scale-in_0.3s_ease-out]">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          </div>
+          <h3 id="settleUpSuccessText" class="font-bold text-lg text-ink">Payment recorded!</h3>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Delete Group Modal -->
+    <dialog id="deleteGroupModal" class="bg-transparent p-0 m-auto backdrop:bg-ink/50 backdrop:backdrop-blur-sm open:flex flex-col items-center justify-center w-full max-w-sm">
+      <div class="bg-canvas border border-hairline rounded-lg shadow-lg w-full p-6 text-center">
+        <h2 class="text-xl font-bold mb-2 text-ink">Delete Group?</h2>
+        <p class="text-body text-sm mb-6 text-mute">Are you sure you want to delete this group? This action cannot be undone and all expenses will be lost.</p>
+        <div class="flex gap-3 w-full">
+          <button type="button" id="cancelDeleteBtn" class="flex-1 bg-canvas text-ink px-4 py-2 rounded-pill font-medium border border-hairline hover:bg-canvas-soft transition-colors cursor-pointer">Cancel</button>
+          <button type="button" id="confirmDeleteBtn" class="flex-1 bg-error text-on-error px-4 py-2 rounded-pill font-medium hover:opacity-90 transition-opacity cursor-pointer">Delete</button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Custom Toast Notification -->
+    <div id="toastNotification" class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-ink text-canvas px-4 py-3 rounded-md shadow-lg text-sm font-medium transition-all duration-300 translate-y-20 opacity-0 pointer-events-none z-50 flex items-center gap-2">
+      <svg id="toastIconSuccess" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-success hidden"><path d="M20 6L9 17l-5-5"/></svg>
+      <svg id="toastIconError" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-error hidden"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="toastMessage">Success</span>
+    </div>
+
+  </div>
+
+  <script>
+    function showToast(message: string, isError = false) {
+      const toast = document.getElementById('toastNotification');
+      const toastMsg = document.getElementById('toastMessage');
+      const iconSuccess = document.getElementById('toastIconSuccess');
+      const iconError = document.getElementById('toastIconError');
+      if (toast && toastMsg && iconSuccess && iconError) {
+        
+        const activeDialog = document.querySelector('dialog[open]');
+        if (activeDialog) {
+          activeDialog.appendChild(toast);
+        } else {
+          document.body.appendChild(toast);
+        }
+
+        toastMsg.textContent = message;
+        if (isError) {
+          iconSuccess.classList.add('hidden');
+          iconError.classList.remove('hidden');
+        } else {
+          iconError.classList.add('hidden');
+          iconSuccess.classList.remove('hidden');
+        }
+        toast.classList.remove('translate-y-20', 'opacity-0');
+        setTimeout(() => {
+          toast.classList.add('translate-y-20', 'opacity-0');
+        }, 3000);
+      }
+    }
+
+    // Client-side UI wiring
+    const addExpenseBtn = document.getElementById('addExpenseBtn');
+    const addExpenseModal = document.getElementById('addExpenseModal') as HTMLDialogElement;
+    const closeExpenseBtn = document.getElementById('closeExpenseBtn');
+    const cancelExpenseBtn = document.getElementById('cancelExpenseBtn');
+
+    function resetAddExpenseModal() {
+      const desc = document.getElementById('expenseDescription') as HTMLInputElement;
+      const amt = document.getElementById('expenseAmount') as HTMLInputElement;
+      if (desc) desc.value = '';
+      if (amt) amt.value = '';
+
+      const paidByText = document.getElementById('paidByText');
+      if (paidByText) paidByText.textContent = groupData?.members[0] || 'Name (You)';
+
+      const splitText = document.getElementById('splitText');
+      if (splitText) splitText.textContent = 'Equally';
+
+      const container = document.getElementById('splitParticipantsContainer');
+      if (container) container.classList.add('is-equally');
+
+      document.querySelectorAll('.split-participant-checkbox').forEach((cb: any) => cb.checked = true);
+    }
+
+    if (addExpenseBtn && addExpenseModal) {
+      addExpenseBtn.addEventListener('click', () => {
+        resetAddExpenseModal();
+        addExpenseModal.showModal();
+      });
+      closeExpenseBtn?.addEventListener('click', () => {
+        resetAddExpenseModal();
+        addExpenseModal.close();
+      });
+      cancelExpenseBtn?.addEventListener('click', () => {
+        resetAddExpenseModal();
+        addExpenseModal.close();
+      });
+      addExpenseModal.addEventListener('click', (e) => {
+        const d = addExpenseModal.getBoundingClientRect();
+        if (e.clientX < d.left || e.clientX > d.right || e.clientY < d.top || e.clientY > d.bottom) {
+          resetAddExpenseModal();
+          addExpenseModal.close();
+        }
+      });
+    }
+
+    const settleUpBtn = document.getElementById('settleUpBtn');
+    const settleUpModal = document.getElementById('settleUpModal') as HTMLDialogElement;
+    const cancelSettleBtn = document.getElementById('cancelSettleBtn');
+    const settleUpForm = document.getElementById('settleUpForm') as HTMLFormElement;
+
+    if (settleUpBtn && settleUpModal) {
+      settleUpBtn.addEventListener('click', () => settleUpModal.showModal());
+      cancelSettleBtn?.addEventListener('click', () => settleUpModal.close());
+      settleUpModal.addEventListener('click', (e) => {
+        const d = settleUpModal.getBoundingClientRect();
+        if (e.clientX < d.left || e.clientX > d.right || e.clientY < d.top || e.clientY > d.bottom) settleUpModal.close();
+      });
+
+      if (settleUpForm) {
+        settleUpForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const checkedOptions = document.querySelectorAll('input[name="settleDebtOption"]:checked') as NodeListOf<HTMLInputElement>;
+          if (checkedOptions.length === 0) {
+            showToast('Please select at least one debt to settle.', true);
+            return;
+          }
+          
+          if (!groupData.expenses) groupData.expenses = [];
+          const curr = currencySymbol?.textContent || '$';
+          
+          checkedOptions.forEach(opt => {
+            const debt = JSON.parse(opt.value);
+            const settlementExpense = {
+              id: Date.now().toString() + Math.random().toString(36).substring(7),
+              description: 'Payment',
+              amount: debt.amount,
+              paidBy: debt.from,
+              participants: [debt.to],
+              splitAmong: 1,
+              currency: curr
+            };
+            groupData.expenses.push(settlementExpense);
+          });
+          
+          const dataStr = localStorage.getItem('splitsbug_data');
+          if (dataStr) {
+            const data = JSON.parse(dataStr);
+            data.groups[groupId!] = groupData;
+            localStorage.setItem('splitsbug_data', JSON.stringify(data));
+          }
+
+          renderFeed();
+          renderBalances();
+          
+          // Trigger Success Animation inside Modal
+          const settleUpContent = document.getElementById('settleUpContent');
+          const settleUpSuccess = document.getElementById('settleUpSuccess');
+          const settleUpSuccessText = document.getElementById('settleUpSuccessText');
+          const settleUpCard = document.getElementById('settleUpCard');
+          
+          if (settleUpContent && settleUpSuccess && settleUpCard && settleUpSuccessText) {
+            if (checkedOptions.length === 1) {
+              const debt = JSON.parse(checkedOptions[0].value);
+              settleUpSuccessText.textContent = `Payment of ${curr}${debt.amount.toFixed(2)} recorded!`;
+            } else {
+              settleUpSuccessText.textContent = `${checkedOptions.length} payments recorded!`;
+            }
+            
+            settleUpCard.style.height = settleUpCard.offsetHeight + 'px'; // Fix current height
+            
+            settleUpContent.classList.add('opacity-0');
+            setTimeout(() => {
+              settleUpContent.classList.add('hidden');
+              settleUpSuccess.classList.remove('hidden');
+              
+              // Force reflow
+              void settleUpCard.offsetHeight;
+              
+              settleUpCard.style.height = '192px'; // Height of success state (h-48)
+              setTimeout(() => {
+                settleUpSuccess.classList.remove('opacity-0');
+                settleUpSuccess.classList.add('flex');
+                
+                // Wait 2 seconds, then close and reset
+                setTimeout(() => {
+                  settleUpModal.close();
+                  // Reset modal state
+                  setTimeout(() => {
+                    settleUpSuccess.classList.add('hidden', 'opacity-0');
+                    settleUpSuccess.classList.remove('flex');
+                    settleUpContent.classList.remove('hidden', 'opacity-0');
+                    settleUpCard.style.height = 'auto';
+                  }, 300); // Wait for dialog close animation
+                }, 2000);
+              }, 300);
+            }, 300);
+          } else {
+            settleUpModal.close();
+          }
+        });
+      }
+    }
+
+    // Custom Currency Dropdown Logic
+    const currencyBtn = document.getElementById('currencyBtn');
+    const currencyMenu = document.getElementById('currencyMenu');
+    const currencySymbol = document.getElementById('currencySymbol');
+    const currencyOptions = document.querySelectorAll('.currency-option');
+
+    if (currencyBtn && currencyMenu && currencySymbol) {
+      // Load saved currency from local storage if exists
+      const savedCurrency = localStorage.getItem('preferredCurrency');
+      if (savedCurrency) {
+        currencySymbol.textContent = savedCurrency;
+      }
+
+      currencyBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        currencyMenu.classList.toggle('hidden');
+      });
+
+      currencyOptions.forEach(option => {
+        option.addEventListener('click', (e) => {
+          const btn = e.target as HTMLButtonElement;
+          const sym = btn.getAttribute('data-symbol');
+          if (sym) {
+            currencySymbol.textContent = sym;
+            localStorage.setItem('preferredCurrency', sym);
+          }
+          currencyMenu.classList.add('hidden');
+        });
+      });
+    }
+
+    // Custom Paid By Dropdown Logic
+    const paidByBtn = document.getElementById('paidByBtn');
+    const paidByMenu = document.getElementById('paidByMenu');
+    const paidByText = document.getElementById('paidByText');
+    const paidByOptions = document.querySelectorAll('.paidby-option');
+
+    if (paidByBtn && paidByMenu && paidByText) {
+      paidByBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        paidByMenu.classList.toggle('hidden');
+      });
+
+      paidByOptions.forEach(option => {
+        option.addEventListener('click', (e) => {
+          const btn = e.target as HTMLButtonElement;
+          const val = btn.getAttribute('data-value');
+          if (val) paidByText.textContent = val;
+          paidByMenu.classList.add('hidden');
+        });
+      });
+    }
+
+    // Custom Split Dropdown Logic
+    const splitBtn = document.getElementById('splitBtn');
+    const splitMenu = document.getElementById('splitMenu');
+    const splitText = document.getElementById('splitText');
+    const splitOptions = document.querySelectorAll('.split-option');
+
+    if (splitBtn && splitMenu && splitText) {
+      splitBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        splitMenu.classList.toggle('hidden');
+      });
+
+      splitOptions.forEach(option => {
+        option.addEventListener('click', (e) => {
+          const btn = e.target as HTMLButtonElement;
+          const val = btn.getAttribute('data-value');
+          if (val) {
+            splitText.textContent = val;
+            const container = document.getElementById('splitParticipantsContainer');
+            if (val === 'Equally') {
+              container?.classList.add('is-equally');
+              // Auto-check everyone when set back to Equally
+              document.querySelectorAll('.split-participant-checkbox').forEach((cb: any) => cb.checked = true);
+            } else {
+              container?.classList.remove('is-equally');
+            }
+          }
+          splitMenu.classList.add('hidden');
+        });
+      });
+    }
+
+    // Close all custom dropdowns when clicking outside
+    document.addEventListener('click', (e) => {
+      if (currencyBtn && currencyMenu && !currencyBtn.contains(e.target as Node) && !currencyMenu.contains(e.target as Node)) {
+        currencyMenu.classList.add('hidden');
+      }
+      if (paidByBtn && paidByMenu && !paidByBtn.contains(e.target as Node) && !paidByMenu.contains(e.target as Node)) {
+        paidByMenu.classList.add('hidden');
+      }
+      if (splitBtn && splitMenu && !splitBtn.contains(e.target as Node) && !splitMenu.contains(e.target as Node)) {
+        splitMenu.classList.add('hidden');
+      }
+    });
+
+    // Handle Form Submission for Adding an Expense
+    const addExpenseForm = document.getElementById('addExpenseForm') as HTMLFormElement;
+    const activityFeed = document.getElementById('activityFeed');
+    const balancesContainer = document.getElementById('balancesContainer');
+    const expenseDescription = document.getElementById('expenseDescription') as HTMLInputElement;
+    const expenseAmount = document.getElementById('expenseAmount') as HTMLInputElement;
+
+    // --- Dynamic Setup based on localStorage ---
+    const urlParams = new URLSearchParams(window.location.search);
+    const groupId = urlParams.get('id');
+    let groupData: any = null;
+
+    function initGroupData() {
+      const dataStr = localStorage.getItem('splitsbug_data');
+      if (dataStr && groupId) {
+        const data = JSON.parse(dataStr);
+        groupData = data.groups?.[groupId];
+      }
+
+      if (!groupData) {
+        document.getElementById('groupTitle')!.textContent = "Group not found";
+        return;
+      }
+
+      // Update UI Header
+      document.getElementById('groupTitle')!.textContent = groupData.name;
+      document.getElementById('groupSubtitle')!.textContent = `Created by ${groupData.createdBy} • ${groupData.members.length} members`;
+
+      // Populate Dropdowns & Checklists
+      const paidByMenu = document.getElementById('paidByMenu');
+      const splitChecklist = document.getElementById('splitParticipantsList');
+      
+      if (paidByMenu && splitChecklist) {
+        paidByMenu.innerHTML = '';
+        splitChecklist.innerHTML = '';
+        groupData.members.forEach((member: string) => {
+          const displayMember = member === 'You' ? 'Name (You)' : member;
+          // Paid By Dropdown
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'paid-by-option w-full text-left px-3 py-2 text-sm hover:bg-canvas-soft transition-colors';
+          btn.textContent = displayMember;
+          btn.addEventListener('click', () => {
+            const span = document.getElementById('paidByText');
+            if (span) span.textContent = displayMember;
+            paidByMenu.classList.add('hidden');
+          });
+          paidByMenu.appendChild(btn);
+
+          // Split Checklist Pill
+          const checkItem = document.createElement('label');
+          checkItem.className = 'split-participant-label cursor-pointer select-none';
+          checkItem.innerHTML = `
+            <input type="checkbox" checked value="${member}" class="split-participant-checkbox hidden peer" />
+            <div class="px-3 py-1.5 rounded-pill text-sm font-medium border transition-colors
+                        border-hairline bg-canvas text-mute peer-checked:bg-ink peer-checked:text-canvas peer-checked:border-ink">
+               ${displayMember}
+            </div>
+          `;
+          splitChecklist.appendChild(checkItem);
+        });
+        const span = document.getElementById('paidByText');
+        if (span) {
+          span.textContent = groupData.members[0] === 'You' ? 'Name (You)' : groupData.members[0];
+        }
+        document.getElementById('splitParticipantsContainer')?.classList.add('is-equally');
+      }
+
+      // Default Currency
+      if (groupData.currency && currencySymbol) {
+        currencySymbol.textContent = groupData.currency;
+      }
+
+      renderFeed();
+      renderBalances();
+    }
+
+    const deleteGroupBtn = document.getElementById('deleteGroupBtn');
+    const deleteGroupModal = document.getElementById('deleteGroupModal') as HTMLDialogElement;
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+    const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+
+    if (deleteGroupBtn && deleteGroupModal && confirmDeleteBtn && cancelDeleteBtn) {
+      deleteGroupBtn.addEventListener('click', () => deleteGroupModal.showModal());
+      cancelDeleteBtn.addEventListener('click', () => deleteGroupModal.close());
+      deleteGroupModal.addEventListener('click', (e) => {
+        const d = deleteGroupModal.getBoundingClientRect();
+        if (e.clientX < d.left || e.clientX > d.right || e.clientY < d.top || e.clientY > d.bottom) deleteGroupModal.close();
+      });
+
+      confirmDeleteBtn.addEventListener('click', () => {
+        let dataStr = localStorage.getItem('splitsbug_data');
+        if (dataStr) {
+          let data = JSON.parse(dataStr);
+          delete data.groups[groupId!];
+          localStorage.setItem('splitsbug_data', JSON.stringify(data));
+        }
+        window.location.href = '/dashboard';
+      });
+    }
+
+    function renderFeed() {
+      if (!activityFeed || !groupData) return;
+      activityFeed.innerHTML = '';
+      const exps = groupData.expenses || [];
+      if (exps.length === 0) {
+        activityFeed.innerHTML = `<div class="p-8 text-center text-mute text-sm">No expenses yet. Add one above!</div>`;
+        return;
+      }
+
+      // Render items
+      exps.forEach((exp: any) => {
+        const letter = exp.description.charAt(0).toUpperCase();
+        
+        let whoPaidText = `<span class="font-medium text-ink">${exp.paidBy}</span> paid ${exp.currency}${exp.amount.toFixed(2)}`;
+        
+        const participants = exp.participants || groupData.members;
+        let splitTextInfo = '';
+        if (participants.length === groupData.members.length) {
+          splitTextInfo = 'Split for the whole group';
+        } else if (participants.length <= 2) {
+          splitTextInfo = participants.join(' and ');
+        } else {
+          splitTextInfo = `${participants[0]}, ${participants[1]} + ${participants.length - 2} more`;
+        }
+
+        const splitAmount = (exp.amount / participants.length).toFixed(2);
+        
+        let detailsHTML = `<div class="px-6 pb-4 pt-2 bg-canvas-soft border-t border-hairline flex flex-col gap-2 text-sm">`;
+        participants.forEach((p: string) => {
+          detailsHTML += `
+            <div class="flex justify-between items-center text-body">
+              <span>${p}</span>
+              <span class="font-medium">${exp.currency}${splitAmount}</span>
+            </div>
+          `;
+        });
+        detailsHTML += `</div>`;
+
+        const newItemHTML = `
+          <details class="group hover:bg-canvas-soft transition-colors cursor-pointer border-b border-hairline last:border-b-0">
+            <summary class="p-6 flex items-center justify-between list-none [&::-webkit-details-marker]:hidden">
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-md bg-canvas border border-hairline flex items-center justify-center text-ink font-bold text-xl shadow-sm">
+                  ${letter}
+                </div>
+                <div>
+                  <h3 class="font-bold text-ink">${exp.description}</h3>
+                  <p class="text-sm text-body">${whoPaidText}</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="text-xs text-mute font-medium">${splitTextInfo}</p>
+                <div class="text-mute group-open:rotate-180 transition-transform mt-1 inline-block">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                </div>
+              </div>
+            </summary>
+            ${detailsHTML}
+          </details>
+        `;
+        activityFeed.insertAdjacentHTML('afterbegin', newItemHTML);
+      });
+    }
+
+    function renderBalances() {
+      if (!balancesContainer || !groupData) return;
+      const exps = groupData.expenses || [];
+      
+      // Compute raw balances
+      const balances: Record<string, number> = {};
+      groupData.members.forEach((m: string) => balances[m] = 0);
+
+      exps.forEach((exp: any) => {
+        balances[exp.paidBy] += exp.amount;
+        const participants = exp.participants || groupData.members;
+        const splitAmount = exp.amount / participants.length;
+        participants.forEach((m: string) => {
+          balances[m] -= splitAmount;
+        });
+      });
+
+      // Greedy Debt Simplification
+      let debtors = Object.keys(balances).filter(m => balances[m] < -0.01).map(m => ({ name: m, amount: -balances[m] }));
+      let creditors = Object.keys(balances).filter(m => balances[m] > 0.01).map(m => ({ name: m, amount: balances[m] }));
+      
+      debtors.sort((a, b) => b.amount - a.amount);
+      creditors.sort((a, b) => b.amount - a.amount);
+
+      const transactions: { from: string, to: string, amount: number }[] = [];
+
+      let d = 0, c = 0;
+      while (d < debtors.length && c < creditors.length) {
+        const debtor = debtors[d];
+        const creditor = creditors[c];
+        const minAmount = Math.min(debtor.amount, creditor.amount);
+
+        transactions.push({ from: debtor.name, to: creditor.name, amount: minAmount });
+
+        debtor.amount -= minAmount;
+        creditor.amount -= minAmount;
+
+        if (debtor.amount < 0.01) d++;
+        if (creditor.amount < 0.01) c++;
+      }
+
+      // Populate Settle Up Debt List
+      const settleDebtList = document.getElementById('settleDebtList');
+      if (settleDebtList) {
+        settleDebtList.innerHTML = '';
+        if (transactions.length === 0) {
+          settleDebtList.innerHTML = '<div class="text-sm text-mute text-center py-4">No debts to settle!</div>';
+        } else {
+          transactions.forEach((t, idx) => {
+            const valStr = JSON.stringify(t);
+            const label = document.createElement('label');
+            label.className = 'cursor-pointer select-none';
+            label.innerHTML = `
+              <input type="checkbox" name="settleDebtOption" value='${valStr}' class="hidden peer" />
+              <div class="px-4 py-3 rounded-md text-sm font-medium border transition-colors
+                          border-hairline bg-canvas text-body peer-checked:bg-primary/10 peer-checked:text-primary peer-checked:border-primary">
+                 ${t.from} pays ${t.to} <strong>${groupData.currency || '$'}${t.amount.toFixed(2)}</strong>
+              </div>
+            `;
+            settleDebtList.appendChild(label);
+          });
+        }
+      }
+
+      balancesContainer.innerHTML = '';
+      if (transactions.length === 0) {
+         balancesContainer.innerHTML = `<div class="text-sm text-mute">All settled up!</div>`;
+         return;
+      }
+
+      transactions.forEach((t) => {
+        const isYou = t.to === 'You' || t.to === 'Name (You)'; // Someone owes you
+        const isFromYou = t.from === 'You' || t.from === 'Name (You)'; // You owe someone
+
+        let colorClass = 'text-ink';
+        let bgClass = 'bg-canvas-soft border-hairline';
+        let letter = t.from.charAt(0).toUpperCase();
+
+        if (isYou) {
+          colorClass = 'text-success';
+          bgClass = 'bg-success/20 text-success';
+          letter = t.from.charAt(0).toUpperCase();
+        } else if (isFromYou) {
+          colorClass = 'text-error-deep';
+          bgClass = 'bg-error/20 text-error-deep';
+          letter = t.to.charAt(0).toUpperCase();
+        }
+
+        const textHTML = isYou
+          ? `<span class="font-medium">${t.from}</span> owes you <span class="${colorClass} font-bold">${groupData.currency || '$'}${t.amount.toFixed(2)}</span>`
+          : isFromYou
+            ? `You owe <span class="font-medium">${t.to}</span> <span class="${colorClass} font-bold">${groupData.currency || '$'}${t.amount.toFixed(2)}</span>`
+            : `<span class="font-medium">${t.from}</span> owes <span class="font-medium">${t.to}</span> <span class="font-bold">${groupData.currency || '$'}${t.amount.toFixed(2)}</span>`;
+
+        balancesContainer.innerHTML += `
+          <div class="flex items-center justify-between text-sm py-1">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full ${bgClass} flex items-center justify-center text-xs font-bold border border-transparent border-opacity-10">${letter}</div>
+              <span class="text-ink">${textHTML}</span>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    initGroupData();
+
+    if (addExpenseForm && activityFeed && groupData) {
+      addExpenseForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const desc = expenseDescription.value.trim() || 'New Expense';
+        const amountStr = expenseAmount.value;
+        const amount = parseFloat(amountStr);
+        if (isNaN(amount) || amount <= 0) return;
+        
+        const curr = currencySymbol?.textContent || '$';
+        const paidBy = document.getElementById('paidByText')?.textContent || groupData.members[0];
+
+        // Gather participants from checkboxes
+        const checkboxes = document.querySelectorAll('.split-participant-checkbox:checked') as NodeListOf<HTMLInputElement>;
+        let participants: string[] = [];
+        checkboxes.forEach(cb => participants.push(cb.value));
+
+        if (participants.length === 0) {
+          showToast('You must select at least one person to split with.', true);
+          return;
+        }
+
+        // Save to localStorage
+        const newExpense = {
+          id: Date.now().toString(),
+          description: desc,
+          amount: amount,
+          paidBy: paidBy,
+          participants: participants,
+          splitAmong: participants.length,
+          currency: curr
+        };
+
+        if (!groupData.expenses) groupData.expenses = [];
+        groupData.expenses.push(newExpense);
+        
+        const dataStr = localStorage.getItem('splitsbug_data');
+        if (dataStr) {
+          const data = JSON.parse(dataStr);
+          data.groups[groupId!] = groupData;
+          localStorage.setItem('splitsbug_data', JSON.stringify(data));
+        }
+
+        renderFeed();
+        renderBalances();
+        
+        // Reset and close
+        resetAddExpenseModal();
+        addExpenseModal?.close();
+      });
+    }
+  </script>
+</Layout>
