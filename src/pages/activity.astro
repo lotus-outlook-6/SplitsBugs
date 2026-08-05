@@ -1,0 +1,166 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout>
+  <div class="min-h-screen flex flex-col bg-canvas-soft pb-24">
+    <!-- Header -->
+    <header class="h-16 px-4 lg:px-6 flex items-center justify-between bg-canvas border-b border-hairline sticky top-0 z-40">
+      <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-ink">Activity</h1>
+      <button class="text-ink hover:text-mute transition-colors cursor-pointer p-2 shrink-0">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      </button>
+    </header>
+
+    <!-- Activity Feed List -->
+    <main class="flex-1 w-full max-w-[800px] mx-auto bg-canvas border-x border-hairline min-h-[calc(100vh-4rem)]">
+      <div id="activityFeedContainer" class="flex flex-col">
+        <!-- JS will populate this -->
+      </div>
+    </main>
+
+
+    <!-- Static Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 w-full bg-canvas border-t border-hairline pb-safe z-50">
+      <div class="flex items-center justify-around h-16 max-w-md mx-auto">
+        <a href="/dashboard" class="flex flex-col items-center justify-center w-16 h-full text-mute hover:text-ink transition-colors">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-1"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          <span class="text-[10px] font-medium">Groups</span>
+        </a>
+        <a href="/activity" class="flex flex-col items-center justify-center w-16 h-full text-brand transition-colors">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-1"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+          <span class="text-[10px] font-medium">Activity</span>
+        </a>
+        <a href="#" class="flex flex-col items-center justify-center w-16 h-full text-mute hover:text-ink transition-colors">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-1"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <span class="text-[10px] font-medium">Account</span>
+        </a>
+      </div>
+    </nav>
+  </div>
+
+  <script>
+    const feedContainer = document.getElementById('activityFeedContainer');
+    
+
+
+    function formatDate(ts: number) {
+      const d = new Date(ts);
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      let hours = d.getHours();
+      const ampm = hours >= 12 ? 'pm' : 'am';
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      const mins = d.getMinutes().toString().padStart(2, '0');
+      return `${d.getDate()} ${months[d.getMonth()]}, ${hours}:${mins} ${ampm}`;
+    }
+
+    function renderActivity() {
+      if (!feedContainer) return;
+      const dataStr = localStorage.getItem('splitsbug_data');
+      if (!dataStr) {
+        feedContainer.innerHTML = `<div class="p-8 text-center text-mute">No activity yet.</div>`;
+        return;
+      }
+
+      const data = JSON.parse(dataStr);
+      let activities: any[] = [];
+
+      // Add group creation and group expenses
+      const groups = Object.entries(data.groups || {});
+      groups.forEach(([groupId, g]: [string, any]) => {
+        // Group creation activity
+        activities.push({
+          type: 'group_create',
+          groupId: groupId,
+          groupName: g.name,
+          timestamp: g.createdAt || Date.now() - 1000000 // Fallback if no timestamp
+        });
+
+        // Group expenses
+        const exps = g.expenses || [];
+        exps.forEach((exp: any) => {
+          activities.push({
+            type: 'group_expense',
+            groupId: groupId,
+            groupName: g.name,
+            description: exp.description,
+            amount: exp.amount,
+            paidBy: exp.paidBy,
+            participants: exp.participants || g.members,
+            currency: exp.currency || '₹',
+            timestamp: exp.timestamp || Date.now() - 500000
+          });
+        });
+      });
+
+      // Sort chronological descending
+      activities.sort((a, b) => b.timestamp - a.timestamp);
+
+      if (activities.length === 0) {
+        feedContainer.innerHTML = `<div class="p-8 text-center text-mute">No activity yet.</div>`;
+        return;
+      }
+
+      feedContainer.innerHTML = '';
+      activities.forEach((act) => {
+        let avatarLetter = 'A';
+        let mainText = '';
+        let subTextHTML = '';
+
+        if (act.type === 'group_create') {
+          avatarLetter = act.groupName.charAt(0).toUpperCase();
+          mainText = `<span class="font-bold text-ink">You</span> created the group "<span class="font-bold text-ink">${act.groupName}</span>".`;
+          subTextHTML = ``; // No subtext
+        } else if (act.type === 'group_expense') {
+          avatarLetter = act.description.charAt(0).toUpperCase();
+          const who = act.paidBy === 'You' || act.paidBy === 'Name (You)' ? 'You' : act.paidBy;
+          mainText = `<span class="font-bold text-ink">${who}</span> added "<span class="font-bold text-ink">${act.description}</span>" in "<span class="font-bold text-ink">${act.groupName}</span>".`;
+          
+          const isParticipant = act.participants.includes('You') || act.participants.includes('Name (You)');
+          const isPayer = act.paidBy === 'You' || act.paidBy === 'Name (You)';
+          const myShare = isParticipant ? (act.amount / act.participants.length) : 0;
+          const curr = act.currency;
+
+          if (isPayer) {
+            const getBack = act.amount - myShare;
+            if (getBack > 0.01) {
+              subTextHTML = `<div class="text-success mt-0.5">You get back ${curr}${getBack.toFixed(2)}</div>`;
+            } else {
+              subTextHTML = `<div class="text-mute mt-0.5">You paid for yourself</div>`;
+            }
+          } else {
+            if (isParticipant) {
+              subTextHTML = `<div class="text-danger mt-0.5">You owe ${curr}${myShare.toFixed(2)}</div>`;
+            } else {
+              subTextHTML = `<div class="text-mute mt-0.5">Not involved</div>`;
+            }
+          }
+        }
+
+        const dateStr = formatDate(act.timestamp);
+        const faviconPath = "/SplitBugs-Brand/favicon/favicon.svg";
+
+        const itemHTML = `
+          <a href="/group?id=${act.groupId}" class="flex items-start gap-4 p-4 lg:p-5 border-b border-hairline hover:bg-canvas-soft transition-colors block cursor-pointer">
+            <div class="relative shrink-0 mt-1">
+              <div class="w-12 h-12 rounded-lg bg-[#b2dfdb] border border-hairline flex items-center justify-center font-bold text-2xl text-ink">
+                ${avatarLetter}
+              </div>
+              <img src="${faviconPath}" alt="SplitBugs" class="absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-full border-2 border-canvas bg-white object-cover" />
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm lg:text-base text-body leading-snug">${mainText}</p>
+              ${subTextHTML}
+              <p class="text-xs text-mute mt-1">${dateStr}</p>
+            </div>
+          </a>
+        `;
+        feedContainer.insertAdjacentHTML('beforeend', itemHTML);
+      });
+    }
+
+    // Initial render
+    renderActivity();
+  </script>
+</Layout>

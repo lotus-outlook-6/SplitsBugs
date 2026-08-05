@@ -15,21 +15,38 @@ import Layout from '../layouts/Layout.astro';
 <Layout>
   <div class="min-h-screen flex flex-col">
     <!-- Mock Nav Bar -->
-    <header class="h-16 px-4 lg:px-6 flex items-center justify-between border-b border-hairline bg-canvas">
-      <a href="/dashboard" class="flex items-center">
-        <img src="/SplitBugs-Brand/logos/logo-wordmark.svg" alt="SplitBugs" class="h-6" />
+    <header class="h-16 px-4 lg:px-6 flex items-center justify-between border-b border-hairline bg-canvas sticky top-0 z-40 relative">
+      <!-- Left: Logo -->
+      <a href="/dashboard" class="flex items-center z-10">
+        <img src="/SplitBugs-Brand/logos/logo-wordmark.svg" alt="SplitBugs" class="h-6 hidden sm:block" />
+        <img src="/SplitBugs-Brand/favicon/favicon.svg" alt="SB" class="h-8 sm:hidden" />
       </a>
-      <div class="flex items-center gap-4">
-        <div class="w-8 h-8 rounded-full bg-canvas-soft border border-hairline"></div>
+      
+      <!-- Center: Search Bar -->
+      <div class="absolute left-1/2 -translate-x-1/2 flex items-center w-full max-w-xl px-4 z-0 pointer-events-none hidden sm:flex">
+        <div class="flex items-center w-full pointer-events-auto shadow-sm rounded-full h-10">
+          <input type="text" id="searchInput" placeholder="Search" autocomplete="off" class="flex-1 h-full bg-canvas border border-hairline rounded-l-full py-2 pl-6 pr-4 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition-colors z-10" />
+          <button id="searchBtn" class="w-16 h-full flex items-center justify-center text-ink bg-[#f8f8f8] border border-hairline border-l-0 rounded-r-full hover:bg-[#f0f0f0] transition-colors cursor-pointer shrink-0 z-0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Right: New Group Button -->
+      <div class="flex items-center z-10">
+        <button id="newGroupBtn" class="bg-canvas-soft text-ink hover:bg-hairline p-2 rounded-full transition-colors cursor-pointer flex items-center justify-center border border-hairline shrink-0" title="New Group">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+        </button>
       </div>
     </header>
 
-    <main class="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-24">
+    <main class="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 pb-28">
+      <!-- Dynamic Global Balance Header -->
       <div class="flex items-center justify-between mb-8">
-        <h1 class="text-3xl lg:text-4xl font-bold tracking-tight">Dashboard</h1>
-        <button id="newGroupBtn" class="bg-primary text-on-primary px-4 py-2 rounded-pill font-medium hover:opacity-90 transition-opacity cursor-pointer">
-          + New Group
-        </button>
+        <h1 id="globalBalanceText" class="text-xl sm:text-2xl font-medium tracking-tight text-ink">
+          <!-- Populated via JS -->
+          Dashboard
+        </h1>
       </div>
 
       <!-- Dynamic Groups Grid -->
@@ -38,46 +55,197 @@ import Layout from '../layouts/Layout.astro';
       </div>
     </main>
 
+    <!-- Bottom Navigation (Mobile UI) -->
+    <nav class="fixed bottom-0 left-0 w-full bg-canvas border-t border-hairline pb-safe z-50">
+      <div class="flex items-center justify-around h-16 max-w-md mx-auto">
+        <a href="/dashboard" class="flex flex-col items-center justify-center w-16 h-full text-brand transition-colors">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-1"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          <span class="text-[10px] font-medium">Groups</span>
+        </a>
+        <a href="/activity" class="flex flex-col items-center justify-center w-16 h-full text-mute hover:text-ink transition-colors">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-1"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+          <span class="text-[10px] font-medium">Activity</span>
+        </a>
+        <a href="#" class="flex flex-col items-center justify-center w-16 h-full text-mute hover:text-ink transition-colors">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-1"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <span class="text-[10px] font-medium">Account</span>
+        </a>
+      </div>
+    </nav>
+
     <!-- New Group Modal -->
-    <dialog id="newGroupModal" class="bg-transparent p-0 m-auto backdrop:bg-ink/50 backdrop:backdrop-blur-sm open:flex flex-col items-center justify-center w-full max-w-lg">
-      <div class="bg-canvas border border-hairline rounded-lg shadow-lg w-full p-6 text-left">
-        <div class="flex justify-between items-center mb-6">
-          <h2 class="text-xl font-bold">Create New Group</h2>
-          <button id="closeGroupBtn" class="text-mute hover:text-ink transition-colors cursor-pointer">✕</button>
+    <dialog id="newGroupModal" class="backdrop:bg-ink/50 p-0 rounded-xl shadow-xl w-[95vw] max-w-md max-h-[90vh] bg-canvas m-auto border border-hairline">
+      <form id="newGroupForm" class="flex flex-col h-full max-h-[90vh]" method="dialog">
+        <!-- Header -->
+        <div class="px-4 py-3 flex items-center justify-between border-b border-hairline bg-canvas shrink-0">
+          <button type="button" id="closeGroupBtn" class="p-1 hover:bg-canvas-soft rounded-full transition-colors">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-ink"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+          <h2 class="text-lg font-medium text-ink">Create a group</h2>
+          <button type="submit" class="text-ink font-medium px-2 py-1 hover:text-brand transition-colors cursor-pointer">Done</button>
         </div>
-        
-        <form id="newGroupForm" class="space-y-4" method="dialog">
-          <div>
-            <label class="block text-sm font-medium text-ink mb-1">Group Name</label>
-            <input type="text" id="groupName" autocomplete="off" required placeholder="e.g. Trip to Bali, Apartment" class="w-full bg-canvas text-ink border border-hairline rounded-sm px-3 h-10 text-sm focus:outline-none focus:border-hairline-strong transition-colors" />
+
+        <div class="flex-1 overflow-y-auto p-5 pb-6 min-h-0">
+          <!-- Image and Name -->
+          <div class="flex items-center gap-4 mb-8">
+            <div id="groupIconBox" class="w-16 h-16 shrink-0 rounded-xl border border-hairline flex items-center justify-center bg-canvas-soft text-2xl font-bold text-ink">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-mute"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </div>
+            <div class="flex-1">
+              <label class="block text-xs font-medium text-ink mb-1">Group name</label>
+              <input type="text" id="groupName" autocomplete="off" required placeholder="" class="w-full bg-transparent text-ink border-0 border-b-2 border-brand px-0 py-1 text-base focus:outline-none focus:ring-0" />
+            </div>
           </div>
 
-          <div>
-            <label class="block text-sm font-medium text-ink mb-1">Currency</label>
-            <select id="groupCurrency" class="w-full bg-canvas text-ink border border-hairline rounded-sm px-3 h-10 text-sm focus:outline-none focus:border-hairline-strong transition-colors">
-              <option value="$">USD ($)</option>
-              <option value="€">EUR (€)</option>
-              <option value="£">GBP (£)</option>
-              <option value="₹" selected>INR (₹)</option>
-            </select>
+          <!-- Type Selection -->
+          <div class="mb-8">
+            <label class="block text-xs font-medium text-ink mb-3">Type</label>
+            <div class="grid grid-cols-4 gap-2">
+              <button type="button" class="group-type-btn flex flex-col items-center justify-center p-3 rounded-lg border border-brand bg-brand text-canvas transition-colors" data-type="Trip">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mb-1"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.2-1.1.6l-1 2c-.3.6.1 1.2.7 1.5l5.5 2.5-3.5 3.5-3.1-.8c-.4-.1-.8.2-1 .5L0 18l5.5 1.5L7 25l2-1c.3-.2.6-.6.5-1l-.8-3.1 3.5-3.5 2.5 5.5c.3.6 1 .9 1.5.7l2-1c.4-.2.7-.6.6-1.1z"/></svg>
+                <span class="text-xs font-medium">Trip</span>
+              </button>
+              <button type="button" class="group-type-btn flex flex-col items-center justify-center p-3 rounded-lg border border-hairline bg-canvas text-mute transition-colors hover:bg-canvas-soft" data-type="Home">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mb-1"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <span class="text-xs font-medium">Home</span>
+              </button>
+              <button type="button" class="group-type-btn flex flex-col items-center justify-center p-3 rounded-lg border border-hairline bg-canvas text-mute transition-colors hover:bg-canvas-soft" data-type="Couple">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mb-1"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                <span class="text-xs font-medium">Couple</span>
+              </button>
+              <button type="button" class="group-type-btn flex flex-col items-center justify-center p-3 rounded-lg border border-hairline bg-canvas text-mute transition-colors hover:bg-canvas-soft" data-type="Other">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mb-1"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                <span class="text-xs font-medium">Other</span>
+              </button>
+            </div>
+            <input type="hidden" id="groupType" value="Trip" />
+          </div>
+
+          <!-- Trip Dates -->
+          <div class="mb-8">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm font-medium text-ink">Add trip dates</span>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="addDatesToggle" class="sr-only peer">
+                <div class="w-11 h-6 bg-hairline peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand"></div>
+              </label>
+            </div>
+            <p class="text-xs text-mute mb-4 leading-relaxed">Splitwise will remind friends to join, add expenses, and settle up.</p>
+            
+            <!-- Date pickers: simple trigger buttons, calendar opens as a separate dialog -->
+            <div id="datesContainerWrapper" class="grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-in-out">
+              <div class="overflow-hidden">
+                <div id="datesContainer" class="flex items-start gap-4 pt-4">
+
+                  <!-- Start Date -->
+                  <div class="flex-1">
+                    <label class="block text-xs font-medium text-ink mb-1">Start</label>
+                    <button type="button" id="startCalToggle" class="w-full flex items-center justify-between border-b border-hairline hover:border-brand transition-colors pb-1 bg-transparent cursor-pointer focus:outline-none text-left">
+                      <span id="startCalDisplay" class="text-sm text-ink">Today</span>
+                      <svg class="text-mute shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    </button>
+                    <input type="hidden" id="tripStartDate" />
+                  </div>
+
+                  <!-- End Date -->
+                  <div class="flex-1">
+                    <label class="block text-xs font-medium text-ink mb-1">End</label>
+                    <button type="button" id="endCalToggle" class="w-full flex items-center justify-between border-b border-hairline hover:border-brand transition-colors pb-1 bg-transparent cursor-pointer focus:outline-none text-left">
+                      <span id="endCalDisplay" class="text-sm text-mute">dd/mm/yyyy</span>
+                      <svg class="text-mute shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    </button>
+                    <input type="hidden" id="tripEndDate" />
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Currency (Custom Dropdown) -->
+          <div class="mb-8">
+            <label class="block text-xs font-medium text-ink mb-1">Currency</label>
+            <div class="relative" id="currencyDropdown">
+              <button type="button" id="currencyToggle" class="w-full bg-canvas text-ink border border-hairline rounded-md px-3 h-10 text-sm flex items-center justify-between focus:outline-none focus:border-brand transition-colors cursor-pointer">
+                <span id="currencySelectedText">INR (₹)</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+              <div id="currencyMenu" class="absolute z-50 w-full mt-1 bg-canvas border border-hairline rounded-md shadow-lg hidden">
+                <div class="py-1">
+                  <button type="button" class="currency-option w-full text-left px-3 py-2 text-sm text-ink hover:bg-canvas-soft transition-colors" data-value="$" data-label="USD ($)">USD ($)</button>
+                  <button type="button" class="currency-option w-full text-left px-3 py-2 text-sm text-ink hover:bg-canvas-soft transition-colors" data-value="€" data-label="EUR (€)">EUR (€)</button>
+                  <button type="button" class="currency-option w-full text-left px-3 py-2 text-sm text-ink hover:bg-canvas-soft transition-colors" data-value="£" data-label="GBP (£)">GBP (£)</button>
+                  <button type="button" class="currency-option w-full text-left px-3 py-2 text-sm text-ink hover:bg-canvas-soft bg-canvas-soft font-medium transition-colors" data-value="₹" data-label="INR (₹)">INR (₹)</button>
+                </div>
+              </div>
+              <input type="hidden" id="groupCurrency" value="₹" />
+            </div>
           </div>
           
-          <div>
-            <label class="block text-sm font-medium text-ink mb-1">Members</label>
+          <!-- Members (Existing feature) -->
+          <div class="mb-8">
+            <label class="block text-xs font-medium text-ink mb-1">Members</label>
             <div class="relative">
-              <input type="text" id="memberInput" autocomplete="off" placeholder="Type a name and press Enter" class="w-full bg-canvas text-ink border border-hairline rounded-sm px-3 h-10 text-sm focus:outline-none focus:border-hairline-strong transition-colors" />
+              <input type="text" id="memberInput" autocomplete="off" placeholder="Type a name and press Enter" class="w-full bg-canvas-soft text-ink border border-hairline rounded-md px-3 h-10 text-sm focus:outline-none focus:border-hairline-strong transition-colors" />
             </div>
             <p class="text-xs text-mute mt-1">Press enter to add next member</p>
-            <div id="membersTags" class="flex flex-nowrap overflow-x-auto gap-2 mt-4 pb-2 scrollbar-hide">
+            <div id="membersTags" class="flex flex-wrap gap-2 mt-3">
               <!-- Member list will be rendered here -->
             </div>
           </div>
 
-          <div class="pt-2 flex flex-col gap-3">
-            <button type="submit" class="w-full bg-primary text-on-primary px-4 py-2 rounded-pill font-medium hover:opacity-90 transition-opacity cursor-pointer">Create Group</button>
-            <button type="button" id="cancelGroupBtn" class="w-full bg-canvas text-ink px-4 py-2 rounded-pill font-medium border border-hairline hover:bg-canvas-soft transition-colors cursor-pointer">Cancel</button>
+        </div>
+      </form>
+    </dialog>
+
+    <!-- ======================================================
+         Shared Calendar Picker Dialog (top layer, above all)
+         ====================================================== -->
+    <dialog id="calPickerDialog" class="backdrop:bg-ink/40 p-0 rounded-2xl shadow-2xl w-[320px] bg-canvas border border-hairline m-auto overflow-hidden">
+      <div class="p-4">
+        <!-- Header: Month + Year clickable -->
+        <div class="flex items-center justify-between mb-4">
+          <button type="button" id="calPrevMonth" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-canvas-soft transition-colors text-ink">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <div class="flex items-center gap-2">
+            <button type="button" id="calMonthBtn" class="text-sm font-bold text-ink hover:text-brand transition-colors"></button>
+            <button type="button" id="calYearBtn" class="text-sm font-bold text-brand hover:opacity-70 transition-opacity"></button>
           </div>
-        </form>
+          <button type="button" id="calNextMonth" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-canvas-soft transition-colors text-ink">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+
+        <!-- Day grid view -->
+        <div id="calDayView">
+          <div class="grid grid-cols-7 mb-2">
+            <span class="text-[10px] font-semibold text-mute text-center">Su</span>
+            <span class="text-[10px] font-semibold text-mute text-center">Mo</span>
+            <span class="text-[10px] font-semibold text-mute text-center">Tu</span>
+            <span class="text-[10px] font-semibold text-mute text-center">We</span>
+            <span class="text-[10px] font-semibold text-mute text-center">Th</span>
+            <span class="text-[10px] font-semibold text-mute text-center">Fr</span>
+            <span class="text-[10px] font-semibold text-mute text-center">Sa</span>
+          </div>
+          <div id="calDayGrid" class="grid grid-cols-7 gap-y-1"></div>
+        </div>
+
+        <!-- Month picker view -->
+        <div id="calMonthView" class="hidden">
+          <div id="calMonthGrid" class="grid grid-cols-3 gap-2"></div>
+        </div>
+
+        <!-- Year picker view -->
+        <div id="calYearView" class="hidden">
+          <div id="calYearList" class="h-48 overflow-y-auto space-y-1 pr-1"></div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="px-4 pb-4 flex justify-end gap-2">
+        <button type="button" id="calCancelBtn" class="px-4 py-1.5 text-sm font-medium text-mute hover:text-ink transition-colors">Cancel</button>
+        <button type="button" id="calOkBtn" class="px-4 py-1.5 text-sm font-medium text-white bg-brand rounded-full hover:opacity-90 transition-opacity">OK</button>
       </div>
     </dialog>
 
@@ -125,6 +293,165 @@ import Layout from '../layouts/Layout.astro';
     const cancelGroupBtn = document.getElementById('cancelGroupBtn');
     const newGroupForm = document.getElementById('newGroupForm') as HTMLFormElement;
     const groupsGrid = document.getElementById('groupsGrid');
+    
+    // ============================================================
+    // Compact Android-style Calendar Picker Dialog
+    // ============================================================
+    const calDialog    = document.getElementById('calPickerDialog') as HTMLDialogElement;
+    const calPrevBtn   = document.getElementById('calPrevMonth')!;
+    const calNextBtn   = document.getElementById('calNextMonth')!;
+    const calMonthBtn  = document.getElementById('calMonthBtn')!;
+    const calYearBtn   = document.getElementById('calYearBtn')!;
+    const calDayView   = document.getElementById('calDayView')!;
+    const calDayGrid   = document.getElementById('calDayGrid')!;
+    const calMonthView = document.getElementById('calMonthView')!;
+    const calMonthGrid = document.getElementById('calMonthGrid')!;
+    const calYearView  = document.getElementById('calYearView')!;
+    const calYearList  = document.getElementById('calYearList')!;
+    const calCancelBtn = document.getElementById('calCancelBtn')!;
+    const calOkBtn     = document.getElementById('calOkBtn')!;
+
+    const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const SHORT_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    let calTargetDisplay: HTMLElement | null = null;
+    let calTargetInput: HTMLInputElement | null = null;
+    let calYear  = new Date().getFullYear();
+    let calMonth = new Date().getMonth();
+    let calSelectedDate: Date | null = null;
+    let calView: 'day' | 'month' | 'year' = 'day';
+
+    function calShowView(v: 'day' | 'month' | 'year') {
+      calView = v;
+      calDayView.classList.toggle('hidden', v !== 'day');
+      calMonthView.classList.toggle('hidden', v !== 'month');
+      calYearView.classList.toggle('hidden', v !== 'year');
+      calPrevBtn.style.visibility = v === 'day' ? 'visible' : 'hidden';
+      calNextBtn.style.visibility = v === 'day' ? 'visible' : 'hidden';
+    }
+
+    function calUpdateHeader() {
+      calMonthBtn.textContent = MONTHS[calMonth];
+      calYearBtn.textContent  = String(calYear);
+    }
+
+    function calRenderDays() {
+      calUpdateHeader();
+      const today    = new Date();
+      const firstDay = new Date(calYear, calMonth, 1).getDay();
+      const daysInM  = new Date(calYear, calMonth + 1, 0).getDate();
+      calDayGrid.innerHTML = '';
+      for (let i = 0; i < firstDay; i++) {
+        calDayGrid.appendChild(document.createElement('div'));
+      }
+      for (let d = 1; d <= daysInM; d++) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        const thisDate = new Date(calYear, calMonth, d);
+        const isToday    = thisDate.toDateString() === today.toDateString();
+        const isSelected = calSelectedDate && thisDate.toDateString() === calSelectedDate.toDateString();
+        btn.textContent = String(d);
+        btn.className = [
+          'w-8 h-8 mx-auto flex items-center justify-center rounded-full text-xs font-medium transition-all cursor-pointer',
+          isSelected ? 'bg-brand text-white shadow-sm'
+          : isToday  ? 'border border-brand text-brand hover:bg-brand/10'
+                     : 'text-ink hover:bg-canvas-soft'
+        ].join(' ');
+        btn.addEventListener('click', () => {
+          calSelectedDate = thisDate;
+          calRenderDays();
+        });
+        calDayGrid.appendChild(btn);
+      }
+    }
+
+    function calRenderMonths() {
+      calUpdateHeader();
+      calMonthGrid.innerHTML = '';
+      SHORT_MONTHS.forEach((m, i) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = m;
+        btn.className = [
+          'py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer',
+          i === calMonth ? 'bg-brand text-white' : 'text-ink hover:bg-canvas-soft'
+        ].join(' ');
+        btn.addEventListener('click', () => {
+          calMonth = i;
+          calRenderDays();
+          calShowView('day');
+        });
+        calMonthGrid.appendChild(btn);
+      });
+    }
+
+    function calRenderYears() {
+      calUpdateHeader();
+      calYearList.innerHTML = '';
+      const startYear = calYear - 50;
+      for (let y = startYear; y <= calYear + 20; y++) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = String(y);
+        btn.className = [
+          'w-full text-center py-1.5 rounded-lg text-sm font-medium transition-colors cursor-pointer',
+          y === calYear ? 'bg-brand text-white' : 'text-ink hover:bg-canvas-soft'
+        ].join(' ');
+        btn.addEventListener('click', () => {
+          calYear = y;
+          calRenderDays();
+          calShowView('day');
+        });
+        calYearList.appendChild(btn);
+        if (y === calYear) {
+          setTimeout(() => btn.scrollIntoView({ block: 'center' }), 10);
+        }
+      }
+    }
+
+    calPrevBtn.addEventListener('click', () => {
+      calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; }
+      calRenderDays();
+    });
+    calNextBtn.addEventListener('click', () => {
+      calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; }
+      calRenderDays();
+    });
+    calMonthBtn.addEventListener('click', () => { calRenderMonths(); calShowView('month'); });
+    calYearBtn.addEventListener('click',  () => { calRenderYears();  calShowView('year');  });
+
+    calCancelBtn.addEventListener('click', () => calDialog.close());
+    calOkBtn.addEventListener('click', () => {
+      if (!calSelectedDate || !calTargetDisplay || !calTargetInput) { calDialog.close(); return; }
+      const today = new Date();
+      const isToday = calSelectedDate.toDateString() === today.toDateString();
+      const d = calSelectedDate.getDate(), mo = calSelectedDate.getMonth() + 1, y = calSelectedDate.getFullYear();
+      calTargetInput.value = `${y}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      calTargetDisplay.textContent = isToday ? 'Today' : `${String(d).padStart(2,'0')}/${String(mo).padStart(2,'0')}/${y}`;
+      calTargetDisplay.classList.remove('text-mute');
+      calTargetDisplay.classList.add('text-ink');
+      calDialog.close();
+    });
+
+    function openCalPicker(displayId: string, hiddenId: string) {
+      calTargetDisplay = document.getElementById(displayId);
+      calTargetInput   = document.getElementById(hiddenId) as HTMLInputElement;
+      // Pre-select from existing value
+      if (calTargetInput?.value) {
+        const d = new Date(calTargetInput.value);
+        if (!isNaN(d.getTime())) { calSelectedDate = d; calYear = d.getFullYear(); calMonth = d.getMonth(); }
+      } else {
+        calSelectedDate = null;
+        const now = new Date(); calYear = now.getFullYear(); calMonth = now.getMonth();
+      }
+      calShowView('day');
+      calRenderDays();
+      calDialog.showModal();
+    }
+
+    document.getElementById('startCalToggle')!.addEventListener('click', () => openCalPicker('startCalDisplay', 'tripStartDate'));
+    document.getElementById('endCalToggle')!.addEventListener('click',   () => openCalPicker('endCalDisplay',   'tripEndDate'));
+    // ============================================================
 
     const memberInput = document.getElementById('memberInput') as HTMLInputElement;
     const membersTags = document.getElementById('membersTags');
@@ -191,6 +518,31 @@ import Layout from '../layouts/Layout.astro';
       if (memberInput) memberInput.value = '';
       currentMembers = ['Name (You)'];
       renderTags();
+      
+      const typeInput = document.getElementById('groupType') as HTMLInputElement;
+      if (typeInput) typeInput.value = 'Trip';
+      document.querySelectorAll('.group-type-btn').forEach(btn => {
+        if (btn.getAttribute('data-type') === 'Trip') {
+          btn.className = 'group-type-btn flex flex-col items-center justify-center p-3 rounded-lg border border-brand bg-brand text-canvas transition-colors';
+        } else {
+          btn.className = 'group-type-btn flex flex-col items-center justify-center p-3 rounded-lg border border-hairline bg-canvas text-mute transition-colors hover:bg-canvas-soft';
+        }
+      });
+      
+      const dateToggle = document.getElementById('addDatesToggle') as HTMLInputElement;
+      if (dateToggle) dateToggle.checked = false;
+      const datesContainerWrapper = document.getElementById('datesContainerWrapper');
+      if (datesContainerWrapper) {
+        datesContainerWrapper.classList.remove('grid-rows-[1fr]');
+        datesContainerWrapper.classList.add('grid-rows-[0fr]');
+      }
+      
+      const iconBox = document.getElementById('groupIconBox');
+      if (iconBox) {
+        iconBox.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-mute"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;
+        iconBox.classList.remove('bg-[#b2dfdb]');
+        iconBox.classList.add('bg-canvas-soft');
+      }
     }
 
     if (newGroupBtn && newGroupModal) {
@@ -202,10 +554,7 @@ import Layout from '../layouts/Layout.astro';
         resetModal();
         newGroupModal.close();
       });
-      cancelGroupBtn?.addEventListener('click', () => {
-        resetModal();
-        newGroupModal.close();
-      });
+      // Handle click outside to close
       newGroupModal.addEventListener('click', (e) => {
         const d = newGroupModal.getBoundingClientRect();
         if (e.clientX < d.left || e.clientX > d.right || e.clientY < d.top || e.clientY > d.bottom) {
@@ -213,9 +562,61 @@ import Layout from '../layouts/Layout.astro';
           newGroupModal.close();
         }
       });
+      
+      // Dynamic icon based on input
+      const groupNameInput = document.getElementById('groupName') as HTMLInputElement;
+      const groupIconBox = document.getElementById('groupIconBox');
+      if (groupNameInput && groupIconBox) {
+        groupNameInput.addEventListener('input', () => {
+          const val = groupNameInput.value.trim();
+          if (val.length > 0) {
+            groupIconBox.innerHTML = val.charAt(0).toUpperCase();
+            groupIconBox.classList.remove('bg-canvas-soft');
+            groupIconBox.classList.add('bg-[#b2dfdb]', 'text-ink');
+          } else {
+            groupIconBox.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-mute"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;
+            groupIconBox.classList.remove('bg-[#b2dfdb]');
+            groupIconBox.classList.add('bg-canvas-soft');
+          }
+        });
+      }
+
+      // Group Type selection logic
+      const typeButtons = document.querySelectorAll('.group-type-btn');
+      const groupTypeInput = document.getElementById('groupType') as HTMLInputElement;
+      typeButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const selectedType = btn.getAttribute('data-type');
+          if (selectedType && groupTypeInput) {
+            groupTypeInput.value = selectedType;
+          }
+          typeButtons.forEach(b => {
+            if (b === btn) {
+              b.className = 'group-type-btn flex flex-col items-center justify-center p-3 rounded-lg border border-brand bg-brand text-canvas transition-colors';
+            } else {
+              b.className = 'group-type-btn flex flex-col items-center justify-center p-3 rounded-lg border border-hairline bg-canvas text-mute transition-colors hover:bg-canvas-soft';
+            }
+          });
+        });
+      });
+
+      // Date toggle logic
+      const dateToggle = document.getElementById('addDatesToggle') as HTMLInputElement;
+      const datesContainerWrapper = document.getElementById('datesContainerWrapper');
+      if (dateToggle && datesContainerWrapper) {
+        dateToggle.addEventListener('change', () => {
+          if (dateToggle.checked) {
+            datesContainerWrapper.classList.remove('grid-rows-[0fr]');
+            datesContainerWrapper.classList.add('grid-rows-[1fr]');
+          } else {
+            datesContainerWrapper.classList.remove('grid-rows-[1fr]');
+            datesContainerWrapper.classList.add('grid-rows-[0fr]');
+          }
+        });
+      }
     }
 
-    function renderGroups() {
+    function renderGroups(searchQuery = '') {
       if (!groupsGrid) return;
       const dataStr = localStorage.getItem('splitsbug_data');
       if (!dataStr) {
@@ -224,7 +625,57 @@ import Layout from '../layouts/Layout.astro';
       }
 
       const data = JSON.parse(dataStr);
-      const groups = Object.values(data.groups || {});
+      let groups = Object.values(data.groups || {});
+
+      // Calculate Global Balance
+      let globalNetBalance = 0;
+      const exchangeRates: Record<string, number> = {
+        '$': 83.5, // USD to INR
+        '€': 90.0, // EUR to INR
+        '£': 105.0, // GBP to INR
+        '₹': 1.0,
+        'INR': 1.0
+      };
+
+      groups.forEach((group: any) => {
+        let groupNet = 0;
+        const exps = group.expenses || [];
+        
+        exps.forEach((exp: any) => {
+          const isPaidByMe = exp.paidBy === 'You' || exp.paidBy === 'Name (You)';
+          const amount = exp.amount;
+          const participants = exp.participants || group.members;
+          const isParticipant = participants.includes('You') || participants.includes('Name (You)');
+          
+          const myShare = isParticipant ? (amount / participants.length) : 0;
+          
+          if (isPaidByMe) {
+            groupNet += (amount - myShare); 
+          } else if (isParticipant) {
+            groupNet -= myShare; 
+          }
+        });
+
+        const rate = exchangeRates[group.currency] || 80.0;
+        globalNetBalance += (groupNet * rate);
+      });
+
+      // Update Global Balance UI
+      const balanceEl = document.getElementById('globalBalanceText');
+      if (balanceEl) {
+        if (Math.abs(globalNetBalance) < 0.01) {
+          balanceEl.innerHTML = `You are all settled up!`;
+        } else if (globalNetBalance > 0) {
+          balanceEl.innerHTML = `Overall, you are owed <span class="text-success font-bold">₹${globalNetBalance.toFixed(2)}</span>`;
+        } else {
+          balanceEl.innerHTML = `Overall, you owe <span class="text-danger font-bold">₹${Math.abs(globalNetBalance).toFixed(2)}</span>`;
+        }
+      }
+
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        groups = groups.filter((g: any) => g.name.toLowerCase().includes(query));
+      }
 
       if (groups.length === 0) {
         groupsGrid.innerHTML = `<div class="col-span-full p-12 text-center border border-hairline border-dashed rounded-lg bg-canvas-soft text-mute">No groups yet. Create one to get started!</div>`;
@@ -237,7 +688,7 @@ import Layout from '../layouts/Layout.astro';
         // For phase 2, we just render a simple card to prove it works dynamically.
         
         let membersHTML = '';
-        const bgColors = ['bg-brand/20 text-brand', 'bg-success/20 text-success', 'bg-warning/20 text-warning-deep', 'bg-error/20 text-error-deep'];
+        const bgColors = ['bg-brand/20 text-brand', 'bg-success/20 text-success', 'bg-warning/20 text-warning', 'bg-danger/20 text-danger'];
         
         group.members.slice(0, 4).forEach((m: string, i: number) => {
           const letter = m.charAt(0).toUpperCase();
@@ -249,14 +700,32 @@ import Layout from '../layouts/Layout.astro';
           membersHTML += `<div class="w-6 h-6 rounded-full bg-canvas-soft border border-hairline flex items-center justify-center text-[10px] font-medium text-mute -ml-1 border-canvas">+${group.members.length - 4}</div>`;
         }
 
+        const typeIcons: any = {
+          'Trip': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.2-1.1.6l-1 2c-.3.6.1 1.2.7 1.5l5.5 2.5-3.5 3.5-3.1-.8c-.4-.1-.8.2-1 .5L0 18l5.5 1.5L7 25l2-1c.3-.2.6-.6.5-1l-.8-3.1 3.5-3.5 2.5 5.5c.3.6 1 .9 1.5.7l2-1c.4-.2.7-.6.6-1.1z"/></svg>`,
+          'Home': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+          'Couple': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,
+          'Other': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>`
+        };
+        const typeIcon = typeIcons[group.type] || typeIcons['Other'];
+
         const card = `
-          <a href="/group?id=${group.id}" class="group block p-6 bg-canvas border border-hairline rounded-md hover:border-hairline-strong transition-colors shadow-sm hover:shadow-md">
+          <a href="/group?id=${group.id}" class="group block p-6 bg-canvas border border-hairline rounded-md hover:border-brand transition-colors shadow-sm hover:shadow-md flex flex-col justify-between">
             <div class="flex justify-between items-start mb-4">
-              <h2 class="text-xl font-bold group-hover:text-brand transition-colors">${group.name}</h2>
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 shrink-0 rounded-lg border border-hairline flex items-center justify-center bg-[#b2dfdb] text-xl font-bold text-ink">
+                  ${group.name.charAt(0).toUpperCase()}
+                </div>
+                <h2 class="text-xl font-bold group-hover:text-brand transition-colors">${group.name}</h2>
+              </div>
+              <div class="text-mute group-hover:text-brand transition-colors" title="${group.type || 'Other'}">
+                ${typeIcon}
+              </div>
             </div>
-            <p class="text-body text-sm mb-4">${group.members.length} members</p>
-            <div class="flex items-center gap-2">
-              ${membersHTML}
+            <div class="mt-2">
+              <p class="text-body text-sm mb-3">${group.members.length} members</p>
+              <div class="flex items-center gap-2">
+                ${membersHTML}
+              </div>
             </div>
           </a>
         `;
@@ -280,13 +749,27 @@ import Layout from '../layouts/Layout.astro';
 
         const groupId = name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
 
+        const typeInput = document.getElementById('groupType') as HTMLInputElement;
+        const addDatesToggle = document.getElementById('addDatesToggle') as HTMLInputElement;
+        const startDateInput = document.getElementById('tripStartDate') as HTMLInputElement;
+        const endDateInput = document.getElementById('tripEndDate') as HTMLInputElement;
+        
+        const groupType = typeInput ? typeInput.value : 'Trip';
+        const addDates = addDatesToggle ? addDatesToggle.checked : false;
+        const startDate = addDates && startDateInput ? startDateInput.value : null;
+        const endDate = addDates && endDateInput ? endDateInput.value : null;
+
         const newGroup = {
           id: groupId,
           name: name,
           currency: currency,
+          type: groupType,
+          startDate: startDate,
+          endDate: endDate,
           createdBy: 'Name (You)',
           members: [...currentMembers],
-          expenses: []
+          expenses: [],
+          createdAt: Date.now()
         };
 
         let dataStr = localStorage.getItem('splitsbug_data');
@@ -300,6 +783,58 @@ import Layout from '../layouts/Layout.astro';
         renderTags();
         newGroupModal.close();
         renderGroups();
+      });
+    }
+
+    // Search Logic
+    const searchInput = document.getElementById('searchInput') as HTMLInputElement;
+    const searchBtn = document.getElementById('searchBtn');
+
+    if (searchInput && searchBtn) {
+      searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          renderGroups(searchInput.value.trim());
+        }
+      });
+      searchBtn.addEventListener('click', () => {
+        renderGroups(searchInput.value.trim());
+      });
+    }
+
+    // Custom Currency Dropdown Logic
+    const currencyToggle = document.getElementById('currencyToggle');
+    const currencyMenu = document.getElementById('currencyMenu');
+    const currencySelectedText = document.getElementById('currencySelectedText');
+    const groupCurrencyInput = document.getElementById('groupCurrency') as HTMLInputElement;
+    const currencyOptions = document.querySelectorAll('.currency-option');
+
+    if (currencyToggle && currencyMenu) {
+      currencyToggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        currencyMenu.classList.toggle('hidden');
+      });
+
+      // Close when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!currencyToggle.contains(e.target as Node) && !currencyMenu.contains(e.target as Node)) {
+          currencyMenu.classList.add('hidden');
+        }
+      });
+
+      currencyOptions.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const val = btn.getAttribute('data-value');
+          const label = btn.getAttribute('data-label');
+          if (val && label && currencySelectedText && groupCurrencyInput) {
+            groupCurrencyInput.value = val;
+            currencySelectedText.textContent = label;
+            // Reset highlighting
+            currencyOptions.forEach(b => b.classList.remove('bg-canvas-soft', 'font-medium'));
+            btn.classList.add('bg-canvas-soft', 'font-medium');
+            currencyMenu.classList.add('hidden');
+          }
+        });
       });
     }
 

@@ -743,8 +743,8 @@ import Layout from '../layouts/Layout.astro';
           bgClass = 'bg-success/20 text-success';
           letter = t.from.charAt(0).toUpperCase();
         } else if (isFromYou) {
-          colorClass = 'text-error-deep';
-          bgClass = 'bg-error/20 text-error-deep';
+          colorClass = 'text-danger';
+          bgClass = 'bg-danger/20 text-danger';
           letter = t.to.charAt(0).toUpperCase();
         }
 
@@ -797,7 +797,8 @@ import Layout from '../layouts/Layout.astro';
           paidBy: paidBy,
           participants: participants,
           splitAmong: participants.length,
-          currency: curr
+          currency: curr,
+          timestamp: Date.now()
         };
 
         if (!groupData.expenses) groupData.expenses = [];
