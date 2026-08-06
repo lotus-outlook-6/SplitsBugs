@@ -118,7 +118,7 @@ import Layout from '../layouts/Layout.astro';
     </main>
 
     <!-- Add Expense Modal -->
-    <dialog id="addExpenseModal" class="bg-transparent p-0 m-auto backdrop:bg-ink/50 open:flex flex-col items-center justify-center w-full max-w-lg">
+    <dialog id="addExpenseModal" class="bg-transparent p-0 m-auto backdrop:bg-ink/50 open:flex flex-col items-center justify-center w-[92vw] sm:w-full max-w-lg">
       <div class="bg-canvas border border-hairline rounded-lg shadow-lg w-full p-6 text-left">
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-xl font-bold">Add an expense</h2>
@@ -128,7 +128,14 @@ import Layout from '../layouts/Layout.astro';
         <form id="addExpenseForm" class="space-y-4" method="dialog">
           <div>
             <label class="block text-sm font-medium text-ink mb-1">Description</label>
-            <input type="text" id="expenseDescription" autocomplete="off" required placeholder="e.g. Dinner, Taxi, Groceries" class="w-full bg-canvas text-ink border border-hairline rounded-sm px-3 h-10 text-sm focus:outline-none focus:border-hairline-strong transition-colors" />
+            <div class="flex gap-2 items-center">
+              <button type="button" id="expenseCategoryBtn" class="w-10 h-10 flex items-center justify-center border border-hairline rounded-sm flex-shrink-0 transition-colors bg-slate-100 text-slate-600">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+              </button>
+              <input type="text" id="expenseDescription" autocomplete="off" required placeholder="e.g. Dinner, Taxi, Groceries" class="flex-1 bg-canvas text-ink border border-hairline rounded-sm px-3 h-10 text-sm focus:outline-none focus:border-hairline-strong transition-colors" />
+              <!-- Hidden input to store selected category -->
+              <input type="hidden" id="expenseCategoryValue" value="Uncategorized.General" />
+            </div>
           </div>
           
           <div>
@@ -200,8 +207,28 @@ import Layout from '../layouts/Layout.astro';
       </div>
     </dialog>
 
+    <!-- Category Picker Modal -->
+    <dialog id="categoryPickerModal" class="bg-transparent p-0 m-auto backdrop:bg-ink/50 open:flex flex-col items-center justify-center w-[92vw] sm:w-full max-w-md max-h-[80vh] z-[9999]">
+      <div class="bg-canvas border border-hairline rounded-xl shadow-2xl w-full flex flex-col h-full max-h-[80vh] overflow-hidden">
+        <!-- Header -->
+        <div class="px-4 py-3 border-b border-hairline flex gap-3 items-center shrink-0 bg-canvas sticky top-0 z-10">
+          <button id="closeCategoryPickerBtn" class="text-mute hover:text-ink transition-colors p-1 rounded-full hover:bg-canvas-soft">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          </button>
+          <div class="flex-1 relative">
+            <input type="text" id="categorySearchInput" autocomplete="off" placeholder="Search or select a category" class="w-full bg-transparent text-ink text-base focus:outline-none h-10" />
+          </div>
+        </div>
+        
+        <!-- Category List -->
+        <div id="categoryListContainer" class="flex-1 overflow-y-auto p-4 space-y-6">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </dialog>
+
     <!-- Settle Up Modal -->
-    <dialog id="settleUpModal" class="bg-transparent p-0 m-auto backdrop:bg-ink/50 open:flex flex-col items-center justify-center w-full max-w-sm">
+    <dialog id="settleUpModal" class="bg-transparent p-0 m-auto backdrop:bg-ink/50 open:flex flex-col items-center justify-center w-[92vw] sm:w-full max-w-sm">
       <div id="settleUpCard" class="bg-canvas border border-hairline rounded-lg shadow-lg w-full transition-all duration-300 overflow-hidden">
         <!-- Main Content -->
         <div id="settleUpContent" class="p-6 text-center transition-opacity duration-300">
@@ -236,7 +263,7 @@ import Layout from '../layouts/Layout.astro';
     </dialog>
 
     <!-- Delete Group Modal -->
-    <dialog id="deleteGroupModal" class="bg-transparent p-0 m-auto backdrop:bg-ink/50 open:flex flex-col items-center justify-center w-full max-w-sm z-[9999]">
+    <dialog id="deleteGroupModal" class="bg-transparent p-0 m-auto backdrop:bg-ink/50 open:flex flex-col items-center justify-center w-[92vw] sm:w-full max-w-sm z-[9999]">
       <div id="deleteModalContent" class="bg-canvas border border-hairline rounded-lg shadow-lg w-full p-6 text-center transition-all duration-300">
         
         <!-- Normal State -->
@@ -323,7 +350,7 @@ import Layout from '../layouts/Layout.astro';
     </dialog>
 
     <!-- Manage Members Modal -->
-    <dialog id="addMemberModal" class="bg-transparent p-0 m-auto backdrop:bg-ink/50 open:flex flex-col items-center justify-center w-full max-w-sm">
+    <dialog id="addMemberModal" class="bg-transparent p-0 m-auto backdrop:bg-ink/50 open:flex flex-col items-center justify-center w-[92vw] sm:w-full max-w-sm">
       <div class="bg-canvas border border-hairline rounded-lg shadow-lg w-full p-6">
         <h2 class="text-xl font-bold mb-4 text-ink">Manage members</h2>
         <div id="manageMembersTags" class="flex items-center gap-2 mb-4 overflow-x-auto whitespace-nowrap pb-2 w-full max-w-[calc(100vw-3rem)]">
@@ -342,7 +369,7 @@ import Layout from '../layouts/Layout.astro';
     </dialog>
 
     <!-- Edit Group Modal (Sub-modal of Settings) -->
-    <dialog id="editGroupModal" class="bg-transparent p-0 m-auto backdrop:bg-ink/50 open:flex flex-col items-center justify-center w-full max-w-md max-h-[90vh]">
+    <dialog id="editGroupModal" class="bg-transparent p-0 m-auto backdrop:bg-ink/50 open:flex flex-col items-center justify-center w-[92vw] sm:w-full max-w-md max-h-[90vh]">
       <div class="bg-canvas border border-hairline rounded-xl shadow-2xl w-full flex flex-col h-full max-h-[90vh] overflow-hidden">
         <div class="px-6 py-4 border-b border-hairline flex justify-between items-center shrink-0">
           <h2 class="text-xl font-bold">Edit group</h2>
@@ -487,7 +514,7 @@ import Layout from '../layouts/Layout.astro';
     </dialog>
 
     <!-- Error Modal for Actions -->
-    <dialog id="errorModal" class="bg-transparent p-0 m-auto backdrop:bg-ink/50 open:flex flex-col items-center justify-center w-full max-w-sm z-[9999]">
+    <dialog id="errorModal" class="bg-transparent p-0 m-auto backdrop:bg-ink/50 open:flex flex-col items-center justify-center w-[92vw] sm:w-full max-w-sm z-[9999]">
       <div class="bg-canvas border border-hairline rounded-lg shadow-lg w-full p-6 text-center">
         <h2 class="text-lg font-bold mb-2 text-ink">Cannot Remove Member</h2>
         <p id="errorModalMsg" class="text-body text-sm mb-6 text-mute"></p>
@@ -549,6 +576,14 @@ import Layout from '../layouts/Layout.astro';
       const amt = document.getElementById('expenseAmount') as HTMLInputElement;
       if (desc) desc.value = '';
       if (amt) amt.value = '';
+
+      const expenseCategoryValue = document.getElementById('expenseCategoryValue') as HTMLInputElement;
+      const expenseCategoryBtn = document.getElementById('expenseCategoryBtn');
+      if (expenseCategoryValue) expenseCategoryValue.value = 'Uncategorized.General';
+      if (expenseCategoryBtn) {
+        expenseCategoryBtn.className = 'w-10 h-10 flex items-center justify-center border border-hairline rounded-sm flex-shrink-0 transition-colors bg-slate-100 text-slate-600';
+        expenseCategoryBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>`;
+      }
 
       const paidByText = document.getElementById('paidByText');
       if (paidByText) paidByText.textContent = groupData?.members[0] || 'Name (You)';
@@ -1035,6 +1070,16 @@ import Layout from '../layouts/Layout.astro';
         const monthStr = expDate.toLocaleString('default', { month: 'short' });
         const dayStr = expDate.getDate().toString().padStart(2, '0');
 
+        let catIconHTML = `<div class="w-10 h-10 rounded-md bg-canvas border border-hairline flex items-center justify-center text-ink font-bold text-xl shadow-sm shrink-0">${letter}</div>`;
+        const categoryData = exp.category || 'Uncategorized.General';
+        const [pName, sName] = categoryData.split('.');
+        const SPLITWISE_CATEGORIES = (window as any).SPLITWISE_CATEGORIES || [];
+        const pCat = SPLITWISE_CATEGORIES.find((c:any) => c.name === pName);
+        const sCat = pCat?.subcategories.find((s:any) => s.name === sName);
+        if (pCat && sCat) {
+          catIconHTML = `<div class="w-10 h-10 rounded-sm border flex items-center justify-center shrink-0 shadow-sm ${pCat.color}"><div class="w-5 h-5">${sCat.icon}</div></div>`;
+        }
+
         const newItemHTML = `
           <details class="group hover:bg-canvas-soft transition-colors cursor-pointer border-b border-hairline last:border-b-0">
             <summary class="p-6 flex items-center justify-between list-none [&::-webkit-details-marker]:hidden">
@@ -1043,9 +1088,7 @@ import Layout from '../layouts/Layout.astro';
                   <span class="text-[10px] font-bold text-mute uppercase tracking-wider">${monthStr}</span>
                   <span class="text-lg font-medium text-ink leading-none mt-0.5">${dayStr}</span>
                 </div>
-                <div class="w-10 h-10 rounded-md bg-canvas border border-hairline flex items-center justify-center text-ink font-bold text-xl shadow-sm shrink-0">
-                  ${letter}
-                </div>
+                ${catIconHTML}
                 <div>
                   <h3 class="font-bold text-ink">${exp.description}</h3>
                   <p class="text-sm text-body">${whoPaidText}</p>
@@ -1194,10 +1237,13 @@ import Layout from '../layouts/Layout.astro';
           return;
         }
 
+        const expenseCategoryValue = document.getElementById('expenseCategoryValue') as HTMLInputElement;
+
         // Save to localStorage
         const newExpense = {
           id: Date.now().toString(),
           description: desc,
+          category: expenseCategoryValue ? expenseCategoryValue.value : 'Uncategorized.General',
           amount: amount,
           paidBy: paidBy,
           participants: participants,
@@ -1222,6 +1268,132 @@ import Layout from '../layouts/Layout.astro';
         // Reset and close
         resetAddExpenseModal();
         addExpenseModal?.close();
+      });
+    }
+
+    // --- Category Picker JS ---
+    const expenseCategoryBtn = document.getElementById('expenseCategoryBtn') as HTMLButtonElement;
+    const categoryPickerModal = document.getElementById('categoryPickerModal') as HTMLDialogElement;
+    const closeCategoryPickerBtn = document.getElementById('closeCategoryPickerBtn');
+    const categorySearchInput = document.getElementById('categorySearchInput') as HTMLInputElement;
+    const categoryListContainer = document.getElementById('categoryListContainer');
+    const expenseCategoryValue = document.getElementById('expenseCategoryValue') as HTMLInputElement;
+
+    const SPLITWISE_CATEGORIES = (window as any).SPLITWISE_CATEGORIES || [];
+    let flatCategories: any[] = [];
+    SPLITWISE_CATEGORIES.forEach((cat: any) => {
+      cat.subcategories.forEach((sub: any) => {
+        flatCategories.push({
+          parentName: cat.name,
+          color: cat.color,
+          name: sub.name,
+          icon: sub.icon,
+          id: `${cat.name}.${sub.name}`
+        });
+      });
+    });
+
+    function renderCategoryList(filterText = '') {
+      if (!categoryListContainer) return;
+      categoryListContainer.innerHTML = '';
+      const filter = filterText.toLowerCase();
+
+      SPLITWISE_CATEGORIES.forEach((cat: any) => {
+        const matchingSubs = cat.subcategories.filter((sub: any) => 
+          sub.name.toLowerCase().includes(filter) || cat.name.toLowerCase().includes(filter)
+        );
+        if (matchingSubs.length === 0) return;
+
+        const groupDiv = document.createElement('div');
+        groupDiv.innerHTML = `<h3 class="text-sm font-bold text-mute uppercase tracking-wider mb-2">${cat.name}</h3>`;
+        
+        const listDiv = document.createElement('div');
+        listDiv.className = 'flex flex-col gap-1';
+        matchingSubs.forEach((sub: any) => {
+          const itemBtn = document.createElement('button');
+          itemBtn.type = 'button';
+          itemBtn.className = 'w-full flex items-center gap-4 p-2 hover:bg-canvas-soft rounded-lg transition-colors text-left';
+          itemBtn.innerHTML = `
+            <div class="w-10 h-10 rounded-sm flex items-center justify-center shrink-0 border ${cat.color}">
+              <div class="w-5 h-5">${sub.icon}</div>
+            </div>
+            <span class="text-ink text-base">${sub.name}</span>
+          `;
+          itemBtn.addEventListener('click', () => {
+            selectCategory(cat, sub, true);
+            categoryPickerModal.close();
+          });
+          listDiv.appendChild(itemBtn);
+        });
+        groupDiv.appendChild(listDiv);
+        categoryListContainer.appendChild(groupDiv);
+      });
+    }
+
+    function selectCategory(cat: any, sub: any, updateDescription = false) {
+      if (expenseCategoryValue) expenseCategoryValue.value = `${cat.name}.${sub.name}`;
+      if (expenseCategoryBtn) {
+        expenseCategoryBtn.className = `w-10 h-10 flex items-center justify-center border rounded-sm flex-shrink-0 transition-colors ${cat.color}`;
+        expenseCategoryBtn.innerHTML = `<div class="w-5 h-5">${sub.icon}</div>`;
+      }
+      if (updateDescription && expenseDescription) {
+        expenseDescription.value = sub.name;
+      }
+    }
+
+    if (expenseCategoryBtn && categoryPickerModal) {
+      expenseCategoryBtn.addEventListener('click', () => {
+        categorySearchInput.value = '';
+        renderCategoryList();
+        categoryPickerModal.showModal();
+      });
+    }
+    if (closeCategoryPickerBtn) {
+      closeCategoryPickerBtn.addEventListener('click', () => categoryPickerModal.close());
+    }
+    if (categorySearchInput) {
+      categorySearchInput.addEventListener('input', (e) => {
+        renderCategoryList((e.target as HTMLInputElement).value);
+      });
+    }
+
+    // Auto-detect category on typing
+    if (expenseDescription) {
+      function resetToUncategorized() {
+        const parent = SPLITWISE_CATEGORIES.find((c: any) => c.name === 'Uncategorized');
+        if (parent) {
+          const sub = parent.subcategories.find((s: any) => s.name === 'General');
+          if (sub) selectCategory(parent, sub, false);
+        }
+      }
+
+      expenseDescription.addEventListener('input', (e) => {
+        const val = (e.target as HTMLInputElement).value.toLowerCase().trim();
+        if (val.length < 2) {
+          resetToUncategorized();
+          return; 
+        }
+        
+        // Find exact match first, then partial match
+        let match = flatCategories.find(c => val === c.name.toLowerCase());
+        if (!match) {
+          match = flatCategories.find(c => {
+            const n = c.name.toLowerCase();
+            if (val.includes(n)) return true;
+            if (n.includes('/')) {
+              return n.split('/').some(p => p.length >= 2 && val.includes(p));
+            }
+            return false;
+          });
+        }
+        
+        if (match) {
+          const parent = SPLITWISE_CATEGORIES.find((c: any) => c.name === match.parentName);
+          const sub = parent.subcategories.find((s: any) => s.name === match.name);
+          selectCategory(parent, sub, false);
+        } else {
+          resetToUncategorized();
+        }
       });
     }
 
