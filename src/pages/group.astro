@@ -17,9 +17,24 @@ import Layout from '../layouts/Layout.astro';
 </style>
 
 <Layout>
+  <!-- Sticky Top Bar (Animates in on scroll) -->
+  <div id="stickyTopBar" class="fixed top-0 left-0 w-full h-16 bg-[#0a6c51] z-[60] flex items-center justify-between px-4 sm:px-6 lg:px-8 transition-all duration-300 -translate-y-full opacity-0 pointer-events-none shadow-md">
+    <a href="/dashboard" class="w-10 h-10 flex items-center justify-center rounded-full bg-ink/10 hover:bg-ink/20 transition-colors text-canvas">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+    </a>
+    <button id="stickySettingsBtn" class="w-10 h-10 flex items-center justify-center rounded-full bg-ink/10 hover:bg-ink/20 transition-colors text-canvas">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+      </svg>
+    </button>
+  </div>
+
   <div class="min-h-screen flex flex-col bg-canvas-soft">
     <!-- Unified Header Banner (like Android app) -->
-    <header class="relative bg-[#0a6c51] text-canvas overflow-hidden">
+    <header id="mainHeader" class="relative bg-[#0a6c51] text-canvas overflow-hidden transition-colors">
       <!-- Watermark Background Icon Container -->
       <div id="headerWatermark" class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/4 opacity-10 pointer-events-none text-canvas">
         <svg width="240" height="240" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.2-1.1.6l-1 2c-.3.6.1 1.2.7 1.5l5.5 2.5-3.5 3.5-3.1-.8c-.4-.1-.8.2-1 .5L0 18l5.5 1.5L7 25l2-1c.3-.2.6-.6.5-1l-.8-3.1 3.5-3.5 2.5 5.5c.3.6 1 .9 1.5.7l2-1c.4-.2.7-.6.6-1.1z"/></svg>
@@ -59,7 +74,7 @@ import Layout from '../layouts/Layout.astro';
       </div>
     </header>
 
-    <main class="flex-1 max-w-[1200px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 -mt-6">
+    <main class="flex-1 max-w-[1200px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 -mt-6 pb-40">
       
       <!-- Action Buttons Toolbar -->
       <div class="flex flex-wrap items-center justify-end gap-3 mb-6 relative z-20">
@@ -74,7 +89,7 @@ import Layout from '../layouts/Layout.astro';
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Main Activity Feed (2/3 width on desktop) -->
-        <div class="lg:col-span-2 space-y-6">
+        <div class="order-2 lg:order-1 lg:col-span-2 space-y-6">
           <section class="bg-canvas border border-hairline rounded-lg shadow-sm overflow-hidden">
             <div class="px-6 py-4 border-b border-hairline bg-canvas-soft flex justify-between items-center">
               <h2 class="text-lg font-bold">Activity</h2>
@@ -88,7 +103,7 @@ import Layout from '../layouts/Layout.astro';
         </div>
         
         <!-- Sidebar: Balances (1/3 width on desktop) -->
-        <div class="lg:col-span-1 space-y-6">
+        <div class="order-1 lg:order-2 lg:col-span-1 space-y-6">
           <section class="bg-canvas border border-hairline rounded-lg shadow-sm p-6">
             <h2 class="text-lg font-bold mb-4">Balances</h2>
             
@@ -230,16 +245,16 @@ import Layout from '../layouts/Layout.astro';
           <p class="text-body text-sm mb-6 text-mute">Are you sure you want to delete this group? This action cannot be undone and all expenses will be lost.</p>
           <div class="flex gap-3 w-full">
             <button type="button" id="cancelDeleteBtn" class="flex-1 bg-canvas text-ink px-4 py-2 rounded-pill font-medium border border-hairline hover:bg-canvas-soft transition-colors cursor-pointer">Cancel</button>
-            <button type="button" id="confirmDeleteBtn" class="flex-1 bg-error text-white px-4 py-2 rounded-pill font-medium hover:opacity-90 transition-opacity cursor-pointer">Delete</button>
+            <button type="button" id="confirmDeleteBtn" class="flex-1 bg-danger text-white px-4 py-2 rounded-pill font-medium hover:opacity-90 transition-opacity cursor-pointer">Delete</button>
           </div>
         </div>
 
         <!-- Animation State -->
         <div id="deleteAnimState" class="hidden flex-col items-center justify-center py-4">
           <div class="animate-bounce">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#e02424" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2M10 11v6M14 11v6"/></svg>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2M10 11v6M14 11v6"/></svg>
           </div>
-          <p class="text-error font-bold mt-4 animate-pulse">Deleting group...</p>
+          <p class="text-danger font-bold mt-4 animate-pulse">Deleting group...</p>
         </div>
 
       </div>
@@ -296,7 +311,7 @@ import Layout from '../layouts/Layout.astro';
           <h4 class="text-xs font-bold text-mute uppercase tracking-wider mb-4 px-2">Advanced settings</h4>
 
           <!-- Delete Group moved here -->
-          <button type="button" id="settingsDeleteGroupBtn" class="w-full flex items-center justify-center gap-2 px-2 py-3 bg-error text-white rounded-lg transition-colors group cursor-pointer hover:opacity-90">
+          <button type="button" id="settingsDeleteGroupBtn" class="w-full flex items-center justify-center gap-2 px-2 py-3 bg-danger text-white rounded-lg transition-colors group cursor-pointer hover:opacity-90">
             <div class="w-6 h-6 flex items-center justify-center">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2M10 11v6M14 11v6"/></svg>
             </div>
@@ -417,7 +432,7 @@ import Layout from '../layouts/Layout.astro';
     <!-- Custom Toast Notification -->
     <div id="toastNotification" class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-ink text-canvas px-4 py-3 rounded-md shadow-lg text-sm font-medium transition-all duration-300 translate-y-20 opacity-0 pointer-events-none z-[9999] flex items-center gap-2">
       <svg id="toastIconSuccess" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-success hidden"><path d="M20 6L9 17l-5-5"/></svg>
-      <svg id="toastIconError" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-error hidden"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <svg id="toastIconError" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-danger hidden"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       <span id="toastMessage">Success</span>
     </div>
     
@@ -793,6 +808,49 @@ import Layout from '../layouts/Layout.astro';
       document.getElementById('groupTitle')!.textContent = groupData.name;
       document.getElementById('memberCountText')!.textContent = `${groupData.members.length} people`;
 
+      // Apply dynamic accent color to headers
+      const strongColorMap: Record<string, string> = {
+        'Trip': 'bg-[#2563eb]',
+        'Couple': 'bg-[#db2777]',
+        'Other': 'bg-[#ea580c]',
+        'Home': 'bg-[#65a30d]'
+      };
+
+      const alphabetMap: Record<string, string> = {
+        'A': 'bg-[#e11d48]', 'B': 'bg-[#2563eb]', 'C': 'bg-[#9333ea]', 'D': 'bg-[#4f46e5]',
+        'E': 'bg-[#db2777]', 'F': 'bg-[#d97706]', 'G': 'bg-[#059669]', 'H': 'bg-[#0d9488]',
+        'I': 'bg-[#0891b2]', 'J': 'bg-[#e11d48]', 'K': 'bg-[#059669]', 'L': 'bg-[#65a30d]',
+        'M': 'bg-[#e11d48]', 'N': 'bg-[#059669]', 'O': 'bg-[#9333ea]', 'P': 'bg-[#4f46e5]',
+        'Q': 'bg-[#db2777]', 'R': 'bg-[#d97706]', 'S': 'bg-[#059669]', 'T': 'bg-[#0d9488]',
+        'U': 'bg-[#0891b2]', 'V': 'bg-[#e11d48]', 'W': 'bg-[#c026d3]', 'X': 'bg-[#65a30d]',
+        'Y': 'bg-[#e11d48]', 'Z': 'bg-[#2563eb]'
+      };
+
+      let headerColorClass = strongColorMap[groupData.type] || 'bg-[#059669]';
+      if (groupData.type === 'Other' || !groupData.type) {
+        const firstLetter = (groupData.name || 'G').trim().charAt(0).toUpperCase();
+        if (alphabetMap[firstLetter]) {
+          headerColorClass = alphabetMap[firstLetter];
+        } else {
+          headerColorClass = 'bg-[#ea580c]';
+        }
+      }
+      
+      const mainHeader = document.getElementById('mainHeader');
+      if (mainHeader) {
+        mainHeader.classList.remove('bg-[#0a6c51]', 'bg-[#2563eb]', 'bg-[#db2777]', 'bg-[#ea580c]', 'bg-[#65a30d]');
+        // Remove possible alphabet colors to ensure clean state
+        Object.values(alphabetMap).forEach(c => mainHeader.classList.remove(c));
+        mainHeader.classList.add(headerColorClass);
+      }
+      
+      const stickyTopBar = document.getElementById('stickyTopBar');
+      if (stickyTopBar) {
+        stickyTopBar.classList.remove('bg-[#0a6c51]', 'bg-[#2563eb]', 'bg-[#db2777]', 'bg-[#ea580c]', 'bg-[#65a30d]');
+        Object.values(alphabetMap).forEach(c => stickyTopBar.classList.remove(c));
+        stickyTopBar.classList.add(headerColorClass);
+      }
+
       // Update Date Pill if trip dates are set
       const datePill = document.getElementById('datePill');
       const dateText = document.getElementById('dateText');
@@ -825,7 +883,7 @@ import Layout from '../layouts/Layout.astro';
       const watermark = document.getElementById('headerWatermark');
       if (watermark) {
         const typeIcons: any = {
-          'Trip': `<svg width="240" height="240" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.2-1.1.6l-1 2c-.3.6.1 1.2.7 1.5l5.5 2.5-3.5 3.5-3.1-.8c-.4-.1-.8.2-1 .5L0 18l5.5 1.5L7 25l2-1c.3-.2.6-.6.5-1l-.8-3.1 3.5-3.5 2.5 5.5c.3.6 1 .9 1.5.7l2-1c.4-.2.7-.6.6-1.1z"/></svg>`,
+          'Trip': `<svg width="240" height="240" viewBox="0 -1 24 26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.2-1.1.6l-1 2c-.3.6.1 1.2.7 1.5l5.5 2.5-3.5 3.5-3.1-.8c-.4-.1-.8.2-1 .5L0 18l5.5 1.5L7 25l2-1c.3-.2.6-.6.5-1l-.8-3.1 3.5-3.5 2.5 5.5c.3.6 1 .9 1.5.7l2-1c.4-.2.7-.6.6-1.1z"/></svg>`,
           'Home': `<svg width="240" height="240" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
           'Couple': `<svg width="240" height="240" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`
         };
@@ -973,11 +1031,19 @@ import Layout from '../layouts/Layout.astro';
         });
         detailsHTML += `</div>`;
 
+        const expDate = new Date(exp.timestamp || Date.now());
+        const monthStr = expDate.toLocaleString('default', { month: 'short' });
+        const dayStr = expDate.getDate().toString().padStart(2, '0');
+
         const newItemHTML = `
           <details class="group hover:bg-canvas-soft transition-colors cursor-pointer border-b border-hairline last:border-b-0">
             <summary class="p-6 flex items-center justify-between list-none [&::-webkit-details-marker]:hidden">
-              <div class="flex items-center gap-4">
-                <div class="w-10 h-10 rounded-md bg-canvas border border-hairline flex items-center justify-center text-ink font-bold text-xl shadow-sm">
+              <div class="flex items-center gap-3 sm:gap-4">
+                <div class="flex flex-col items-center justify-center text-center w-8 shrink-0">
+                  <span class="text-[10px] font-bold text-mute uppercase tracking-wider">${monthStr}</span>
+                  <span class="text-lg font-medium text-ink leading-none mt-0.5">${dayStr}</span>
+                </div>
+                <div class="w-10 h-10 rounded-md bg-canvas border border-hairline flex items-center justify-center text-ink font-bold text-xl shadow-sm shrink-0">
                   ${letter}
                 </div>
                 <div>
@@ -1256,6 +1322,28 @@ import Layout from '../layouts/Layout.astro';
       });
       closeSettingsBtn?.addEventListener('click', () => groupSettingsModal.close());
     }
+
+    const stickySettingsBtn = document.getElementById('stickySettingsBtn');
+    if (stickySettingsBtn && groupSettingsModal) {
+      stickySettingsBtn.addEventListener('click', () => {
+        renderSettings();
+        groupSettingsModal.showModal();
+      });
+    }
+
+    // Scroll listener for sticky top bar
+    window.addEventListener('scroll', () => {
+      const stickyTopBar = document.getElementById('stickyTopBar');
+      if (stickyTopBar) {
+        if (window.scrollY > 80) {
+          stickyTopBar.classList.remove('-translate-y-full', 'opacity-0', 'pointer-events-none');
+          stickyTopBar.classList.add('translate-y-0', 'opacity-100', 'pointer-events-auto');
+        } else {
+          stickyTopBar.classList.remove('translate-y-0', 'opacity-100', 'pointer-events-auto');
+          stickyTopBar.classList.add('-translate-y-full', 'opacity-0', 'pointer-events-none');
+        }
+      }
+    });
 
     // --- Manage Members JS ---
     const addPeopleBtn = document.getElementById('addPeopleBtn');

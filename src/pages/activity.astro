@@ -3,7 +3,7 @@ import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout>
-  <div class="min-h-screen flex flex-col bg-canvas-soft pb-24">
+  <div class="min-h-screen flex flex-col bg-canvas-soft pb-32">
     <!-- Header -->
     <header class="h-16 px-4 lg:px-6 flex items-center justify-between border-b border-hairline bg-canvas sticky top-0 z-40 relative">
       <!-- Left: Title -->
@@ -33,23 +33,7 @@ import Layout from '../layouts/Layout.astro';
     </main>
 
 
-    <!-- Static Bottom Navigation -->
-    <nav class="fixed bottom-0 left-0 w-full bg-canvas border-t border-hairline pb-safe z-50">
-      <div class="flex items-center justify-around h-16 max-w-md mx-auto">
-        <a href="/dashboard" class="flex flex-col items-center justify-center w-16 h-full text-mute hover:text-ink transition-colors">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-1"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-          <span class="text-[10px] font-medium">Groups</span>
-        </a>
-        <a href="/activity" class="flex flex-col items-center justify-center w-16 h-full text-brand transition-colors">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-1"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-          <span class="text-[10px] font-medium">Activity</span>
-        </a>
-        <a href="#" class="flex flex-col items-center justify-center w-16 h-full text-mute hover:text-ink transition-colors">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-1"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-          <span class="text-[10px] font-medium">Account</span>
-        </a>
-      </div>
-    </nav>
+
   </div>
 
   <script>

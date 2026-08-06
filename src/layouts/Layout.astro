@@ -1,11 +1,16 @@
 ---
 import '../styles/global.css';
+
+const pathname = Astro.url.pathname;
+const isActivity = pathname === '/activity';
+const isAccount = pathname === '/account';
+const isGroups = !isActivity && !isAccount;
 ---
 <!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
 		<link rel="icon" type="image/svg+xml" href="/SplitBugs-Brand/favicon/favicon.svg?v=3" />
 		<meta name="generator" content={Astro.generator} />
 		<link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,8 +18,26 @@ import '../styles/global.css';
 		<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
 		<title>SplitBugs</title>
 	</head>
-	<body>
+	<body class="pb-28">
 		<slot />
+
+		<!-- Shared Bottom Navigation -->
+		<nav class="fixed bottom-0 left-0 w-full bg-canvas border-t border-hairline pb-safe z-50">
+			<div class="flex items-center justify-around h-16 max-w-md mx-auto">
+				<a href="/dashboard" class={`flex flex-col items-center justify-center w-16 h-full transition-colors ${isGroups ? 'text-brand' : 'text-mute hover:text-ink'}`}>
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-1"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+					<span class="text-[10px] font-medium">Groups</span>
+				</a>
+				<a href="/activity" class={`flex flex-col items-center justify-center w-16 h-full transition-colors ${isActivity ? 'text-brand' : 'text-mute hover:text-ink'}`}>
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-1"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+					<span class="text-[10px] font-medium">Activity</span>
+				</a>
+				<a href="#" class={`flex flex-col items-center justify-center w-16 h-full transition-colors ${isAccount ? 'text-brand' : 'text-mute hover:text-ink'}`}>
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-1"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+					<span class="text-[10px] font-medium">Account</span>
+				</a>
+			</div>
+		</nav>
 	</body>
 </html>
 
