@@ -5,11 +5,24 @@ import Layout from '../layouts/Layout.astro';
 <Layout>
   <div class="min-h-screen flex flex-col bg-canvas-soft pb-24">
     <!-- Header -->
-    <header class="h-16 px-4 lg:px-6 flex items-center justify-between bg-canvas border-b border-hairline sticky top-0 z-40">
-      <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-ink">Activity</h1>
-      <button class="text-ink hover:text-mute transition-colors cursor-pointer p-2 shrink-0">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-      </button>
+    <header class="h-16 px-4 lg:px-6 flex items-center justify-between border-b border-hairline bg-canvas sticky top-0 z-40 relative">
+      <!-- Left: Title -->
+      <div class="flex items-center z-10">
+        <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-ink shrink-0">Activity</h1>
+      </div>
+      
+      <!-- Center: Search Bar -->
+      <div class="absolute left-1/2 -translate-x-1/2 flex items-center w-full max-w-xl px-4 z-0 pointer-events-none hidden sm:flex">
+        <div class="flex items-center w-full pointer-events-auto shadow-sm rounded-full h-10">
+          <input type="text" id="searchInput" placeholder="Search activity..." autocomplete="off" class="flex-1 h-full bg-canvas border border-hairline rounded-l-full py-2 pl-6 pr-4 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition-colors z-10" />
+          <button id="searchBtn" class="w-16 h-full flex items-center justify-center text-ink bg-[#f8f8f8] border border-hairline border-l-0 rounded-r-full hover:bg-[#f0f0f0] transition-colors cursor-pointer shrink-0 z-0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Right: Placeholder to balance the flex layout -->
+      <div class="flex items-center z-10 w-[36px]"></div>
     </header>
 
     <!-- Activity Feed List -->
@@ -55,7 +68,7 @@ import Layout from '../layouts/Layout.astro';
       return `${d.getDate()} ${months[d.getMonth()]}, ${hours}:${mins} ${ampm}`;
     }
 
-    function renderActivity() {
+    function renderActivity(searchQuery = '') {
       if (!feedContainer) return;
       const dataStr = localStorage.getItem('splitsbug_data');
       if (!dataStr) {
@@ -93,6 +106,20 @@ import Layout from '../layouts/Layout.astro';
           });
         });
       });
+
+      // Filter by search query if provided
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        activities = activities.filter(act => {
+          if (act.type === 'group_create') return act.groupName.toLowerCase().includes(query);
+          if (act.type === 'group_expense') {
+             return act.groupName.toLowerCase().includes(query) || 
+                    act.description.toLowerCase().includes(query) || 
+                    act.paidBy.toLowerCase().includes(query);
+          }
+          return false;
+        });
+      }
 
       // Sort chronological descending
       activities.sort((a, b) => b.timestamp - a.timestamp);
@@ -162,5 +189,18 @@ import Layout from '../layouts/Layout.astro';
 
     // Initial render
     renderActivity();
+
+    // Search Logic
+    const searchInput = document.getElementById('searchInput') as HTMLInputElement;
+    const searchBtn = document.getElementById('searchBtn');
+
+    if (searchInput && searchBtn) {
+      searchInput.addEventListener('input', () => {
+        renderActivity(searchInput.value.trim());
+      });
+      searchBtn.addEventListener('click', () => {
+        renderActivity(searchInput.value.trim());
+      });
+    }
   </script>
 </Layout>
