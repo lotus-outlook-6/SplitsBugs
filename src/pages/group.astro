@@ -19,12 +19,12 @@ import Layout from '../layouts/Layout.astro';
 <Layout>
   <!-- Sticky Top Bar (Animates in on scroll) -->
   <div id="stickyTopBar" class="fixed top-0 left-0 w-full h-16 bg-[#0a6c51] z-[60] flex items-center justify-between px-4 sm:px-6 lg:px-8 transition-all duration-300 -translate-y-full opacity-0 pointer-events-none shadow-md">
-    <a href="/dashboard" class="w-10 h-10 flex items-center justify-center rounded-full bg-ink/10 hover:bg-ink/20 transition-colors text-canvas">
+    <a href="/dashboard" class="w-10 h-10 flex items-center justify-center rounded-full bg-ink/10 hover:bg-ink/20 transition-colors text-white">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M19 12H5M12 19l-7-7 7-7"/>
       </svg>
     </a>
-    <button id="stickySettingsBtn" class="w-10 h-10 flex items-center justify-center rounded-full bg-ink/10 hover:bg-ink/20 transition-colors text-canvas">
+    <button id="stickySettingsBtn" class="w-10 h-10 flex items-center justify-center rounded-full bg-ink/10 hover:bg-ink/20 transition-colors text-white">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="3"></circle>
         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
@@ -34,9 +34,9 @@ import Layout from '../layouts/Layout.astro';
 
   <div class="min-h-screen flex flex-col bg-canvas-soft">
     <!-- Unified Header Banner (like Android app) -->
-    <header id="mainHeader" class="relative bg-[#0a6c51] text-canvas overflow-hidden transition-colors">
+    <header id="mainHeader" class="relative bg-[#0a6c51] text-white overflow-hidden transition-colors">
       <!-- Watermark Background Icon Container -->
-      <div id="headerWatermark" class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/4 opacity-10 pointer-events-none text-canvas">
+      <div id="headerWatermark" class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/4 opacity-10 pointer-events-none text-white">
         <svg width="240" height="240" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.2-1.1.6l-1 2c-.3.6.1 1.2.7 1.5l5.5 2.5-3.5 3.5-3.1-.8c-.4-.1-.8.2-1 .5L0 18l5.5 1.5L7 25l2-1c.3-.2.6-.6.5-1l-.8-3.1 3.5-3.5 2.5 5.5c.3.6 1 .9 1.5.7l2-1c.4-.2.7-.6.6-1.1z"/></svg>
       </div>
 
@@ -44,12 +44,12 @@ import Layout from '../layouts/Layout.astro';
         
         <!-- Top Nav (Back & Settings) -->
         <div class="flex items-center justify-between mb-8">
-          <a href="/dashboard" class="w-10 h-10 flex items-center justify-center rounded-full bg-ink/20 hover:bg-ink/30 transition-colors backdrop-blur-sm text-canvas" title="Go back">
+          <a href="/dashboard" class="w-10 h-10 flex items-center justify-center rounded-full bg-ink/20 hover:bg-ink/30 transition-colors backdrop-blur-sm text-white" title="Go back">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
           </a>
-          <button id="groupSettingsBtn" class="w-10 h-10 flex items-center justify-center rounded-full bg-ink/20 hover:bg-ink/30 transition-colors backdrop-blur-sm text-canvas" title="Settings">
+          <button id="groupSettingsBtn" class="w-10 h-10 flex items-center justify-center rounded-full bg-ink/20 hover:bg-ink/30 transition-colors backdrop-blur-sm text-white" title="Settings">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="3"></circle>
               <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
@@ -78,10 +78,10 @@ import Layout from '../layouts/Layout.astro';
       
       <!-- Action Buttons Toolbar -->
       <div class="flex flex-wrap items-center justify-end gap-3 mb-6 relative z-20">
-        <button id="settleUpBtn" class="bg-canvas text-ink border border-hairline px-4 py-2 rounded-pill font-medium hover:bg-canvas-soft transition-colors shadow-sm">
+        <button id="settleUpBtn" class="bg-canvas-soft text-ink border border-hairline px-4 py-2 rounded-pill font-medium hover:bg-hairline transition-colors shadow-sm">
           Settle Up
         </button>
-        <button id="addExpenseBtn" class="bg-primary text-canvas px-4 py-2 rounded-pill font-medium hover:opacity-90 transition-opacity shadow-sm flex items-center gap-2">
+        <button id="addExpenseBtn" class="bg-ink text-canvas px-4 py-2 rounded-pill font-medium hover:opacity-80 transition-opacity shadow-sm flex items-center gap-2">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
           Add Expense
         </button>
@@ -118,28 +118,28 @@ import Layout from '../layouts/Layout.astro';
     </main>
 
     <!-- Add Expense Modal -->
-    <dialog id="addExpenseModal" class="bg-transparent p-0 m-auto backdrop:bg-ink/50 open:flex flex-col items-center justify-center w-[92vw] sm:w-full max-w-lg">
+    <dialog id="addExpenseModal" class="bg-transparent p-0 m-auto backdrop:bg-black/50 text-ink open:flex flex-col items-center justify-center w-[92vw] sm:w-full max-w-lg">
       <div class="bg-canvas border border-hairline rounded-lg shadow-lg w-full p-6 text-left">
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-xl font-bold">Add an expense</h2>
           <button id="closeExpenseBtn" class="text-mute hover:text-ink transition-colors">✕</button>
         </div>
         
-        <form id="addExpenseForm" class="space-y-4" method="dialog">
+        <form id="addExpenseForm" class="space-y-4" method="dialog" novalidate>
           <div>
-            <label class="block text-sm font-medium text-ink mb-1">Description</label>
+            <label id="descLabel" class="block text-sm font-medium text-ink mb-1 transition-colors">Description</label>
             <div class="flex gap-2 items-center">
               <button type="button" id="expenseCategoryBtn" class="w-10 h-10 flex items-center justify-center border border-hairline rounded-sm flex-shrink-0 transition-colors bg-slate-100 text-slate-600">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
               </button>
-              <input type="text" id="expenseDescription" autocomplete="off" required placeholder="e.g. Dinner, Taxi, Groceries" class="flex-1 bg-canvas text-ink border border-hairline rounded-sm px-3 h-10 text-sm focus:outline-none focus:border-hairline-strong transition-colors" />
+              <input type="text" id="expenseDescription" autocomplete="off" placeholder="e.g. Dinner, Taxi, Groceries" class="flex-1 bg-canvas text-ink border border-hairline rounded-sm px-3 h-10 text-sm focus:outline-none focus:border-hairline-strong transition-colors" />
               <!-- Hidden input to store selected category -->
               <input type="hidden" id="expenseCategoryValue" value="Uncategorized.General" />
             </div>
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-ink mb-1">Amount</label>
+            <label id="amountLabel" class="block text-sm font-medium text-ink mb-1 transition-colors">Amount</label>
             <div class="relative flex h-10">
               <!-- Custom Currency Dropdown -->
               <div class="relative h-full" id="currencyDropdown">
@@ -158,7 +158,7 @@ import Layout from '../layouts/Layout.astro';
                 </div>
               </div>
               
-              <input type="number" id="expenseAmount" required min="0.01" placeholder="0.00" step="0.01" onkeydown="if(['e','E','+','-'].includes(event.key)) event.preventDefault();" class="w-full bg-canvas text-ink border-y border-r border-hairline rounded-r-sm px-3 h-full text-sm focus:outline-none focus:border-hairline-strong transition-colors" />
+              <input type="number" id="expenseAmount" min="0.01" placeholder="0.00" step="0.01" onkeydown="if(['e','E','+','-'].includes(event.key)) event.preventDefault();" class="w-full bg-canvas text-ink border-y border-r border-hairline rounded-r-sm px-3 h-full text-sm focus:outline-none focus:border-hairline-strong transition-colors" />
             </div>
           </div>
 
@@ -208,7 +208,7 @@ import Layout from '../layouts/Layout.astro';
     </dialog>
 
     <!-- Category Picker Modal -->
-    <dialog id="categoryPickerModal" class="bg-transparent p-0 m-auto backdrop:bg-ink/50 open:flex flex-col items-center justify-center w-[92vw] sm:w-full max-w-md max-h-[80vh] z-[9999]">
+    <dialog id="categoryPickerModal" class="bg-transparent p-0 m-auto backdrop:bg-black/50 text-ink open:flex flex-col items-center justify-center w-[92vw] sm:w-full max-w-md max-h-[80vh] z-[9999]">
       <div class="bg-canvas border border-hairline rounded-xl shadow-2xl w-full flex flex-col h-full max-h-[80vh] overflow-hidden">
         <!-- Header -->
         <div class="px-4 py-3 border-b border-hairline flex gap-3 items-center shrink-0 bg-canvas sticky top-0 z-10">
@@ -228,7 +228,7 @@ import Layout from '../layouts/Layout.astro';
     </dialog>
 
     <!-- Settle Up Modal -->
-    <dialog id="settleUpModal" class="bg-transparent p-0 m-auto backdrop:bg-ink/50 open:flex flex-col items-center justify-center w-[92vw] sm:w-full max-w-sm">
+    <dialog id="settleUpModal" class="bg-transparent p-0 m-auto backdrop:bg-black/50 text-ink open:flex flex-col items-center justify-center w-[92vw] sm:w-full max-w-sm">
       <div id="settleUpCard" class="bg-canvas border border-hairline rounded-lg shadow-lg w-full transition-all duration-300 overflow-hidden">
         <!-- Main Content -->
         <div id="settleUpContent" class="p-6 text-center transition-opacity duration-300">
@@ -254,7 +254,7 @@ import Layout from '../layouts/Layout.astro';
 
         <!-- Success Animation State -->
         <div id="settleUpSuccess" class="hidden flex-col items-center justify-center p-8 text-center h-48 opacity-0 transition-opacity duration-300">
-          <div class="w-16 h-16 bg-success rounded-full flex items-center justify-center text-canvas mb-4 shadow-md animate-[scale-in_0.3s_ease-out]">
+          <div class="w-16 h-16 bg-success rounded-full flex items-center justify-center text-white mb-4 shadow-md animate-[scale-in_0.3s_ease-out]">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
           </div>
           <h3 id="settleUpSuccessText" class="font-bold text-lg text-ink">Payment recorded!</h3>
@@ -263,7 +263,7 @@ import Layout from '../layouts/Layout.astro';
     </dialog>
 
     <!-- Delete Group Modal -->
-    <dialog id="deleteGroupModal" class="bg-transparent p-0 m-auto backdrop:bg-ink/50 open:flex flex-col items-center justify-center w-[92vw] sm:w-full max-w-sm z-[9999]">
+    <dialog id="deleteGroupModal" class="bg-transparent p-0 m-auto backdrop:bg-black/50 text-ink open:flex flex-col items-center justify-center w-[92vw] sm:w-full max-w-sm z-[9999]">
       <div id="deleteModalContent" class="bg-canvas border border-hairline rounded-lg shadow-lg w-full p-6 text-center transition-all duration-300">
         
         <!-- Normal State -->
@@ -288,7 +288,7 @@ import Layout from '../layouts/Layout.astro';
     </dialog>
 
     <!-- Group Settings Modal -->
-    <dialog id="groupSettingsModal" class="bg-canvas text-ink p-0 m-0 w-full h-full max-w-none max-h-none md:w-[480px] md:h-[90vh] md:m-auto md:rounded-2xl shadow-2xl backdrop:bg-ink/50 overflow-y-auto">
+    <dialog id="groupSettingsModal" class="bg-canvas text-ink p-0 m-0 w-full h-full max-w-none max-h-none md:w-[480px] md:h-[90vh] md:m-auto md:rounded-2xl shadow-2xl backdrop:bg-black/50 text-ink overflow-y-auto">
       <!-- Settings Header -->
       <div class="sticky top-0 bg-canvas z-10 border-b border-hairline">
         <div class="flex items-center px-4 h-16">
@@ -301,16 +301,16 @@ import Layout from '../layouts/Layout.astro';
       
       <!-- Group Info (Dark Banner) -->
       <div class="bg-[#2C2C2E] p-4 flex items-center justify-between">
-        <div class="flex items-center gap-4 text-canvas">
-          <div id="settingsGroupIcon" class="w-14 h-14 rounded-lg bg-[#0a6c51] text-canvas flex items-center justify-center font-bold text-2xl overflow-hidden relative shadow-sm border border-canvas/20">
+        <div class="flex items-center gap-4 text-white">
+          <div id="settingsGroupIcon" class="w-14 h-14 rounded-lg bg-[#0a6c51] text-white flex items-center justify-center font-bold text-2xl overflow-hidden relative shadow-sm border border-canvas/20">
             <!-- Icon/Letter inserted via JS -->
           </div>
           <div>
             <h3 id="settingsGroupName" class="text-xl font-bold tracking-tight">Group Name</h3>
-            <p id="settingsGroupDate" class="text-sm text-canvas/70 font-medium">Dates</p>
+            <p id="settingsGroupDate" class="text-sm text-white/70 font-medium">Dates</p>
           </div>
         </div>
-        <button id="editGroupBtn" class="w-10 h-10 flex items-center justify-center rounded-full bg-canvas/10 hover:bg-canvas/20 transition-colors text-canvas shadow-sm">
+        <button id="editGroupBtn" class="w-10 h-10 flex items-center justify-center rounded-full bg-canvas/10 hover:bg-canvas/20 transition-colors text-white shadow-sm">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
         </button>
       </div>
@@ -350,7 +350,7 @@ import Layout from '../layouts/Layout.astro';
     </dialog>
 
     <!-- Manage Members Modal -->
-    <dialog id="addMemberModal" class="bg-transparent p-0 m-auto backdrop:bg-ink/50 open:flex flex-col items-center justify-center w-[92vw] sm:w-full max-w-sm">
+    <dialog id="addMemberModal" class="bg-transparent p-0 m-auto backdrop:bg-black/50 text-ink open:flex flex-col items-center justify-center w-[92vw] sm:w-full max-w-sm">
       <div class="bg-canvas border border-hairline rounded-lg shadow-lg w-full p-6">
         <h2 class="text-xl font-bold mb-4 text-ink">Manage members</h2>
         <div id="manageMembersTags" class="flex items-center gap-2 mb-4 overflow-x-auto whitespace-nowrap pb-2 w-full max-w-[calc(100vw-3rem)]">
@@ -369,7 +369,7 @@ import Layout from '../layouts/Layout.astro';
     </dialog>
 
     <!-- Edit Group Modal (Sub-modal of Settings) -->
-    <dialog id="editGroupModal" class="bg-transparent p-0 m-auto backdrop:bg-ink/50 open:flex flex-col items-center justify-center w-[92vw] sm:w-full max-w-md max-h-[90vh]">
+    <dialog id="editGroupModal" class="bg-transparent p-0 m-auto backdrop:bg-black/50 text-ink open:flex flex-col items-center justify-center w-[92vw] sm:w-full max-w-md max-h-[90vh]">
       <div class="bg-canvas border border-hairline rounded-xl shadow-2xl w-full flex flex-col h-full max-h-[90vh] overflow-hidden">
         <div class="px-6 py-4 border-b border-hairline flex justify-between items-center shrink-0">
           <h2 class="text-xl font-bold">Edit group</h2>
@@ -392,7 +392,7 @@ import Layout from '../layouts/Layout.astro';
           <div class="mb-8">
             <label class="block text-xs font-medium text-ink mb-2">Type</label>
             <div class="grid grid-cols-4 gap-2">
-              <button type="button" class="edit-group-type-btn flex flex-col items-center justify-center p-3 rounded-lg border border-brand bg-brand text-canvas transition-colors" data-type="Trip">
+              <button type="button" class="edit-group-type-btn flex flex-col items-center justify-center p-3 rounded-lg border border-brand bg-brand text-white transition-colors" data-type="Trip">
                 <svg class="mb-1" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.2-1.1.6l-1 2c-.3.6.1 1.2.7 1.5l5.5 2.5-3.5 3.5-3.1-.8c-.4-.1-.8.2-1 .5L0 18l5.5 1.5L7 25l2-1c.3-.2.6-.6.5-1l-.8-3.1 3.5-3.5 2.5 5.5c.3.6 1 .9 1.5.7l2-1c.4-.2.7-.6.6-1.1z"/></svg>
                 <span class="text-[10px] font-medium">Trip</span>
               </button>
@@ -429,19 +429,23 @@ import Layout from '../layouts/Layout.astro';
                   <!-- Start Date -->
                   <div class="flex-1">
                     <label class="block text-xs font-medium text-ink mb-1">Start</label>
-                    <button type="button" id="editStartCalToggle" class="w-full flex items-center justify-between border-b border-hairline hover:border-brand transition-colors pb-1 bg-transparent cursor-pointer focus:outline-none text-left">
-                      <span id="editStartCalDisplay" class="text-sm text-ink">Today</span>
-                      <svg class="text-mute shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    </button>
+                    <div class="flex items-center justify-between border-b border-hairline focus-within:border-brand transition-colors pb-1 bg-transparent">
+                      <input type="text" id="editStartCalDisplay" autocomplete="off" class="text-sm text-ink bg-transparent focus:outline-none w-full" value="Today" placeholder="dd/mm/yyyy" />
+                      <button type="button" id="editStartCalToggle" class="text-mute shrink-0 hover:text-brand focus:outline-none ml-2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                      </button>
+                    </div>
                     <input type="hidden" id="editTripStartDate" />
                   </div>
                   <!-- End Date -->
                   <div class="flex-1">
                     <label class="block text-xs font-medium text-ink mb-1">End</label>
-                    <button type="button" id="editEndCalToggle" class="w-full flex items-center justify-between border-b border-hairline hover:border-brand transition-colors pb-1 bg-transparent cursor-pointer focus:outline-none text-left">
-                      <span id="editEndCalDisplay" class="text-sm text-mute">dd/mm/yyyy</span>
-                      <svg class="text-mute shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    </button>
+                    <div class="flex items-center justify-between border-b border-hairline focus-within:border-brand transition-colors pb-1 bg-transparent">
+                      <input type="text" id="editEndCalDisplay" autocomplete="off" class="text-sm text-ink bg-transparent focus:outline-none w-full" placeholder="dd/mm/yyyy" />
+                      <button type="button" id="editEndCalToggle" class="text-mute shrink-0 hover:text-brand focus:outline-none ml-2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                      </button>
+                    </div>
                     <input type="hidden" id="editTripEndDate" />
                   </div>
                 </div>
@@ -449,7 +453,7 @@ import Layout from '../layouts/Layout.astro';
             </div>
           </div>
           
-          <button type="submit" class="w-full mt-6 bg-brand hover:opacity-90 transition-opacity text-canvas font-bold py-3 px-4 rounded-full shadow-sm text-lg border border-transparent">
+          <button type="submit" class="w-full mt-6 bg-brand hover:opacity-90 transition-opacity text-white font-bold py-3 px-4 rounded-full shadow-sm text-lg border border-transparent">
             Save Changes
           </button>
         </form>
@@ -464,7 +468,7 @@ import Layout from '../layouts/Layout.astro';
     </div>
     
     <!-- Shared Calendar Picker Dialog -->
-    <dialog id="calPickerDialog" class="backdrop:bg-ink/40 p-0 rounded-2xl shadow-2xl w-[320px] bg-canvas border border-hairline m-auto overflow-hidden z-[9999]">
+    <dialog id="calPickerDialog" class="backdrop:bg-black/50 text-ink p-0 rounded-2xl shadow-2xl w-[320px] bg-canvas border border-hairline m-auto overflow-hidden z-[9999]">
       <!-- Header: Month/Year -->
       <div class="flex items-center justify-between p-3 border-b border-hairline">
         <button type="button" id="calPrevMonth" class="p-2 text-mute hover:bg-canvas-soft rounded-full transition-colors">
@@ -514,7 +518,7 @@ import Layout from '../layouts/Layout.astro';
     </dialog>
 
     <!-- Error Modal for Actions -->
-    <dialog id="errorModal" class="bg-transparent p-0 m-auto backdrop:bg-ink/50 open:flex flex-col items-center justify-center w-[92vw] sm:w-full max-w-sm z-[9999]">
+    <dialog id="errorModal" class="bg-transparent p-0 m-auto backdrop:bg-black/50 text-ink open:flex flex-col items-center justify-center w-[92vw] sm:w-full max-w-sm z-[9999]">
       <div class="bg-canvas border border-hairline rounded-lg shadow-lg w-full p-6 text-center">
         <h2 class="text-lg font-bold mb-2 text-ink">Cannot Remove Member</h2>
         <p id="errorModalMsg" class="text-body text-sm mb-6 text-mute"></p>
@@ -525,6 +529,61 @@ import Layout from '../layouts/Layout.astro';
   </div>
 
   <script>
+    const typeColorMap: Record<string, string> = {
+      'Trip': 'border-[#2563eb] bg-[#2563eb] text-white',
+      'Couple': 'border-[#db2777] bg-[#db2777] text-white',
+      'Other': 'border-[#ea580c] bg-[#ea580c] text-white',
+      'Home': 'border-[#65a30d] bg-[#65a30d] text-white'
+    };
+
+    const typeLightColorMap: Record<string, string> = {
+      'Trip': 'bg-[#eff6ff] text-[#2563eb]',
+      'Couple': 'bg-[#fdf2f8] text-[#db2777]',
+      'Other': 'bg-[#fffbeb] text-[#d97706]',
+      'Home': 'bg-[#f7fee7] text-[#65a30d]'
+    };
+
+    const alphabetMap: Record<string, {dark: string, light: string}> = {
+      'A': { dark: '#e11d48', light: 'bg-[#fff1f2] text-[#e11d48]' },
+      'B': { dark: '#2563eb', light: 'bg-[#eff6ff] text-[#2563eb]' },
+      'C': { dark: '#9333ea', light: 'bg-[#faf5ff] text-[#9333ea]' },
+      'D': { dark: '#4f46e5', light: 'bg-[#eef2ff] text-[#4f46e5]' },
+      'E': { dark: '#db2777', light: 'bg-[#fdf2f8] text-[#db2777]' },
+      'F': { dark: '#d97706', light: 'bg-[#fffbeb] text-[#d97706]' },
+      'G': { dark: '#059669', light: 'bg-[#ecfdf5] text-[#059669]' },
+      'H': { dark: '#0d9488', light: 'bg-[#f0fdfa] text-[#0d9488]' },
+      'I': { dark: '#0891b2', light: 'bg-[#ecfeff] text-[#0891b2]' },
+      'J': { dark: '#e11d48', light: 'bg-[#fff1f2] text-[#e11d48]' },
+      'K': { dark: '#059669', light: 'bg-[#ecfdf5] text-[#059669]' },
+      'L': { dark: '#65a30d', light: 'bg-[#f7fee7] text-[#65a30d]' },
+      'M': { dark: '#e11d48', light: 'bg-[#fff1f2] text-[#e11d48]' },
+      'N': { dark: '#059669', light: 'bg-[#ecfdf5] text-[#059669]' },
+      'O': { dark: '#9333ea', light: 'bg-[#faf5ff] text-[#9333ea]' },
+      'P': { dark: '#4f46e5', light: 'bg-[#eef2ff] text-[#4f46e5]' },
+      'Q': { dark: '#db2777', light: 'bg-[#fdf2f8] text-[#db2777]' },
+      'R': { dark: '#d97706', light: 'bg-[#fffbeb] text-[#d97706]' },
+      'S': { dark: '#059669', light: 'bg-[#ecfdf5] text-[#059669]' },
+      'T': { dark: '#0d9488', light: 'bg-[#f0fdfa] text-[#0d9488]' },
+      'U': { dark: '#0891b2', light: 'bg-[#ecfeff] text-[#0891b2]' },
+      'V': { dark: '#e11d48', light: 'bg-[#fff1f2] text-[#e11d48]' },
+      'W': { dark: '#c026d3', light: 'bg-[#fdf4ff] text-[#c026d3]' },
+      'X': { dark: '#65a30d', light: 'bg-[#f7fee7] text-[#65a30d]' },
+      'Y': { dark: '#e11d48', light: 'bg-[#fff1f2] text-[#e11d48]' },
+      'Z': { dark: '#2563eb', light: 'bg-[#eff6ff] text-[#2563eb]' },
+    };
+
+    function getGroupColor(type: string, name: string) {
+      const validTypes = ['Trip', 'Couple', 'Home'];
+      if (!type || !validTypes.includes(type)) {
+        const firstLetter = (name || 'G').trim().charAt(0).toUpperCase();
+        if (alphabetMap[firstLetter]) return alphabetMap[firstLetter];
+        return { dark: '#d97706', light: 'bg-[#fffbeb] text-[#d97706]' };
+      }
+      return {
+        dark: typeColorMap[type] ? typeColorMap[type].match(/bg-\[([^\]]+)\]/)?.[1] || '#2563eb' : '#2563eb',
+        light: typeLightColorMap[type] || 'bg-[#eff6ff] text-[#2563eb]'
+      };
+    }
     function showErrorModal(message: string) {
       const modal = document.getElementById('errorModal') as HTMLDialogElement;
       const msg = document.getElementById('errorModalMsg');
@@ -586,7 +645,7 @@ import Layout from '../layouts/Layout.astro';
       }
 
       const paidByText = document.getElementById('paidByText');
-      if (paidByText) paidByText.textContent = groupData?.members[0] || 'Name (You)';
+      if (paidByText) paidByText.textContent = groupData?.members[0] || (window as any).MY_DISPLAY_NAME;
 
       const splitText = document.getElementById('splitText');
       if (splitText) splitText.textContent = 'Equally';
@@ -930,7 +989,7 @@ import Layout from '../layouts/Layout.astro';
           const initial = (groupData.name || 'G').charAt(0).toUpperCase();
           watermark.innerHTML = `<span style="font-size: 240px; font-weight: bold; line-height: 1;">${initial}</span>`;
           // tweak positioning for text to align nicely
-          watermark.className = 'absolute right-0 top-1/2 -translate-y-[60%] translate-x-1/4 opacity-10 pointer-events-none text-canvas font-bold select-none';
+          watermark.className = 'absolute right-0 top-1/2 -translate-y-[60%] translate-x-1/4 opacity-10 pointer-events-none text-white font-bold select-none';
         }
       }
 
@@ -942,7 +1001,7 @@ import Layout from '../layouts/Layout.astro';
         paidByMenu.innerHTML = '';
         splitChecklist.innerHTML = '';
         groupData.members.forEach((member: string) => {
-          const displayMember = member === 'You' ? 'Name (You)' : member;
+          const displayMember = member === 'You' ? (window as any).MY_DISPLAY_NAME : member;
           // Paid By Dropdown
           const btn = document.createElement('button');
           btn.type = 'button';
@@ -969,7 +1028,7 @@ import Layout from '../layouts/Layout.astro';
         });
         const span = document.getElementById('paidByText');
         if (span) {
-          span.textContent = groupData.members[0] === 'You' ? 'Name (You)' : groupData.members[0];
+          span.textContent = groupData.members[0] === 'You' ? (window as any).MY_DISPLAY_NAME : groupData.members[0];
         }
         document.getElementById('splitParticipantsContainer')?.classList.add('is-equally');
       }
@@ -1179,8 +1238,8 @@ import Layout from '../layouts/Layout.astro';
       }
 
       transactions.forEach((t) => {
-        const isYou = t.to === 'You' || t.to === 'Name (You)'; // Someone owes you
-        const isFromYou = t.from === 'You' || t.from === 'Name (You)'; // You owe someone
+        const isYou = t.to === 'You' || t.to === (window as any).MY_DISPLAY_NAME; // Someone owes you
+        const isFromYou = t.from === 'You' || t.from === (window as any).MY_DISPLAY_NAME; // You owe someone
 
         let colorClass = 'text-ink';
         let bgClass = 'bg-canvas-soft border-hairline';
@@ -1218,12 +1277,35 @@ import Layout from '../layouts/Layout.astro';
     if (addExpenseForm && activityFeed && groupData) {
       addExpenseForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        
-        const desc = expenseDescription.value.trim() || 'New Expense';
-        const amountStr = expenseAmount.value;
-        const amount = parseFloat(amountStr);
-        if (isNaN(amount) || amount <= 0) return;
-        
+        const descInput = document.getElementById('expenseDescription') as HTMLInputElement;
+        const amtInput = document.getElementById('expenseAmount') as HTMLInputElement;
+        const descLabel = document.getElementById('descLabel');
+        const amtLabel = document.getElementById('amountLabel');
+
+        let hasError = false;
+
+        const showError = (input: HTMLElement, label: HTMLElement | null) => {
+          input.classList.add('shake-error', '!border-red-500');
+          if (label) label.classList.add('!text-red-500', 'shake-error');
+          setTimeout(() => {
+            input.classList.remove('shake-error', '!border-red-500');
+            if (label) label.classList.remove('!text-red-500', 'shake-error');
+          }, 3000);
+        };
+
+        if (!descInput.value.trim()) {
+          showError(descInput, descLabel);
+          hasError = true;
+        }
+        if (!amtInput.value || parseFloat(amtInput.value) <= 0) {
+          showError(amtInput.parentElement || amtInput, amtLabel);
+          hasError = true;
+        }
+
+        if (hasError) return;
+
+        const desc = descInput.value.trim();
+        const amount = parseFloat(amtInput.value);
         const curr = currencySymbol?.textContent || '$';
         const paidBy = document.getElementById('paidByText')?.textContent || groupData.members[0];
 
@@ -1458,8 +1540,8 @@ import Layout from '../layouts/Layout.astro';
 
       groupData.members.forEach((m: string, i: number) => {
         const bal = balances[m] || 0;
-        const isYou = m === 'Name (You)' || m === 'You';
-        const displayName = isYou ? 'Name (You)' : m;
+        const isYou = m === (window as any).MY_DISPLAY_NAME || m === 'You';
+        const displayName = isYou ? (window as any).MY_DISPLAY_NAME : m;
         const letter = displayName.charAt(0).toUpperCase();
         const colorClass = bgColors[i % bgColors.length];
         
@@ -1545,7 +1627,7 @@ import Layout from '../layouts/Layout.astro';
       });
 
       displayMembers.forEach((member) => {
-        const isYou = member === 'Name (You)' || member === 'You';
+        const isYou = member === (window as any).MY_DISPLAY_NAME || member === 'You';
         const isOldMember = groupData.members.includes(member);
         const isActive = tempMembers.includes(member);
         
@@ -1554,14 +1636,14 @@ import Layout from '../layouts/Layout.astro';
         
         // If active, normal black. If inactive (deselected old member), white/grey styling.
         if (isActive) {
-          pill.className = 'flex items-center gap-1.5 px-4 py-2 bg-[#1A1A1A] text-canvas border border-[#1A1A1A] rounded-full text-[15px] font-medium hover:opacity-90 transition-opacity shrink-0';
+          pill.className = 'flex items-center gap-1.5 px-4 py-2 bg-[#1A1A1A] text-white border border-[#1A1A1A] rounded-full text-[15px] font-medium hover:opacity-90 transition-opacity shrink-0';
         } else {
           pill.className = 'flex items-center gap-1.5 px-4 py-2 bg-canvas text-mute border border-hairline rounded-full text-[15px] font-medium hover:bg-canvas-soft transition-colors shrink-0';
         }
         
         // NO cross icon for new members or old members per user request. 
         // Deselected members just change color.
-        pill.innerHTML = `<span>${isYou ? 'Name (You)' : member}</span>`;
+        pill.innerHTML = `<span>${isYou ? (window as any).MY_DISPLAY_NAME : member}</span>`;
 
         if (!isYou) {
           pill.addEventListener('click', () => {
@@ -1689,23 +1771,72 @@ import Layout from '../layouts/Layout.astro';
           editDatesContainerWrapper.classList.add('grid-rows-[0fr]');
           editTripStartDate.value = '';
           editTripEndDate.value = '';
-          if(editStartCalDisplay) editStartCalDisplay.textContent = 'Today';
-          if(editEndCalDisplay) editEndCalDisplay.textContent = 'dd/mm/yyyy';
+          if(editStartCalDisplay) editStartCalDisplay.value = 'Today';
+          if(editEndCalDisplay) editEndCalDisplay.value = '';
         }
       });
     }
 
+    // Auto-formatting for date inputs
+    function formatGroupDateInput(e: Event) {
+      const input = e.target as HTMLInputElement;
+      let val = input.value;
+      
+      // Allow 'Today' bypass for start date
+      if (val.toLowerCase() === 'today') return;
+
+      // Remove non-digits
+      let clean = val.replace(/\D/g, '');
+      if (clean.length > 8) clean = clean.slice(0, 8);
+      
+      let formatted = clean;
+      if (clean.length >= 3) {
+        formatted = clean.slice(0, 2) + '/' + clean.slice(2);
+      }
+      if (clean.length >= 5) {
+        formatted = formatted.slice(0, 5) + '/' + clean.slice(4);
+      }
+      input.value = formatted;
+      
+      // Sync to hidden inputs if full date is entered (DD/MM/YYYY)
+      if (clean.length === 8) {
+        const dd = clean.slice(0,2);
+        const mm = clean.slice(2,4);
+        const yyyy = clean.slice(4,8);
+        const hiddenInputId = input.id === 'editStartCalDisplay' ? 'editTripStartDate' : 'editTripEndDate';
+        const hiddenInput = document.getElementById(hiddenInputId) as HTMLInputElement;
+        if (hiddenInput) {
+          hiddenInput.value = `${yyyy}-${mm}-${dd}`;
+        }
+      }
+    }
+
+    if (editStartCalDisplay) {
+      editStartCalDisplay.addEventListener('input', formatGroupDateInput);
+      editStartCalDisplay.addEventListener('change', (e) => {
+        const val = (e.target as HTMLInputElement).value;
+        if (val.toLowerCase() === 'today') {
+          editTripStartDate.value = new Date().toISOString().split('T')[0];
+        }
+      });
+    }
+    if (editEndCalDisplay) editEndCalDisplay.addEventListener('input', formatGroupDateInput);
+
     if (editGroupNameInput && editIconBox) {
       editGroupNameInput.addEventListener('input', () => {
         const val = editGroupNameInput.value.trim();
+        const type = editGroupTypeInput ? editGroupTypeInput.value : 'Trip';
         if (val.length > 0) {
+          const colors = getGroupColor(type, val);
           editIconBox.innerHTML = val.charAt(0).toUpperCase();
-          editIconBox.classList.remove('bg-canvas-soft');
-          editIconBox.classList.add('bg-[#b2dfdb]', 'text-ink');
+          editIconBox.className = 'w-16 h-16 shrink-0 rounded-xl border border-hairline flex items-center justify-center text-2xl font-bold transition-colors shadow-sm';
+          editIconBox.style.backgroundColor = colors.dark + '30'; // slightly transparent dark color for light background
+          editIconBox.style.color = colors.dark;
         } else {
           editIconBox.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-mute"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;
-          editIconBox.classList.remove('bg-[#b2dfdb]');
-          editIconBox.classList.add('bg-canvas-soft');
+          editIconBox.className = 'w-16 h-16 shrink-0 rounded-xl border border-hairline bg-canvas-soft flex items-center justify-center text-2xl font-bold text-mute transition-colors shadow-sm';
+          editIconBox.style.backgroundColor = '';
+          editIconBox.style.color = '';
         }
       });
     }
@@ -1714,13 +1845,17 @@ import Layout from '../layouts/Layout.astro';
       btn.addEventListener('click', () => {
         const selectedType = btn.getAttribute('data-type');
         if (selectedType && editGroupTypeInput) editGroupTypeInput.value = selectedType;
+        
         editTypeButtons.forEach(b => {
+          const t = b.getAttribute('data-type') || 'Other';
           if (b === btn) {
-            b.className = 'edit-group-type-btn flex flex-col items-center justify-center p-3 rounded-lg border border-brand bg-brand text-canvas transition-colors';
+            b.className = `edit-group-type-btn flex flex-col items-center justify-center p-3 rounded-lg border transition-colors ${typeColorMap[t]}`;
           } else {
             b.className = 'edit-group-type-btn flex flex-col items-center justify-center p-3 rounded-lg border border-hairline bg-canvas text-mute transition-colors hover:bg-canvas-soft';
           }
         });
+        
+        editGroupNameInput.dispatchEvent(new Event('input')); // trigger icon color update
       });
     });
 
@@ -1744,8 +1879,8 @@ import Layout from '../layouts/Layout.astro';
           editTripStartDate.value = groupData.startDate;
           editTripEndDate.value = groupData.endDate || '';
           // We could parse these to make them pretty, but for MVP just showing the ISO date string is okay
-          if(editStartCalDisplay) editStartCalDisplay.textContent = groupData.startDate;
-          if(editEndCalDisplay) editEndCalDisplay.textContent = groupData.endDate || 'dd/mm/yyyy';
+          if(editStartCalDisplay) (editStartCalDisplay as HTMLInputElement).value = groupData.startDate.split('-').reverse().join('/') || '';
+          if(editEndCalDisplay) (editEndCalDisplay as HTMLInputElement).value = groupData.endDate ? groupData.endDate.split('-').reverse().join('/') : '';
         } else {
           editAddDatesToggle.checked = false;
           editDatesContainerWrapper?.classList.remove('grid-rows-[1fr]');

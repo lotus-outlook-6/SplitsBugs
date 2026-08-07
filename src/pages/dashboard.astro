@@ -18,22 +18,25 @@ import Layout from '../layouts/Layout.astro';
     <header class="h-16 px-4 lg:px-6 flex items-center justify-between border-b border-hairline bg-canvas sticky top-0 z-40 relative">
       <!-- Left: Logo -->
       <a href="/dashboard" class="flex items-center z-10">
-        <img src="/SplitBugs-Brand/logos/logo-wordmark.svg" alt="SplitBugs" class="h-6 hidden sm:block" />
+        <img src="/SplitBugs-Brand/logos/logo-wordmark.svg" alt="SplitBugs" class="h-6 hidden sm:block transition-opacity" id="desktopLogo" />
         <img src="/SplitBugs-Brand/favicon/favicon.svg" alt="SB" class="h-8 sm:hidden" />
       </a>
       
       <!-- Center: Search Bar -->
-      <div class="absolute left-1/2 -translate-x-1/2 flex items-center w-full max-w-xl px-4 z-0 pointer-events-none hidden sm:flex">
-        <div class="flex items-center w-full pointer-events-auto shadow-sm rounded-full h-10">
+      <div id="searchContainer" class="absolute left-1/2 -translate-x-1/2 flex items-center w-full max-w-xl px-4 z-50 pointer-events-none hidden sm:flex">
+        <div id="searchInner" class="flex items-center w-full pointer-events-auto shadow-sm rounded-full h-10">
           <input type="text" id="searchInput" placeholder="Search" autocomplete="off" class="flex-1 h-full bg-canvas border border-hairline rounded-l-full py-2 pl-6 pr-4 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition-colors z-10" />
-          <button id="searchBtn" class="w-16 h-full flex items-center justify-center text-ink bg-[#f8f8f8] border border-hairline border-l-0 rounded-r-full hover:bg-[#f0f0f0] transition-colors cursor-pointer shrink-0 z-0">
+          <button id="searchBtn" class="w-16 h-full flex items-center justify-center text-ink bg-canvas-soft border border-hairline border-l-0 rounded-r-full hover:bg-hairline transition-colors cursor-pointer shrink-0 z-0">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
           </button>
         </div>
       </div>
       
       <!-- Right: New Group Button -->
-      <div class="flex items-center z-10">
+      <div class="flex items-center gap-2 z-10" id="headerActions">
+        <button id="mobileSearchBtn" class="sm:hidden bg-canvas-soft text-ink hover:bg-hairline p-2 rounded-full transition-colors cursor-pointer flex items-center justify-center border border-hairline shrink-0" title="Search">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </button>
         <button id="newGroupBtn" class="bg-canvas-soft text-ink hover:bg-hairline p-2 rounded-full transition-colors cursor-pointer flex items-center justify-center border border-hairline shrink-0" title="New Group">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
         </button>
@@ -58,7 +61,7 @@ import Layout from '../layouts/Layout.astro';
 
 
     <!-- New Group Modal -->
-    <dialog id="newGroupModal" class="backdrop:bg-ink/50 fixed inset-0 z-40 w-full h-full max-w-none max-h-none m-0 p-0 bg-canvas border-0 overflow-hidden open:flex open:flex-col pb-[calc(4rem+env(safe-area-inset-bottom))] sm:pb-0 sm:m-auto sm:w-[95vw] sm:max-w-md sm:h-auto sm:max-h-[90vh] sm:rounded-xl sm:border sm:border-hairline shadow-xl">
+    <dialog id="newGroupModal" class="backdrop:bg-black/50 text-ink fixed inset-0 z-40 w-full h-full max-w-none max-h-none m-0 p-0 bg-canvas border-0 overflow-hidden open:flex open:flex-col pb-[calc(4rem+env(safe-area-inset-bottom))] sm:pb-0 sm:m-auto sm:w-[95vw] sm:max-w-md sm:h-auto sm:max-h-[90vh] sm:rounded-xl sm:border sm:border-hairline shadow-xl">
       <form id="newGroupForm" class="flex flex-col h-full" method="dialog">
         <!-- Header -->
         <div class="px-4 py-3 flex items-center justify-between border-b border-hairline bg-canvas shrink-0">
@@ -124,20 +127,24 @@ import Layout from '../layouts/Layout.astro';
                   <!-- Start Date -->
                   <div class="flex-1">
                     <label class="block text-xs font-medium text-ink mb-1">Start</label>
-                    <button type="button" id="startCalToggle" class="w-full flex items-center justify-between border-b border-hairline hover:border-brand transition-colors pb-1 bg-transparent cursor-pointer focus:outline-none text-left">
-                      <span id="startCalDisplay" class="text-sm text-ink">Today</span>
-                      <svg class="text-mute shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    </button>
+                    <div class="flex items-center justify-between border-b border-hairline focus-within:border-brand transition-colors pb-1 bg-transparent">
+                      <input type="text" id="startCalDisplay" autocomplete="off" class="w-full text-sm text-ink bg-transparent focus:outline-none placeholder:text-mute" placeholder="Today" />
+                      <button type="button" id="startCalToggle" class="cursor-pointer focus:outline-none ml-2 rounded-sm transition-colors hover:text-brand text-mute">
+                        <svg class="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                      </button>
+                    </div>
                     <input type="hidden" id="tripStartDate" />
                   </div>
 
                   <!-- End Date -->
                   <div class="flex-1">
                     <label class="block text-xs font-medium text-ink mb-1">End</label>
-                    <button type="button" id="endCalToggle" class="w-full flex items-center justify-between border-b border-hairline hover:border-brand transition-colors pb-1 bg-transparent cursor-pointer focus:outline-none text-left">
-                      <span id="endCalDisplay" class="text-sm text-mute">dd/mm/yyyy</span>
-                      <svg class="text-mute shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    </button>
+                    <div class="flex items-center justify-between border-b border-hairline focus-within:border-brand transition-colors pb-1 bg-transparent">
+                      <input type="text" id="endCalDisplay" autocomplete="off" class="w-full text-sm text-ink bg-transparent focus:outline-none placeholder:text-mute" placeholder="dd/mm/yyyy" />
+                      <button type="button" id="endCalToggle" class="cursor-pointer focus:outline-none ml-2 rounded-sm transition-colors hover:text-brand text-mute">
+                        <svg class="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                      </button>
+                    </div>
                     <input type="hidden" id="tripEndDate" />
                   </div>
 
@@ -190,7 +197,7 @@ import Layout from '../layouts/Layout.astro';
     <!-- ======================================================
          Shared Calendar Picker Dialog (top layer, above all)
          ====================================================== -->
-    <dialog id="calPickerDialog" class="backdrop:bg-ink/40 p-0 rounded-2xl shadow-2xl w-[320px] bg-canvas border border-hairline m-auto overflow-hidden">
+    <dialog id="calPickerDialog" class="backdrop:bg-black/50 text-ink p-0 rounded-2xl shadow-2xl w-[320px] bg-canvas border border-hairline m-auto overflow-hidden">
       <div class="p-4">
         <!-- Header: Month + Year clickable -->
         <div class="flex items-center justify-between mb-4">
@@ -303,7 +310,7 @@ import Layout from '../layouts/Layout.astro';
     const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
     const SHORT_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-    let calTargetDisplay: HTMLElement | null = null;
+    let calTargetDisplay: HTMLInputElement | null = null;
     let calTargetInput: HTMLInputElement | null = null;
     let calYear  = new Date().getFullYear();
     let calMonth = new Date().getMonth();
@@ -330,8 +337,12 @@ import Layout from '../layouts/Layout.astro';
       const firstDay = new Date(calYear, calMonth, 1).getDay();
       const daysInM  = new Date(calYear, calMonth + 1, 0).getDate();
       calDayGrid.innerHTML = '';
+      let totalCells = 0;
       for (let i = 0; i < firstDay; i++) {
-        calDayGrid.appendChild(document.createElement('div'));
+        const empty = document.createElement('div');
+        empty.className = 'h-8';
+        calDayGrid.appendChild(empty);
+        totalCells++;
       }
       for (let d = 1; d <= daysInM; d++) {
         const btn = document.createElement('button');
@@ -351,6 +362,13 @@ import Layout from '../layouts/Layout.astro';
           calRenderDays();
         });
         calDayGrid.appendChild(btn);
+        totalCells++;
+      }
+      while (totalCells < 42) {
+        const empty = document.createElement('div');
+        empty.className = 'h-8';
+        calDayGrid.appendChild(empty);
+        totalCells++;
       }
     }
 
@@ -416,14 +434,14 @@ import Layout from '../layouts/Layout.astro';
       const isToday = calSelectedDate.toDateString() === today.toDateString();
       const d = calSelectedDate.getDate(), mo = calSelectedDate.getMonth() + 1, y = calSelectedDate.getFullYear();
       calTargetInput.value = `${y}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-      calTargetDisplay.textContent = isToday ? 'Today' : `${String(d).padStart(2,'0')}/${String(mo).padStart(2,'0')}/${y}`;
+      calTargetDisplay.value = isToday ? 'Today' : `${String(d).padStart(2,'0')}/${String(mo).padStart(2,'0')}/${y}`;
       calTargetDisplay.classList.remove('text-mute');
       calTargetDisplay.classList.add('text-ink');
       calDialog.close();
     });
 
     function openCalPicker(displayId: string, hiddenId: string) {
-      calTargetDisplay = document.getElementById(displayId);
+      calTargetDisplay = document.getElementById(displayId) as HTMLInputElement;
       calTargetInput   = document.getElementById(hiddenId) as HTMLInputElement;
       // Pre-select from existing value
       if (calTargetInput?.value) {
@@ -500,20 +518,20 @@ import Layout from '../layouts/Layout.astro';
 
     const memberInput = document.getElementById('memberInput') as HTMLInputElement;
     const membersTags = document.getElementById('membersTags');
-    let currentMembers: string[] = ['Name (You)'];
+    let currentMembers: string[] = [(window as any).MY_DISPLAY_NAME];
 
     function renderTags() {
       if (!membersTags) return;
       membersTags.innerHTML = '';
       currentMembers.forEach((m, idx) => {
-        const isYou = m === 'Name (You)';
+        const isYou = m === (window as any).MY_DISPLAY_NAME;
         const item = document.createElement('div');
         
         let borderClass = isYou ? 'border-brand shadow-sm' : 'border-hairline';
         let clickAttr = isYou ? '' : `onclick="removeMember(${idx})"`;
         let cursorClass = isYou ? 'cursor-default' : 'cursor-pointer hover:bg-hairline hover:text-error transition-colors';
         
-        item.className = `flex items-center gap-1.5 bg-canvas-soft border ${borderClass} rounded-pill px-4 py-1.5 text-sm font-medium whitespace-nowrap select-none flex-shrink-0 ${cursorClass}`;
+        item.className = `flex items-center gap-1.5 bg-canvas-soft border ${borderClass} text-ink rounded-pill px-4 py-1.5 text-sm font-medium whitespace-nowrap select-none flex-shrink-0 ${cursorClass}`;
         item.innerHTML = `
           <span>${m}</span>
         `;
@@ -561,7 +579,7 @@ import Layout from '../layouts/Layout.astro';
       const nameInput = document.getElementById('groupName') as HTMLInputElement;
       if (nameInput) nameInput.value = '';
       if (memberInput) memberInput.value = '';
-      currentMembers = ['Name (You)'];
+      currentMembers = [(window as any).MY_DISPLAY_NAME];
       renderTags();
       
       const typeInput = document.getElementById('groupType') as HTMLInputElement;
@@ -641,10 +659,14 @@ import Layout from '../layouts/Layout.astro';
           if (val.length > 0) {
             const colors = getGroupColor(currentType, val);
             groupIconBox.innerHTML = val.charAt(0).toUpperCase();
-            groupIconBox.className = `w-16 h-16 shrink-0 rounded-xl border border-hairline flex items-center justify-center text-2xl font-bold transition-colors ${colors.light}`;
+            groupIconBox.className = `w-16 h-16 shrink-0 rounded-xl border border-hairline flex items-center justify-center text-2xl font-bold transition-colors`;
+            groupIconBox.style.backgroundColor = colors.dark + '20';
+            groupIconBox.style.color = colors.dark;
           } else {
             groupIconBox.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-mute"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;
             groupIconBox.className = 'w-16 h-16 shrink-0 rounded-xl border border-hairline flex items-center justify-center bg-canvas-soft text-2xl font-bold text-ink transition-colors';
+            groupIconBox.style.backgroundColor = '';
+            groupIconBox.style.color = '';
           }
         });
       }
@@ -670,7 +692,9 @@ import Layout from '../layouts/Layout.astro';
           // Update modal icon box if name is entered
           const val = groupNameInput?.value.trim();
           if (val && val.length > 0 && groupIconBox && selectedType) {
-            groupIconBox.className = `w-16 h-16 shrink-0 rounded-xl border border-hairline flex items-center justify-center text-2xl font-bold transition-colors ${typeLightColorMap[selectedType]}`;
+            const colors = getGroupColor(selectedType, val);
+            groupIconBox.style.backgroundColor = colors.dark + '20';
+            groupIconBox.style.color = colors.dark;
           }
         });
       });
@@ -689,6 +713,25 @@ import Layout from '../layouts/Layout.astro';
           }
         });
       }
+
+      // Date formatting logic
+      const formatGroupDateInput = (e: Event) => {
+        const target = e.target as HTMLInputElement;
+        if (target.value.toLowerCase() === 'today') return;
+        let v = target.value.replace(/[^\d]/g, '');
+        if (v.length > 8) v = v.substring(0, 8);
+        if (v.length > 4) {
+          v = v.substring(0, 2) + '/' + v.substring(2, 4) + '/' + v.substring(4);
+        } else if (v.length > 2) {
+          v = v.substring(0, 2) + '/' + v.substring(2);
+        }
+        target.value = v;
+      };
+      
+      const startDisplay = document.getElementById('startCalDisplay') as HTMLInputElement;
+      const endDisplay = document.getElementById('endCalDisplay') as HTMLInputElement;
+      if (startDisplay) startDisplay.addEventListener('input', formatGroupDateInput);
+      if (endDisplay) endDisplay.addEventListener('input', formatGroupDateInput);
     }
 
     function renderGroups(searchQuery = '') {
@@ -717,10 +760,10 @@ import Layout from '../layouts/Layout.astro';
         const exps = group.expenses || [];
         
         exps.forEach((exp: any) => {
-          const isPaidByMe = exp.paidBy === 'You' || exp.paidBy === 'Name (You)';
+          const isPaidByMe = exp.paidBy === 'You' || exp.paidBy === (window as any).MY_DISPLAY_NAME;
           const amount = exp.amount;
           const participants = exp.participants || group.members;
-          const isParticipant = participants.includes('You') || participants.includes('Name (You)');
+          const isParticipant = participants.includes('You') || participants.includes((window as any).MY_DISPLAY_NAME);
           
           const myShare = isParticipant ? (amount / participants.length) : 0;
           
@@ -784,17 +827,16 @@ import Layout from '../layouts/Layout.astro';
         const typeIcon = typeIcons[group.type] || typeIcons['Other'];
 
         const colors = getGroupColor(group.type, group.name);
-        const cardBgColor = colors.light.split(' ')[0] || 'bg-canvas';
-        const iconTextColor = colors.light.split(' ')[1] || 'text-ink';
+        const accentHex = colors.dark;
 
         const card = `
-          <a href="/group?id=${group.id}" class="group block p-6 ${cardBgColor} border border-hairline rounded-md hover:border-brand transition-colors shadow-sm hover:shadow-md flex flex-col justify-between">
+          <a href="/group?id=${group.id}" style="background-color: ${accentHex}10;" class="group block p-6 border border-hairline rounded-md hover:border-brand transition-colors shadow-sm hover:shadow-md flex flex-col justify-between">
             <div class="flex justify-between items-start mb-4">
               <div class="flex items-center gap-4">
-                <div class="w-12 h-12 shrink-0 rounded-lg border border-hairline/50 flex items-center justify-center text-xl font-bold bg-white/60 ${iconTextColor}">
+                <div style="background-color: ${accentHex}20; color: ${accentHex};" class="w-12 h-12 shrink-0 rounded-lg border border-hairline/50 flex items-center justify-center text-xl font-bold bg-white/60">
                   ${(group.name || 'G').charAt(0).toUpperCase()}
                 </div>
-                <h2 class="text-xl font-bold group-hover:text-brand transition-colors">${group.name}</h2>
+                <h2 class="text-xl font-bold text-ink group-hover:opacity-80 transition-opacity">${group.name}</h2>
               </div>
               <div class="text-mute group-hover:text-brand transition-colors" title="${group.type || 'Other'}">
                 ${typeIcon}
@@ -835,8 +877,23 @@ import Layout from '../layouts/Layout.astro';
         
         const groupType = typeInput ? typeInput.value : 'Trip';
         const addDates = addDatesToggle ? addDatesToggle.checked : false;
-        const startDate = addDates && startDateInput ? startDateInput.value : null;
-        const endDate = addDates && endDateInput ? endDateInput.value : null;
+        
+        const parseDateDisplay = (id: string) => {
+          const el = document.getElementById(id) as HTMLInputElement;
+          if (!el || !el.value) return null;
+          if (el.value.toLowerCase() === 'today') {
+            const today = new Date();
+            return `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+          }
+          const parts = el.value.split('/');
+          if (parts.length === 3) {
+            return `${parts[2]}-${parts[1]}-${parts[0]}`;
+          }
+          return null;
+        };
+
+        const startDate = addDates ? parseDateDisplay('startCalDisplay') : null;
+        const endDate = addDates ? parseDateDisplay('endCalDisplay') : null;
 
         const newGroup = {
           id: groupId,
@@ -845,7 +902,7 @@ import Layout from '../layouts/Layout.astro';
           type: groupType,
           startDate: startDate,
           endDate: endDate,
-          createdBy: 'Name (You)',
+          createdBy: (window as any).MY_DISPLAY_NAME,
           members: [...currentMembers],
           expenses: [],
           createdAt: Date.now()
@@ -858,7 +915,7 @@ import Layout from '../layouts/Layout.astro';
         localStorage.setItem('splitsbug_data', JSON.stringify(data));
 
         nameInput.value = '';
-        currentMembers = ['Name (You)'];
+        currentMembers = [(window as any).MY_DISPLAY_NAME];
         renderTags();
         newGroupModal.close();
         renderGroups();
@@ -868,6 +925,33 @@ import Layout from '../layouts/Layout.astro';
     // Search Logic
     const searchInput = document.getElementById('searchInput') as HTMLInputElement;
     const searchBtn = document.getElementById('searchBtn');
+    const mobileSearchBtn = document.getElementById('mobileSearchBtn');
+    const searchContainer = document.getElementById('searchContainer');
+    const searchInner = document.getElementById('searchInner');
+
+    if (mobileSearchBtn && searchContainer && searchInput && searchInner) {
+      mobileSearchBtn.addEventListener('click', () => {
+        searchContainer.classList.remove('hidden', 'sm:flex', 'left-1/2', '-translate-x-1/2', 'pointer-events-none');
+        searchContainer.classList.add('flex', 'inset-0', 'bg-canvas', 'pointer-events-auto');
+        
+        let cancelBtn = document.getElementById('cancelSearchBtn');
+        if (!cancelBtn) {
+          cancelBtn = document.createElement('button');
+          cancelBtn.id = 'cancelSearchBtn';
+          cancelBtn.className = 'ml-3 text-brand font-medium text-sm shrink-0 hover:text-brand-deep transition-colors';
+          cancelBtn.textContent = 'Cancel';
+          searchContainer.appendChild(cancelBtn);
+          
+          cancelBtn.addEventListener('click', () => {
+            searchContainer.classList.add('hidden', 'sm:flex', 'left-1/2', '-translate-x-1/2', 'pointer-events-none');
+            searchContainer.classList.remove('flex', 'inset-0', 'bg-canvas', 'pointer-events-auto');
+            searchInput.value = '';
+            searchInput.dispatchEvent(new Event('input'));
+          });
+        }
+        searchInput.focus();
+      });
+    }
 
     if (searchInput && searchBtn) {
       searchInput.addEventListener('keydown', (e) => {
@@ -876,8 +960,34 @@ import Layout from '../layouts/Layout.astro';
           renderGroups(searchInput.value.trim());
         }
       });
+      searchInput.addEventListener('input', (e) => {
+        const query = (e.target as HTMLInputElement).value.toLowerCase();
+        renderGroups(query);
+      });
       searchBtn.addEventListener('click', () => {
         renderGroups(searchInput.value.trim());
+      });
+    }
+
+    // Logo Theme Switcher
+    const desktopLogo = document.getElementById('desktopLogo') as HTMLImageElement;
+    if (desktopLogo) {
+      const updateLogo = (themeClass: string) => {
+        if (themeClass.includes('theme-dark-grey')) {
+          desktopLogo.src = '/SplitBugs-Brand/logos/SplitsBug-dark-theme-softgray.svg';
+        } else if (themeClass.includes('theme-dark-amoled')) {
+          desktopLogo.src = '/SplitBugs-Brand/logos/SplitsBug-dark-theme-white.svg';
+        } else if (themeClass.includes('theme-light-cream')) {
+          desktopLogo.src = '/SplitBugs-Brand/logos/SplitsBug-light-theme-navy.svg';
+        } else {
+          desktopLogo.src = '/SplitBugs-Brand/logos/logo-wordmark.svg'; // light-white or unknown
+        }
+      };
+      // Init
+      updateLogo(document.documentElement.className);
+      // Listen for changes
+      window.addEventListener('themeChanged', (e: any) => {
+        updateLogo(e.detail.theme);
       });
     }
 

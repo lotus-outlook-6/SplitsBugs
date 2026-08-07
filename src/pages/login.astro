@@ -1,0 +1,82 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout hideNav={true}>
+  <div class="min-h-screen flex flex-col justify-center items-center p-6 bg-canvas-soft">
+    <div class="w-full max-w-sm bg-canvas p-8 rounded-xl shadow-sm border border-hairline">
+      <div class="text-center mb-8">
+        <h1 class="text-2xl font-bold text-ink mb-2">Welcome Back</h1>
+        <p class="text-mute text-sm">Log in to your SplitBugs account</p>
+      </div>
+      
+      <form id="loginForm" class="flex flex-col gap-4">
+        
+        <div id="successBox" class="hidden bg-success/10 border border-success/20 text-success p-3 rounded-md text-sm font-medium"></div>
+        <div id="errorBox" class="hidden bg-danger/10 border border-danger/20 text-danger p-3 rounded-md text-sm font-medium"></div>
+
+        <div>
+          <label class="block text-sm font-medium text-ink mb-1">Email address</label>
+          <input type="email" required id="emailInput" class="w-full p-3 rounded-md border border-hairline bg-canvas focus:outline-none focus:border-brand transition-colors text-ink placeholder:text-mute" placeholder="john@example.com" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-ink mb-1">Password</label>
+          <input type="password" required id="passwordInput" class="w-full p-3 rounded-md border border-hairline bg-canvas focus:outline-none focus:border-brand transition-colors text-ink placeholder:text-mute" placeholder="••••••••" />
+        </div>
+        
+        <button type="submit" class="w-full py-3 mt-4 bg-brand text-white rounded-md font-bold hover:bg-brand-deep transition-colors shadow-sm">
+          Log in
+        </button>
+      </form>
+
+      <div class="mt-6 text-center text-sm">
+        <span class="text-mute">Don't have an account?</span>
+        <a href="/signup" class="text-brand font-medium hover:underline ml-1">Sign up</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    const emailInput = document.getElementById('emailInput') as HTMLInputElement;
+    const passwordInput = document.getElementById('passwordInput') as HTMLInputElement;
+    const errorBox = document.getElementById('errorBox') as HTMLDivElement;
+    const successBox = document.getElementById('successBox') as HTMLDivElement;
+
+    // Check if redirected from signup
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('registered') === 'true') {
+      successBox.textContent = 'Account created successfully! Please log in.';
+      successBox.classList.remove('hidden');
+    }
+
+    form?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      errorBox.classList.add('hidden');
+      successBox.classList.add('hidden');
+
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+
+      const storedEmail = localStorage.getItem('splitbug_userEmail');
+      const storedPassword = localStorage.getItem('splitbug_userPassword');
+
+      // In a real application, this would be an API call to a backend
+      if (!storedEmail) {
+        errorBox.textContent = 'No account found with this email. Please sign up.';
+        errorBox.classList.remove('hidden');
+        return;
+      }
+
+      if (email !== storedEmail || password !== storedPassword) {
+        errorBox.textContent = 'Invalid email or password.';
+        errorBox.classList.remove('hidden');
+        return;
+      }
+
+      // Login successful
+      localStorage.setItem('splitbug_loggedIn', 'true');
+      window.location.href = '/dashboard';
+    });
+  </script>
+</Layout>

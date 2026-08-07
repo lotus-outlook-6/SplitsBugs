@@ -12,21 +12,25 @@ import Layout from '../layouts/Layout.astro';
       </div>
       
       <!-- Center: Search Bar -->
-      <div class="absolute left-1/2 -translate-x-1/2 flex items-center w-full max-w-xl px-4 z-0 pointer-events-none hidden sm:flex">
-        <div class="flex items-center w-full pointer-events-auto shadow-sm rounded-full h-10">
+      <div id="searchContainer" class="absolute left-1/2 -translate-x-1/2 flex items-center w-full max-w-xl px-4 z-50 pointer-events-none hidden sm:flex">
+        <div id="searchInner" class="flex items-center w-full pointer-events-auto shadow-sm rounded-full h-10">
           <input type="text" id="searchInput" placeholder="Search activity..." autocomplete="off" class="flex-1 h-full bg-canvas border border-hairline rounded-l-full py-2 pl-6 pr-4 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition-colors z-10" />
-          <button id="searchBtn" class="w-16 h-full flex items-center justify-center text-ink bg-[#f8f8f8] border border-hairline border-l-0 rounded-r-full hover:bg-[#f0f0f0] transition-colors cursor-pointer shrink-0 z-0">
+          <button id="searchBtn" class="w-16 h-full flex items-center justify-center text-ink bg-canvas-soft border border-hairline border-l-0 rounded-r-full hover:bg-hairline transition-colors cursor-pointer shrink-0 z-0">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
           </button>
         </div>
       </div>
       
-      <!-- Right: Placeholder to balance the flex layout -->
-      <div class="flex items-center z-10 w-[36px]"></div>
+      <!-- Right: Search Icon (Mobile) -->
+      <div class="flex items-center z-10 w-[36px] justify-end">
+        <button id="mobileSearchBtn" class="sm:hidden bg-canvas-soft text-ink hover:bg-hairline p-2 rounded-full transition-colors cursor-pointer flex items-center justify-center border border-hairline shrink-0" title="Search">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </button>
+      </div>
     </header>
 
     <!-- Activity Feed List -->
-    <main class="flex-1 w-full max-w-[800px] mx-auto bg-canvas border-x border-hairline min-h-[calc(100vh-4rem)]">
+    <main class="flex-1 w-full max-w-[800px] mx-auto bg-canvas border-x border-hairline min-h-[calc(100vh-4rem)] sm:min-h-0 sm:my-8 sm:border sm:rounded-xl overflow-hidden sm:shadow-sm">
       <div id="activityFeedContainer" class="flex flex-col">
         <!-- JS will populate this -->
       </div>
@@ -125,11 +129,11 @@ import Layout from '../layouts/Layout.astro';
           subTextHTML = ``; // No subtext
         } else if (act.type === 'group_expense') {
           avatarLetter = act.description.charAt(0).toUpperCase();
-          const who = act.paidBy === 'You' || act.paidBy === 'Name (You)' ? 'You' : act.paidBy;
+          const who = act.paidBy === 'You' || act.paidBy === (window as any).MY_DISPLAY_NAME ? 'You' : act.paidBy;
           mainText = `<span class="font-bold text-ink">${who}</span> added "<span class="font-bold text-ink">${act.description}</span>" in "<span class="font-bold text-ink">${act.groupName}</span>".`;
           
-          const isParticipant = act.participants.includes('You') || act.participants.includes('Name (You)');
-          const isPayer = act.paidBy === 'You' || act.paidBy === 'Name (You)';
+          const isParticipant = act.participants.includes('You') || act.participants.includes((window as any).MY_DISPLAY_NAME);
+          const isPayer = act.paidBy === 'You' || act.paidBy === (window as any).MY_DISPLAY_NAME;
           const myShare = isParticipant ? (act.amount / act.participants.length) : 0;
           const curr = act.currency;
 
@@ -177,13 +181,38 @@ import Layout from '../layouts/Layout.astro';
     // Search Logic
     const searchInput = document.getElementById('searchInput') as HTMLInputElement;
     const searchBtn = document.getElementById('searchBtn');
+    const mobileSearchBtn = document.getElementById('mobileSearchBtn');
+    const searchContainer = document.getElementById('searchContainer');
+    const searchInner = document.getElementById('searchInner');
+
+    if (mobileSearchBtn && searchContainer && searchInput && searchInner) {
+      mobileSearchBtn.addEventListener('click', () => {
+        searchContainer.classList.remove('hidden', 'sm:flex', 'left-1/2', '-translate-x-1/2', 'pointer-events-none');
+        searchContainer.classList.add('flex', 'inset-0', 'bg-canvas', 'pointer-events-auto');
+        
+        let cancelBtn = document.getElementById('cancelSearchBtn');
+        if (!cancelBtn) {
+          cancelBtn = document.createElement('button');
+          cancelBtn.id = 'cancelSearchBtn';
+          cancelBtn.className = 'ml-3 text-brand font-medium text-sm shrink-0 hover:text-brand-deep transition-colors';
+          cancelBtn.textContent = 'Cancel';
+          searchContainer.appendChild(cancelBtn);
+          
+          cancelBtn.addEventListener('click', () => {
+            searchContainer.classList.add('hidden', 'sm:flex', 'left-1/2', '-translate-x-1/2', 'pointer-events-none');
+            searchContainer.classList.remove('flex', 'inset-0', 'bg-canvas', 'pointer-events-auto');
+            searchInput.value = '';
+            searchInput.dispatchEvent(new Event('input'));
+          });
+        }
+        searchInput.focus();
+      });
+    }
 
     if (searchInput && searchBtn) {
-      searchInput.addEventListener('input', () => {
-        renderActivity(searchInput.value.trim());
-      });
-      searchBtn.addEventListener('click', () => {
-        renderActivity(searchInput.value.trim());
+      searchInput.addEventListener('input', (e) => {
+        const query = (e.target as HTMLInputElement).value.toLowerCase();
+        renderActivity(query);
       });
     }
   </script>

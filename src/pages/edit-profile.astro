@@ -1,0 +1,479 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout>
+  <div class="min-h-screen flex flex-col bg-canvas-soft pb-32">
+    <!-- Header -->
+    <header class="h-16 px-4 lg:px-6 flex items-center gap-4 border-b border-hairline bg-canvas sticky top-0 z-40">
+      <a href="/account" class="w-10 h-10 flex items-center justify-center rounded-full bg-canvas-soft hover:bg-hairline transition-colors text-ink">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+      </a>
+      <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-ink">Edit Profile</h1>
+    </header>
+
+    <main class="flex-1 w-full max-w-5xl mx-auto p-4 sm:p-6 lg:p-8">
+      <div class="w-full max-w-xl mx-auto bg-canvas p-4 sm:p-6 sm:rounded-2xl sm:shadow-lg sm:border sm:border-hairline relative mb-10">
+      
+      <form id="editProfileForm" class="flex flex-col gap-4">
+        <div id="errorBox" class="hidden bg-danger/10 border border-danger/20 text-danger p-3 rounded-md text-sm font-medium"></div>
+
+        <!-- Avatar Upload Section -->
+        <div class="flex flex-col items-center">
+          <div class="relative group cursor-pointer w-fit mx-auto" id="avatarContainer">
+            <div id="profileAvatar" class="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-brand text-white flex items-center justify-center text-4xl sm:text-5xl font-bold overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all">
+              <!-- Initials or Image injected via JS -->
+            </div>
+            
+            <button type="button" id="triggerMenuBtn" class="absolute bottom-1 right-1 w-8 h-8 bg-canvas border border-hairline rounded-full flex items-center justify-center text-ink shadow-md hover:bg-brand hover:text-white hover:border-brand transition-colors">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+            </button>
+            
+            <div id="avatarMenu" class="hidden absolute top-full mt-2 left-1/2 -translate-x-1/2 w-48 bg-canvas border border-hairline rounded-lg shadow-xl z-50 overflow-hidden">
+              <button type="button" id="uploadPhotoBtn" class="w-full px-4 py-3 text-left text-sm text-ink hover:bg-canvas-soft flex items-center gap-3">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                Upload Photo
+              </button>
+              <button type="button" id="refreshColorBtn" class="w-full px-4 py-3 text-left text-sm text-ink hover:bg-canvas-soft flex items-center gap-3 border-t border-hairline">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                Change Theme Color
+              </button>
+              <button type="button" id="removePhotoBtn" class="hidden w-full px-4 py-3 text-left text-sm text-danger hover:bg-danger/10 flex items-center gap-3 border-t border-hairline">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                Remove Photo
+              </button>
+            </div>
+            <input type="file" id="realFileInput" accept="image/jpeg, image/png" class="hidden" />
+          </div>
+          <p class="text-xs text-mute mt-3 text-center">JPEG and PNG only, max 3MB.</p>
+        </div>
+
+        <!-- First Name -->
+        <div>
+          <label class="block text-sm font-medium text-ink mb-1">First Name</label>
+          <input type="text" required id="nameInput" autocomplete="off" class="w-full p-3 rounded-md border border-hairline bg-canvas focus:outline-none focus:border-brand transition-colors text-ink placeholder:text-mute" placeholder="e.g. John Doe" />
+        </div>
+        
+        <!-- Email -->
+        <div class="relative">
+          <label class="block text-sm font-medium text-ink mb-1">Email address</label>
+          <input type="text" required id="emailInput" class="w-full p-3 rounded-md border border-hairline bg-canvas focus:outline-none focus:border-brand transition-colors text-ink placeholder:text-mute" placeholder="john@example.com" />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <!-- Date of Birth -->
+          <div>
+            <label class="block text-sm font-medium text-ink mb-1">Date of Birth</label>
+            <div class="relative">
+              <input type="text" required id="dobInput" autocomplete="off" class="w-full p-3 pr-10 rounded-md border border-hairline bg-canvas focus:outline-none focus:border-brand transition-colors text-ink placeholder:text-mute" placeholder="dd/mm/yyyy" />
+              <button type="button" id="dobCalBtn" class="absolute right-2 top-2 p-1.5 hover:bg-canvas-soft rounded-md transition-colors text-mute hover:text-brand focus:outline-none">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Contact Number -->
+          <div>
+            <label class="block text-sm font-medium text-ink mb-1">Contact Number</label>
+            <div class="flex border border-hairline rounded-md focus-within:border-brand transition-colors bg-canvas overflow-hidden">
+              <button type="button" id="countryCodeBtn" class="px-3 rounded-l-md flex items-center gap-1 border-r border-hairline hover:bg-canvas-soft transition-colors text-ink">
+                <span id="countryCodeLabel">+1</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <input type="text" required id="phoneInput" autocomplete="off" maxlength="10" class="flex-1 p-3 w-full bg-transparent focus:outline-none text-ink placeholder:text-mute" placeholder="XXXXXXXXXX" />
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" id="submitBtn" class="w-full py-3 mt-4 bg-brand text-white rounded-md font-bold hover:bg-brand-deep transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed text-lg">
+          Save Changes
+        </button>
+      </form>
+    </div>
+    </main>
+  </div>
+
+  <!-- Shared Calendar Picker Dialog -->
+  <dialog id="calPickerDialog" class="backdrop:bg-black/50 text-ink p-0 rounded-2xl shadow-2xl w-[320px] bg-canvas border border-hairline m-auto overflow-hidden z-[9999]">
+    <div class="p-4">
+      <div class="flex items-center justify-between mb-4">
+        <button type="button" id="calPrevMonth" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-canvas-soft transition-colors text-ink">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="flex items-center gap-2">
+          <button type="button" id="calMonthBtn" class="text-sm font-bold text-ink hover:text-brand transition-colors"></button>
+          <button type="button" id="calYearBtn" class="text-sm font-bold text-brand hover:opacity-70 transition-opacity"></button>
+        </div>
+        <button type="button" id="calNextMonth" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-canvas-soft transition-colors text-ink">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+
+      <div id="calDayView">
+        <div class="grid grid-cols-7 mb-2">
+          <span class="text-[10px] font-semibold text-mute text-center">Su</span>
+          <span class="text-[10px] font-semibold text-mute text-center">Mo</span>
+          <span class="text-[10px] font-semibold text-mute text-center">Tu</span>
+          <span class="text-[10px] font-semibold text-mute text-center">We</span>
+          <span class="text-[10px] font-semibold text-mute text-center">Th</span>
+          <span class="text-[10px] font-semibold text-mute text-center">Fr</span>
+          <span class="text-[10px] font-semibold text-mute text-center">Sa</span>
+        </div>
+        <div id="calDaysGrid" class="grid grid-cols-7 gap-y-1 mb-2"></div>
+      </div>
+      <div class="flex justify-end gap-2 mt-2 pt-2 border-t border-hairline">
+        <button type="button" id="calCancelBtn" class="px-4 py-1.5 text-sm font-medium text-mute hover:text-ink transition-colors">Cancel</button>
+        <button type="button" id="calOkBtn" class="px-4 py-1.5 text-sm font-medium text-white bg-brand rounded-full hover:opacity-90 transition-opacity">OK</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Shared Country Code Modal -->
+  <dialog id="countryCodeModal" class="backdrop:bg-black/50 text-ink p-0 rounded-2xl shadow-2xl w-[92vw] sm:w-[400px] bg-canvas border border-hairline m-auto overflow-hidden z-[9999]">
+    <div class="flex flex-col max-h-[80vh]">
+      <div class="p-4 border-b border-hairline shrink-0 flex items-center gap-3">
+        <svg class="text-mute shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="countrySearchInput" autocomplete="off" placeholder="Search countries..." class="flex-1 bg-transparent border-none focus:outline-none text-ink text-sm" />
+      </div>
+      <div id="countryList" class="overflow-y-auto flex-1 p-2"></div>
+    </div>
+  </dialog>
+
+  <script>
+    const nameInput = document.getElementById('nameInput') as HTMLInputElement;
+    const emailInput = document.getElementById('emailInput') as HTMLInputElement;
+    const dobInput = document.getElementById('dobInput') as HTMLInputElement;
+    const phoneInput = document.getElementById('phoneInput') as HTMLInputElement;
+    const errorBox = document.getElementById('errorBox') as HTMLDivElement;
+    
+    // Avatar logic
+    const triggerMenuBtn = document.getElementById('triggerMenuBtn') as HTMLButtonElement;
+    const avatarMenu = document.getElementById('avatarMenu') as HTMLDivElement;
+    const uploadPhotoBtn = document.getElementById('uploadPhotoBtn') as HTMLButtonElement;
+    const removePhotoBtn = document.getElementById('removePhotoBtn') as HTMLButtonElement;
+    const refreshColorBtn = document.getElementById('refreshColorBtn') as HTMLButtonElement;
+    const realFileInput = document.getElementById('realFileInput') as HTMLInputElement;
+    const profileAvatar = document.getElementById('profileAvatar') as HTMLDivElement;
+    let currentAvatarBase64 = '';
+    
+    const THEME_COLORS = ['bg-[#6366f1]', 'bg-[#ec4899]', 'bg-[#10b981]', 'bg-[#f59e0b]', 'bg-[#8b5cf6]', 'bg-[#ef4444]', 'bg-[#06b6d4]'];
+    let currentThemeColor = localStorage.getItem('splitbug_userThemeColor') || THEME_COLORS[0];
+
+    function getInitials(name: string) {
+      const parts = name.trim().split(/\s+/);
+      if (parts.length === 0 || !parts[0]) return 'U';
+      if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+      return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+    }
+
+    function updateAvatarView() {
+      if (currentAvatarBase64) {
+        profileAvatar.innerHTML = `<img src="${currentAvatarBase64}" class="w-full h-full object-cover" />`;
+        profileAvatar.className = "w-24 h-24 sm:w-32 sm:h-32 rounded-full flex items-center justify-center text-4xl sm:text-5xl font-bold overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all text-white bg-transparent";
+        removePhotoBtn.classList.remove('hidden');
+        refreshColorBtn.classList.add('hidden');
+      } else {
+        profileAvatar.innerHTML = getInitials(nameInput.value);
+        profileAvatar.className = `w-24 h-24 sm:w-32 sm:h-32 rounded-full ${currentThemeColor} text-white flex items-center justify-center text-4xl sm:text-5xl font-bold overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all`;
+        removePhotoBtn.classList.add('hidden');
+        refreshColorBtn.classList.remove('hidden');
+      }
+    }
+
+    // Load initial data
+    function loadInitialData() {
+      const userName = localStorage.getItem('splitbug_userName') || '';
+      const userEmail = localStorage.getItem('splitbug_userEmail') || '';
+      const userDob = localStorage.getItem('splitbug_userDob') || '';
+      const userPhone = localStorage.getItem('splitbug_userPhone') || '';
+      const userCode = localStorage.getItem('splitbug_userCode') || '+91';
+      const userAvatar = localStorage.getItem('splitbug_userAvatar') || '';
+      
+      nameInput.value = userName;
+      emailInput.value = userEmail;
+      dobInput.value = userDob;
+      phoneInput.value = userPhone;
+      countryCodeLabel.textContent = userCode;
+      currentAvatarBase64 = userAvatar;
+
+      updateAvatarView();
+    }
+    
+    nameInput.addEventListener('input', () => {
+      if (!currentAvatarBase64) updateAvatarView();
+    });
+
+    // Avatar menu logic
+    triggerMenuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      avatarMenu.classList.toggle('hidden');
+    });
+    
+    document.addEventListener('click', () => {
+      if (!avatarMenu.classList.contains('hidden')) avatarMenu.classList.add('hidden');
+    });
+
+    uploadPhotoBtn.addEventListener('click', () => realFileInput.click());
+    
+    removePhotoBtn.addEventListener('click', () => {
+      currentAvatarBase64 = '';
+      realFileInput.value = '';
+      updateAvatarView();
+    });
+
+    refreshColorBtn.addEventListener('click', (e) => {
+      e.stopPropagation(); // Keep menu open if desired, or let it close
+      const idx = THEME_COLORS.indexOf(currentThemeColor);
+      currentThemeColor = THEME_COLORS[(idx + 1) % THEME_COLORS.length];
+      updateAvatarView();
+    });
+    
+    realFileInput.addEventListener('change', (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      if (file.size > 3 * 1024 * 1024) {
+        showError("File is too large. Max 3MB allowed.");
+        realFileInput.value = '';
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        currentAvatarBase64 = event.target?.result as string;
+        profileAvatar.innerHTML = `<img src="${currentAvatarBase64}" class="w-full h-full object-cover" />`;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Date Input Auto-formatting
+    dobInput.addEventListener('input', (e) => {
+      let val = dobInput.value.replace(/\D/g, '');
+      if (val.length > 8) val = val.slice(0, 8);
+      let formatted = val;
+      if (val.length >= 3) formatted = val.slice(0, 2) + '/' + val.slice(2);
+      if (val.length >= 5) formatted = formatted.slice(0, 5) + '/' + val.slice(4);
+      dobInput.value = formatted;
+    });
+
+    // Country Code Modal Logic
+    const COUNTRIES = [
+      { code: '+1', length: 10, name: 'United States / Canada' },
+      { code: '+44', length: 10, name: 'United Kingdom' },
+      { code: '+91', length: 10, name: 'India' },
+      { code: '+49', length: 11, name: 'Germany' },
+      { code: '+33', length: 9, name: 'France' },
+      { code: '+61', length: 9, name: 'Australia' },
+      { code: '+81', length: 10, name: 'Japan' },
+      { code: '+86', length: 11, name: 'China' },
+      { code: '+55', length: 11, name: 'Brazil' },
+      { code: '+27', length: 9, name: 'South Africa' },
+      { code: '+971', length: 9, name: 'United Arab Emirates' },
+      { code: '+65', length: 8, name: 'Singapore' },
+      { code: '+39', length: 10, name: 'Italy' },
+      { code: '+34', length: 9, name: 'Spain' },
+      { code: '+7', length: 10, name: 'Russia' },
+      { code: '+52', length: 10, name: 'Mexico' }
+    ];
+
+    const countryCodeBtn = document.getElementById('countryCodeBtn') as HTMLButtonElement;
+    const countryCodeLabel = document.getElementById('countryCodeLabel') as HTMLSpanElement;
+    const countryCodeModal = document.getElementById('countryCodeModal') as HTMLDialogElement;
+    const countryList = document.getElementById('countryList') as HTMLDivElement;
+    const countrySearchInput = document.getElementById('countrySearchInput') as HTMLInputElement;
+    let selectedCountry = COUNTRIES.find(c => c.code === (localStorage.getItem('splitbug_userCode') || '+91')) || COUNTRIES[2];
+
+    function renderCountries(filterText = '') {
+      countryList.innerHTML = '';
+      const filtered = COUNTRIES.filter(c => 
+        c.name.toLowerCase().includes(filterText.toLowerCase()) || 
+        c.code.includes(filterText)
+      );
+
+      if (filtered.length === 0) {
+        countryList.innerHTML = `<div class="p-4 text-center text-sm text-mute">No countries found</div>`;
+        return;
+      }
+
+      filtered.forEach(country => {
+        const isSelected = country.code === selectedCountry.code;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `w-full flex items-center justify-between p-3 rounded-lg transition-colors text-left group ${isSelected ? 'bg-brand/10' : 'hover:bg-canvas-soft'}`;
+        btn.innerHTML = `
+          <span class="text-sm font-medium ${isSelected ? 'text-brand' : 'text-ink'}">${country.name}</span>
+          <span class="text-xs font-bold ${isSelected ? 'text-brand' : 'text-mute'} bg-canvas-soft px-2 py-1 rounded transition-colors">${country.code}</span>
+        `;
+        btn.addEventListener('click', () => {
+          selectedCountry = country;
+          countryCodeLabel.textContent = country.code;
+          phoneInput.maxLength = country.length;
+          phoneInput.placeholder = 'X'.repeat(country.length);
+          phoneInput.value = phoneInput.value.slice(0, country.length);
+          countryCodeModal.close();
+          phoneInput.focus();
+        });
+        countryList.appendChild(btn);
+      });
+    }
+
+    countryCodeBtn.addEventListener('click', () => {
+      renderCountries();
+      countrySearchInput.value = '';
+      countryCodeModal.showModal();
+    });
+
+    countrySearchInput.addEventListener('input', (e) => {
+      renderCountries((e.target as HTMLInputElement).value);
+    });
+
+    countryCodeModal.addEventListener('click', (e) => {
+      const dialogDimensions = countryCodeModal.getBoundingClientRect();
+      if (
+        e.clientX < dialogDimensions.left ||
+        e.clientX > dialogDimensions.right ||
+        e.clientY < dialogDimensions.top ||
+        e.clientY > dialogDimensions.bottom
+      ) {
+        countryCodeModal.close();
+      }
+    });
+
+    phoneInput.addEventListener('input', (e) => {
+      const input = e.target as HTMLInputElement;
+      input.value = input.value.replace(/\D/g, '');
+    });
+
+    // Form Submission
+    function showError(msg: string) {
+      errorBox.textContent = msg;
+      errorBox.classList.remove('hidden');
+    }
+
+    document.getElementById('editProfileForm')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      errorBox.classList.add('hidden');
+      
+      const email = emailInput.value.trim();
+      const name = nameInput.value.trim();
+      const dob = dobInput.value.trim();
+      const phone = phoneInput.value.trim();
+      
+      if(dob && dob.length !== 10) return showError("Please enter a valid Date of Birth");
+      if(phone && phone.length !== selectedCountry.length) return showError(`Please enter a valid ${selectedCountry.length}-digit phone number`);
+
+      localStorage.setItem('splitbug_userName', nameInput.value);
+      localStorage.setItem('splitbug_userEmail', emailInput.value);
+      localStorage.setItem('splitbug_userDob', dobInput.value);
+      localStorage.setItem('splitbug_userPhone', phoneInput.value);
+      localStorage.setItem('splitbug_userCode', countryCodeLabel.textContent || '+91');
+      localStorage.setItem('splitbug_userAvatar', currentAvatarBase64);
+      localStorage.setItem('splitbug_userThemeColor', currentThemeColor);
+
+      window.location.href = '/account';
+    });
+
+    // Init Custom Calendar (Reused logic stripped down for brevity)
+    const dobCalBtn = document.getElementById('dobCalBtn');
+    const calPickerDialog = document.getElementById('calPickerDialog') as HTMLDialogElement;
+    const calMonthBtn = document.getElementById('calMonthBtn');
+    const calYearBtn = document.getElementById('calYearBtn');
+    const calPrevMonth = document.getElementById('calPrevMonth');
+    const calNextMonth = document.getElementById('calNextMonth');
+    const calDaysGrid = document.getElementById('calDaysGrid');
+
+    let currentCalDate = new Date();
+    let calSelectedDate: Date | null = null;
+    
+    function renderCalendar() {
+      const year = currentCalDate.getFullYear();
+      const month = currentCalDate.getMonth();
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      
+      calMonthBtn!.textContent = new Date(year, month).toLocaleString('default', { month: 'long' });
+      calYearBtn!.textContent = year.toString();
+      
+      calDaysGrid!.innerHTML = '';
+      
+      const totalSlots = 42;
+      for (let i = 0; i < totalSlots; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'w-8 h-8 flex items-center justify-center';
+        
+        if (i >= firstDay && i < firstDay + daysInMonth) {
+          const day = i - firstDay + 1;
+          const thisDate = new Date(year, month, day);
+          const isSelected = calSelectedDate && thisDate.toDateString() === calSelectedDate.toDateString();
+          
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = `w-7 h-7 rounded-full text-sm flex items-center justify-center transition-colors focus:outline-none focus:ring-1 focus:ring-brand ${isSelected ? 'bg-brand text-white shadow-sm' : 'text-ink hover:bg-canvas-soft'}`;
+          btn.textContent = day.toString();
+          btn.addEventListener('click', () => {
+            calSelectedDate = thisDate;
+            renderCalendar();
+          });
+          slot.appendChild(btn);
+        } else {
+          slot.classList.add('h-8');
+        }
+        calDaysGrid!.appendChild(slot);
+      }
+    }
+
+    calPrevMonth?.addEventListener('click', () => {
+      currentCalDate.setMonth(currentCalDate.getMonth() - 1);
+      renderCalendar();
+    });
+    
+    calNextMonth?.addEventListener('click', () => {
+      currentCalDate.setMonth(currentCalDate.getMonth() + 1);
+      renderCalendar();
+    });
+
+    document.getElementById('calCancelBtn')?.addEventListener('click', () => {
+      calPickerDialog.close();
+    });
+
+    document.getElementById('calOkBtn')?.addEventListener('click', () => {
+      if (calSelectedDate) {
+        const dd = calSelectedDate.getDate().toString().padStart(2, '0');
+        const mm = (calSelectedDate.getMonth() + 1).toString().padStart(2, '0');
+        const yyyy = calSelectedDate.getFullYear();
+        dobInput.value = `${dd}/${mm}/${yyyy}`;
+      }
+      calPickerDialog.close();
+    });
+
+    dobCalBtn?.addEventListener('click', () => {
+      const val = dobInput.value;
+      if (val.length === 10) {
+        const parts = val.split('/');
+        if (parts.length === 3) {
+          const dd = parseInt(parts[0], 10);
+          const mm = parseInt(parts[1], 10) - 1;
+          const yyyy = parseInt(parts[2], 10);
+          if (!isNaN(dd) && !isNaN(mm) && !isNaN(yyyy)) {
+            currentCalDate = new Date(yyyy, mm, dd);
+            calSelectedDate = new Date(yyyy, mm, dd);
+          }
+        }
+      } else {
+        currentCalDate = new Date();
+        calSelectedDate = null;
+      }
+      renderCalendar();
+      calPickerDialog.showModal();
+    });
+
+    calPickerDialog.addEventListener('click', (e) => {
+      const rect = calPickerDialog.getBoundingClientRect();
+      if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) {
+        calPickerDialog.close();
+      }
+    });
+
+    // Start
+    loadInitialData();
+  </script>
+</Layout>

@@ -3,14 +3,14 @@
 @theme {
   --font-sans: "Plus Jakarta Sans", "Inter", sans-serif;
   
-  --color-canvas: #ffffff;
-  --color-canvas-soft: #fafafa;
-  --color-canvas-soft-2: #f5f5f5;
-  --color-ink: #171717;
-  --color-body: #4d4d4d;
-  --color-mute: #888888;
-  --color-hairline: #ebebeb;
-  --color-hairline-strong: #a1a1a1;
+  --color-canvas: var(--theme-canvas);
+  --color-canvas-soft: var(--theme-canvas-soft);
+  --color-canvas-soft-2: var(--theme-canvas-soft-2);
+  --color-ink: var(--theme-ink);
+  --color-body: var(--theme-body);
+  --color-mute: var(--theme-mute);
+  --color-hairline: var(--theme-hairline);
+  --color-hairline-strong: var(--theme-hairline-strong);
   
   --color-brand: #6366f1;
   --color-brand-deep: #4f46e5;
@@ -31,8 +31,58 @@
 }
 
 @layer base {
+  :root, .theme-light-white {
+    --theme-canvas: #ffffff;
+    --theme-canvas-soft: #fafafa;
+    --theme-canvas-soft-2: #f5f5f5;
+    --theme-ink: #171717;
+    --theme-body: #4d4d4d;
+    --theme-mute: #888888;
+    --theme-hairline: #ebebeb;
+    --theme-hairline-strong: #a1a1a1;
+  }
+  .theme-light-cream {
+    --theme-canvas: #fffaed;
+    --theme-canvas-soft: #fcf4e0;
+    --theme-canvas-soft-2: #f5ecd5;
+    --theme-ink: #2f271a;
+    --theme-body: #544b3c;
+    --theme-mute: #a3947f;
+    --theme-hairline: #e3d3b6;
+    --theme-hairline-strong: #c4b08f;
+  }
+  .theme-dark-grey {
+    --theme-canvas: #28282c;
+    --theme-canvas-soft: #1f1f23;
+    --theme-canvas-soft-2: #18181b;
+    --theme-ink: #f0f0f2;
+    --theme-body: #cacacf;
+    --theme-mute: #8c8c92;
+    --theme-hairline: #3b3b40;
+    --theme-hairline-strong: #4f4f55;
+  }
+  .theme-dark-amoled {
+    --theme-canvas: #000000;
+    --theme-canvas-soft: #050505;
+    --theme-canvas-soft-2: #0a0a0a;
+    --theme-ink: #ffffff;
+    --theme-body: #d4d4d4;
+    --theme-mute: #737373;
+    --theme-hairline: #2f2f2f;
+    --theme-hairline-strong: #4a4a4a;
+  }
+
   body {
     @apply bg-canvas-soft text-ink font-sans antialiased selection:bg-brand selection:text-white;
+  }
+
+  /* Fix for input autofill in dark mode */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover, 
+  input:-webkit-autofill:focus, 
+  input:-webkit-autofill:active{
+    -webkit-box-shadow: 0 0 0 30px var(--theme-canvas) inset !important;
+    -webkit-text-fill-color: var(--theme-ink) !important;
   }
 
   /* Hide number input spinners */
@@ -48,5 +98,18 @@
   /* Make buttons show a hand cursor */
   button {
     cursor: pointer;
+  }
+}
+
+@layer utilities {
+  .shake-error {
+    animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+  }
+  
+  @keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
   }
 }

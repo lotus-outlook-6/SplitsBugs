@@ -1,0 +1,26 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout>
+  <div class="min-h-screen flex flex-col bg-canvas-soft pb-32">
+    <!-- Header -->
+    <header class="h-16 px-4 lg:px-6 flex items-center gap-4 border-b border-hairline bg-canvas sticky top-0 z-40">
+      <a href="/account" class="w-10 h-10 flex items-center justify-center rounded-full bg-canvas-soft hover:bg-hairline transition-colors text-ink">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+      </a>
+      <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-ink">Security</h1>
+    </header>
+
+    <main class="flex-1 w-full max-w-3xl mx-auto p-4 sm:p-6 lg:p-8">
+      <div class="bg-canvas border border-hairline rounded-xl p-8 text-center shadow-sm">
+        <svg class="w-16 h-16 mx-auto text-mute mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        <h2 class="text-xl font-bold text-ink mb-2">Security & Password</h2>
+        <p class="text-mute mb-6 max-w-md mx-auto">This page is a mockup. Future updates will allow you to reset your password and manage two-factor authentication.</p>
+        <a href="/account" class="inline-block bg-brand text-white px-6 py-2.5 rounded-full font-medium hover:opacity-90 transition-opacity">
+          Go Back
+        </a>
+      </div>
+    </main>
+  </div>
+</Layout>
