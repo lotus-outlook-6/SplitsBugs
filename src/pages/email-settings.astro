@@ -13,14 +13,369 @@ import Layout from '../layouts/Layout.astro';
     </header>
 
     <main class="flex-1 w-full max-w-3xl mx-auto p-4 sm:p-6 lg:p-8">
-      <div class="bg-canvas border border-hairline rounded-xl p-8 text-center shadow-sm">
-        <svg class="w-16 h-16 mx-auto text-mute mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-        <h2 class="text-xl font-bold text-ink mb-2">Email Settings</h2>
-        <p class="text-mute mb-6 max-w-md mx-auto">This page is a mockup. Future updates will allow you to manage your email notification preferences here.</p>
-        <a href="/account" class="inline-block bg-brand text-white px-6 py-2.5 rounded-full font-medium hover:opacity-90 transition-opacity">
-          Go Back
-        </a>
+      
+      <!-- Current Email -->
+      <div class="bg-canvas border border-hairline rounded-xl p-6 shadow-sm mb-6">
+        <h2 class="text-sm font-bold text-mute uppercase tracking-wider mb-4">Current Email</h2>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <p id="currentEmailDisplay" class="text-lg font-medium text-ink">loading...</p>
+            <p class="text-sm text-mute mt-1">This email is used for login and notifications.</p>
+          </div>
+          <button id="changeEmailBtn" class="bg-canvas-soft hover:bg-hairline transition-colors text-ink font-medium px-4 py-2 rounded-full text-sm border border-hairline whitespace-nowrap">
+            Change Email
+          </button>
+        </div>
       </div>
+
+      <!-- Preferences -->
+      <div class="bg-canvas border border-hairline rounded-xl p-6 shadow-sm">
+        <h2 class="text-sm font-bold text-mute uppercase tracking-wider mb-4">Manage Preferences</h2>
+        
+        <div class="flex items-center justify-between py-2">
+          <div>
+            <p class="font-medium text-ink">Email Notifications</p>
+            <p class="text-sm text-mute">Receive updates, security alerts, and group invites via email.</p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer shrink-0">
+            <input type="checkbox" id="emailNotifToggle" class="sr-only peer" checked>
+            <div class="w-11 h-6 bg-hairline-strong peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand"></div>
+          </label>
+        </div>
+      </div>
+
     </main>
   </div>
+
+  <!-- Change Email Modal Flow -->
+  <dialog id="changeEmailModal" class="backdrop:bg-black/50 text-ink p-0 rounded-2xl shadow-2xl w-[92vw] sm:w-[450px] bg-canvas border border-hairline m-auto overflow-visible z-[9999]">
+    
+    <!-- Step 1: Verify Current Email -->
+    <div id="step1" class="p-6">
+      <h3 class="text-xl font-bold mb-2">Verify Current Email</h3>
+      <p class="text-sm text-mute mb-6">Enter the 4-digit verification code sent to <span id="step1EmailStr" class="font-bold text-ink"></span></p>
+      
+      <div class="flex gap-3 justify-center mb-6" id="otpGroup1">
+        <input type="text" maxlength="1" autocomplete="off" class="w-14 h-16 text-center text-2xl rounded-xl border border-hairline bg-canvas focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-ink font-bold otp-input" />
+        <input type="text" maxlength="1" autocomplete="off" class="w-14 h-16 text-center text-2xl rounded-xl border border-hairline bg-canvas focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-ink font-bold otp-input" />
+        <input type="text" maxlength="1" autocomplete="off" class="w-14 h-16 text-center text-2xl rounded-xl border border-hairline bg-canvas focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-ink font-bold otp-input" />
+        <input type="text" maxlength="1" autocomplete="off" class="w-14 h-16 text-center text-2xl rounded-xl border border-hairline bg-canvas focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-ink font-bold otp-input" />
+      </div>
+
+      <div class="flex gap-3 justify-end">
+        <button type="button" class="cancelBtn px-4 py-2 text-sm font-medium text-mute hover:text-ink transition-colors">Cancel</button>
+        <button type="button" id="step1VerifyBtn" class="px-6 py-2 text-sm font-medium text-white bg-brand rounded-full hover:bg-brand-deep transition-colors disabled:opacity-50 min-w-[100px]">Verify</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Enter New Email -->
+    <div id="step2" class="p-6 hidden">
+      <h3 class="text-xl font-bold mb-2">New Email Address</h3>
+      <p class="text-sm text-mute mb-6">Enter the new email address you want to use.</p>
+      
+      <div class="mb-6 relative">
+        <input type="email" id="newEmailInput" autocomplete="off" class="w-full p-3 rounded-xl border border-hairline bg-canvas focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-ink placeholder:text-mute" placeholder="new@example.com" />
+        <p id="emailErrorMsg" class="text-danger text-xs mt-2 hidden">Please enter a valid email address.</p>
+        <div id="emailSuggestions" class="absolute top-full left-0 right-0 mt-1 bg-canvas border border-hairline rounded-md shadow-lg overflow-hidden z-50 hidden"></div>
+      </div>
+
+      <div class="flex gap-3 justify-end">
+        <button type="button" class="cancelBtn px-4 py-2 text-sm font-medium text-mute hover:text-ink transition-colors">Cancel</button>
+        <button type="button" id="step2NextBtn" class="px-6 py-2 text-sm font-medium text-white bg-brand rounded-full hover:bg-brand-deep transition-colors disabled:opacity-50 min-w-[100px]">Next</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Verify New Email -->
+    <div id="step3" class="p-6 hidden">
+      <h3 class="text-xl font-bold mb-2">Verify New Email</h3>
+      <p class="text-sm text-mute mb-6">Enter the 4-digit verification code sent to <span id="step3EmailStr" class="font-bold text-ink"></span></p>
+      
+      <div class="flex gap-3 justify-center mb-6" id="otpGroup2">
+        <input type="text" maxlength="1" autocomplete="off" class="w-14 h-16 text-center text-2xl rounded-xl border border-hairline bg-canvas focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-ink font-bold otp-input" />
+        <input type="text" maxlength="1" autocomplete="off" class="w-14 h-16 text-center text-2xl rounded-xl border border-hairline bg-canvas focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-ink font-bold otp-input" />
+        <input type="text" maxlength="1" autocomplete="off" class="w-14 h-16 text-center text-2xl rounded-xl border border-hairline bg-canvas focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-ink font-bold otp-input" />
+        <input type="text" maxlength="1" autocomplete="off" class="w-14 h-16 text-center text-2xl rounded-xl border border-hairline bg-canvas focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-ink font-bold otp-input" />
+      </div>
+
+      <div class="flex gap-3 justify-end">
+        <button type="button" class="cancelBtn px-4 py-2 text-sm font-medium text-mute hover:text-ink transition-colors">Cancel</button>
+        <button type="button" id="step3VerifyBtn" class="px-6 py-2 text-sm font-medium text-white bg-brand rounded-full hover:bg-brand-deep transition-colors disabled:opacity-50 min-w-[140px]">Verify & Update</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const currentEmailDisplay = document.getElementById('currentEmailDisplay')!;
+      const changeEmailBtn = document.getElementById('changeEmailBtn')!;
+      const changeEmailModal = document.getElementById('changeEmailModal') as HTMLDialogElement;
+      const cancelBtns = document.querySelectorAll('.cancelBtn');
+      const emailNotifToggle = document.getElementById('emailNotifToggle') as HTMLInputElement;
+
+      const step1 = document.getElementById('step1')!;
+      const step2 = document.getElementById('step2')!;
+      const step3 = document.getElementById('step3')!;
+      
+      const step1EmailStr = document.getElementById('step1EmailStr')!;
+      const step3EmailStr = document.getElementById('step3EmailStr')!;
+      
+      const newEmailInput = document.getElementById('newEmailInput') as HTMLInputElement;
+      const emailErrorMsg = document.getElementById('emailErrorMsg') as HTMLParagraphElement;
+
+      const step1VerifyBtn = document.getElementById('step1VerifyBtn') as HTMLButtonElement;
+      const step2NextBtn = document.getElementById('step2NextBtn') as HTMLButtonElement;
+      const step3VerifyBtn = document.getElementById('step3VerifyBtn') as HTMLButtonElement;
+
+      // OTP Group Logic
+      function setupOtpGroup(groupId: string) {
+        const group = document.getElementById(groupId);
+        if (!group) return;
+        const inputs = Array.from(group.querySelectorAll('.otp-input')) as HTMLInputElement[];
+
+        inputs.forEach((input, index) => {
+          input.addEventListener('input', () => {
+            // Allow alphanumeric uppercase only for clean UI
+            input.value = input.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+            
+            if (input.value.length === 1) {
+              if (index < inputs.length - 1) {
+                inputs[index + 1].focus();
+              } else {
+                // Last input filled, blur to close keyboard on mobile
+                input.blur();
+              }
+            }
+          });
+
+          input.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && input.value === '' && index > 0) {
+              inputs[index - 1].focus();
+            }
+          });
+        });
+      }
+
+      setupOtpGroup('otpGroup1');
+      setupOtpGroup('otpGroup2');
+
+      function getOtpValue(groupId: string) {
+        const group = document.getElementById(groupId);
+        if (!group) return '';
+        const inputs = Array.from(group.querySelectorAll('.otp-input')) as HTMLInputElement[];
+        return inputs.map(i => i.value).join('');
+      }
+
+      function clearOtpGroup(groupId: string) {
+        const group = document.getElementById(groupId);
+        if (!group) return;
+        const inputs = Array.from(group.querySelectorAll('.otp-input')) as HTMLInputElement[];
+        inputs.forEach(i => i.value = '');
+      }
+
+      // Load existing state
+      function loadState() {
+        const email = localStorage.getItem('splitbug_userEmail') || 'user@example.com';
+        currentEmailDisplay.textContent = email;
+        step1EmailStr.textContent = email;
+
+        const notifs = localStorage.getItem('splitbug_email_notifs');
+        if (notifs === 'false') {
+          emailNotifToggle.checked = false;
+        } else {
+          emailNotifToggle.checked = true;
+        }
+      }
+      loadState();
+
+      // Preferences Toggle
+      emailNotifToggle.addEventListener('change', (e) => {
+        localStorage.setItem('splitbug_email_notifs', (e.target as HTMLInputElement).checked.toString());
+      });
+
+      // Verification Simulation
+      async function simulateVerification(btn: HTMLButtonElement, defaultText: string) {
+        btn.disabled = true;
+        btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Verifying...`;
+        
+        return new Promise<void>(resolve => {
+          setTimeout(() => {
+            btn.disabled = false;
+            btn.innerHTML = defaultText;
+            resolve();
+          }, 1200);
+        });
+      }
+
+      // Modal flow
+      function resetModal() {
+        step1.classList.remove('hidden');
+        step2.classList.add('hidden');
+        step3.classList.add('hidden');
+        emailErrorMsg.classList.add('hidden');
+        newEmailInput.classList.remove('border-danger');
+        
+        clearOtpGroup('otpGroup1');
+        clearOtpGroup('otpGroup2');
+        newEmailInput.value = '';
+      }
+
+      changeEmailBtn.addEventListener('click', () => {
+        resetModal();
+        changeEmailModal.showModal();
+        // Focus first input automatically
+        setTimeout(() => {
+          const firstInput = document.querySelector('#otpGroup1 .otp-input') as HTMLInputElement;
+          if (firstInput) firstInput.focus();
+        }, 100);
+      });
+
+      cancelBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          changeEmailModal.close();
+        });
+      });
+
+      // Email Validation & Autocomplete logic
+      const emailSuggestions = document.getElementById('emailSuggestions') as HTMLDivElement;
+      const DOMAINS = ['gmail.com', 'outlook.com', 'proton.me', 'icloud.com', 'yahoo.com'];
+      let emailSelectedIndex = -1;
+      let emailOriginalText = '';
+
+      function updateEmailSelection(suggestions: NodeListOf<Element>) {
+        suggestions.forEach((el, index) => {
+          if (index === emailSelectedIndex) {
+            el.classList.add('bg-canvas-soft');
+            newEmailInput.value = el.getAttribute('data-val') || '';
+          } else {
+            el.classList.remove('bg-canvas-soft');
+          }
+        });
+        if (emailSelectedIndex === -1) {
+          newEmailInput.value = emailOriginalText;
+        }
+      }
+
+      newEmailInput.addEventListener('keydown', (e) => {
+        const suggestions = emailSuggestions.querySelectorAll('.email-suggestion');
+        if (suggestions.length === 0 || emailSuggestions.classList.contains('hidden')) {
+          emailSelectedIndex = -1;
+          return;
+        }
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          if (emailSelectedIndex === -1) {
+            emailOriginalText = newEmailInput.value;
+          }
+          emailSelectedIndex++;
+          if (emailSelectedIndex >= suggestions.length) {
+            emailSelectedIndex = suggestions.length - 1;
+          }
+          updateEmailSelection(suggestions);
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (emailSelectedIndex > -1) {
+            emailSelectedIndex--;
+            updateEmailSelection(suggestions);
+          }
+        } else if (e.key === 'Enter') {
+          if (emailSelectedIndex > -1) {
+            e.preventDefault();
+            const selected = suggestions[emailSelectedIndex] as HTMLElement;
+            newEmailInput.value = selected.getAttribute('data-val') || '';
+            emailSuggestions.classList.add('hidden');
+          }
+        }
+      });
+
+      newEmailInput.addEventListener('input', () => {
+        emailSelectedIndex = -1;
+        let val = newEmailInput.value;
+        const atIndex = val.indexOf('@');
+        
+        if (atIndex === -1) {
+          val = val.replace(/[^a-z0-9]/g, '');
+          newEmailInput.value = val;
+          emailSuggestions.classList.add('hidden');
+        } else {
+          let beforeAt = val.slice(0, atIndex);
+          let afterAt = val.slice(atIndex + 1);
+          
+          beforeAt = beforeAt.replace(/[^a-z0-9]/g, '');
+          
+          const dotIndex = afterAt.indexOf('.');
+          if (dotIndex === -1) {
+            afterAt = afterAt.replace(/[^a-zA-Z]/g, '');
+            if (afterAt.length >= 0) {
+              const matches = DOMAINS.filter(d => d.startsWith(afterAt));
+              if (matches.length > 0) {
+                emailSuggestions.innerHTML = matches.map(m => 
+                  `<button type="button" class="w-full text-left p-3 hover:bg-canvas-soft text-ink transition-colors border-b border-hairline last:border-b-0 email-suggestion" data-val="${beforeAt}@${m}">
+                    ${beforeAt}@<span class="font-bold">${m}</span>
+                  </button>`
+                ).join('');
+                emailSuggestions.classList.remove('hidden');
+                
+                const suggestionBtns = emailSuggestions.querySelectorAll('.email-suggestion');
+                suggestionBtns.forEach(btn => {
+                  btn.addEventListener('click', () => {
+                    newEmailInput.value = btn.getAttribute('data-val') || '';
+                    emailSuggestions.classList.add('hidden');
+                    newEmailInput.focus();
+                  });
+                });
+              } else {
+                emailSuggestions.classList.add('hidden');
+              }
+            }
+          } else {
+            afterAt = afterAt.replace(/[^a-zA-Z.]/g, '');
+            emailSuggestions.classList.add('hidden');
+          }
+          newEmailInput.value = beforeAt + '@' + afterAt;
+        }
+      });
+
+      step1VerifyBtn.addEventListener('click', async () => {
+        const otp = getOtpValue('otpGroup1');
+        if (otp.length === 4) {
+          await simulateVerification(step1VerifyBtn, 'Verify');
+          step1.classList.add('hidden');
+          step2.classList.remove('hidden');
+          newEmailInput.focus();
+        }
+      });
+
+      step2NextBtn.addEventListener('click', () => {
+        const email = newEmailInput.value.trim();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Standard strict email validation
+        
+        if (emailRegex.test(email)) {
+          emailErrorMsg.classList.add('hidden');
+          newEmailInput.classList.remove('border-danger');
+          step3EmailStr.textContent = email;
+          step2.classList.add('hidden');
+          step3.classList.remove('hidden');
+          
+          setTimeout(() => {
+            const firstInput = document.querySelector('#otpGroup2 .otp-input') as HTMLInputElement;
+            if (firstInput) firstInput.focus();
+          }, 100);
+        } else {
+          emailErrorMsg.classList.remove('hidden');
+          newEmailInput.classList.add('border-danger');
+        }
+      });
+
+      step3VerifyBtn.addEventListener('click', async () => {
+        const otp = getOtpValue('otpGroup2');
+        if (otp.length === 4) {
+          await simulateVerification(step3VerifyBtn, 'Verify & Update');
+          const newEmail = newEmailInput.value.trim();
+          localStorage.setItem('splitbug_userEmail', newEmail);
+          loadState();
+          changeEmailModal.close();
+        }
+      });
+    });
+  </script>
 </Layout>

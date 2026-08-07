@@ -529,6 +529,8 @@ import Layout from '../layouts/Layout.astro';
   </div>
 
   <script>
+    const currentUserEmail = localStorage.getItem('splitbug_userEmail') || 'user@example.com';
+    const DATA_KEY = 'splitsbug_data_' + currentUserEmail;
     const typeColorMap: Record<string, string> = {
       'Trip': 'border-[#2563eb] bg-[#2563eb] text-white',
       'Couple': 'border-[#db2777] bg-[#db2777] text-white',
@@ -717,11 +719,11 @@ import Layout from '../layouts/Layout.astro';
             groupData.expenses.push(settlementExpense);
           });
           
-          const dataStr = localStorage.getItem('splitsbug_data');
+          const dataStr = localStorage.getItem(DATA_KEY);
           if (dataStr) {
             const data = JSON.parse(dataStr);
             data.groups[groupId!] = groupData;
-            localStorage.setItem('splitsbug_data', JSON.stringify(data));
+            localStorage.setItem(DATA_KEY, JSON.stringify(data));
           }
 
           renderFeed();
@@ -887,7 +889,7 @@ import Layout from '../layouts/Layout.astro';
     let groupData: any = null;
 
     function initGroupData() {
-      const dataStr = localStorage.getItem('splitsbug_data');
+      const dataStr = localStorage.getItem(DATA_KEY);
       if (dataStr && groupId) {
         const data = JSON.parse(dataStr);
         groupData = data.groups?.[groupId];
@@ -1076,11 +1078,11 @@ import Layout from '../layouts/Layout.astro';
         if (deleteModalContent) deleteModalContent.classList.add('scale-95');
 
         setTimeout(() => {
-          const dataStr = localStorage.getItem('splitsbug_data');
+          const dataStr = localStorage.getItem(DATA_KEY);
           if (dataStr) {
             const data = JSON.parse(dataStr);
             delete data.groups[groupId!];
-            localStorage.setItem('splitsbug_data', JSON.stringify(data));
+            localStorage.setItem(DATA_KEY, JSON.stringify(data));
             window.location.href = '/dashboard';
           }
         }, 1500);
@@ -1222,7 +1224,7 @@ import Layout from '../layouts/Layout.astro';
             label.innerHTML = `
               <input type="checkbox" name="settleDebtOption" value='${valStr}' class="hidden peer" />
               <div class="px-4 py-3 rounded-md text-sm font-medium border transition-colors
-                          border-hairline bg-canvas text-body peer-checked:bg-primary/10 peer-checked:text-primary peer-checked:border-primary">
+                          border-hairline bg-canvas text-body peer-checked:bg-ink peer-checked:text-canvas peer-checked:border-ink">
                  ${t.from} pays ${t.to} <strong>${groupData.currency || '$'}${t.amount.toFixed(2)}</strong>
               </div>
             `;
@@ -1337,11 +1339,11 @@ import Layout from '../layouts/Layout.astro';
         if (!groupData.expenses) groupData.expenses = [];
         groupData.expenses.push(newExpense);
         
-        const dataStr = localStorage.getItem('splitsbug_data');
+        const dataStr = localStorage.getItem(DATA_KEY);
         if (dataStr) {
           const data = JSON.parse(dataStr);
           data.groups[groupId!] = groupData;
-          localStorage.setItem('splitsbug_data', JSON.stringify(data));
+          localStorage.setItem(DATA_KEY, JSON.stringify(data));
         }
 
         renderFeed();
@@ -1726,11 +1728,11 @@ import Layout from '../layouts/Layout.astro';
         if (groupData) {
           groupData.members = [...tempMembers];
           
-          const dataStr = localStorage.getItem('splitsbug_data');
+          const dataStr = localStorage.getItem(DATA_KEY);
           if (dataStr) {
             const data = JSON.parse(dataStr);
             data.groups[groupId!] = groupData;
-            localStorage.setItem('splitsbug_data', JSON.stringify(data));
+            localStorage.setItem(DATA_KEY, JSON.stringify(data));
           }
           
           initGroupData();
@@ -1908,11 +1910,11 @@ import Layout from '../layouts/Layout.astro';
           groupData.endDate = null;
         }
 
-        const dataStr = localStorage.getItem('splitsbug_data');
+        const dataStr = localStorage.getItem(DATA_KEY);
         if (dataStr) {
           const data = JSON.parse(dataStr);
           data.groups[groupId!] = groupData;
-          localStorage.setItem('splitsbug_data', JSON.stringify(data));
+          localStorage.setItem(DATA_KEY, JSON.stringify(data));
         }
 
         showToast("Group saved!");

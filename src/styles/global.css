@@ -72,6 +72,10 @@
     --theme-hairline-strong: #4a4a4a;
   }
 
+  html {
+    overflow-y: scroll;
+  }
+
   body {
     @apply bg-canvas-soft text-ink font-sans antialiased selection:bg-brand selection:text-white;
   }

@@ -34,12 +34,34 @@ const isGroups = pathname === '/dashboard' || pathname === '/';
 					} else {
 						document.documentElement.classList.add('theme-light-white');
 					}
+				} else if (theme === 'splitsbug') {
+					const hour = new Date().getHours();
+					let activeTheme = 'light-white';
+					if (hour >= 5 && hour < 7) activeTheme = 'light-cream';
+					else if (hour >= 7 && hour < 17) activeTheme = 'light-white';
+					else if (hour >= 17 && hour < 18) activeTheme = 'light-cream';
+					else if (hour >= 18 && hour < 21) activeTheme = 'dark-grey';
+					else activeTheme = 'dark-amoled';
+					document.documentElement.classList.add(`theme-${activeTheme}`);
 				} else {
 					document.documentElement.classList.add(`theme-${theme}`);
 				}
 				window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: document.documentElement.className } }));
 			};
 			window.applyTheme(savedTheme);
+
+			// Automatically re-apply theme if system preference changes or if splitsbug theme is active
+			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+				if (localStorage.getItem('splitbug_theme') === 'system') {
+					window.applyTheme('system');
+				}
+			});
+
+			setInterval(() => {
+				if (localStorage.getItem('splitbug_theme') === 'splitsbug') {
+					window.applyTheme('splitsbug');
+				}
+			}, 60000);
 
 			// Global Name Definition
 			window.MY_NAME = localStorage.getItem('splitbug_userName') || 'Name';
@@ -72,8 +94,8 @@ const isGroups = pathname === '/dashboard' || pathname === '/';
 					<span class="text-[10px] font-medium">Activity</span>
 				</a>
 				<a href="/account" class={`flex flex-col items-center justify-center w-16 h-full transition-colors group ${isAccount ? 'text-brand' : 'text-mute hover:text-ink'}`}>
-					<div id="navAccountIcon" class="flex flex-col items-center justify-center">
-						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-1"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+					<div id="navAccountIcon" class="flex flex-col items-center justify-center mb-1">
+						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
 					</div>
 					<span class="text-[10px] font-medium">Account</span>
 				</a>
@@ -82,24 +104,32 @@ const isGroups = pathname === '/dashboard' || pathname === '/';
 		)}
 		
 		<script>
-			// Dynamically update the Account Nav Icon
+			function renderAbstractArt(type: string) {
+				if (type === 'special-art-1') return '<div class="w-full h-full" style="background: conic-gradient(from 45deg, #FF6B6B, #4ECDC4, #45B7D1, #FF6B6B);"></div>';
+				if (type === 'special-art-2') return '<div class="w-full h-full" style="background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 99%, #FECFEF 100%);"><div class="w-1/2 h-1/2 bg-white/30 rounded-br-full backdrop-blur-md"></div></div>';
+				if (type === 'special-art-3') return '<div class="w-full h-full flex"><div class="w-1/2 h-full bg-indigo-500"></div><div class="w-1/2 h-full bg-rose-400 rounded-tl-full"></div></div>';
+				return '';
+			}
+
 			const navAccountIcon = document.getElementById('navAccountIcon');
 			if (navAccountIcon && localStorage.getItem('splitbug_loggedIn')) {
 				const userAvatar = localStorage.getItem('splitbug_userAvatar');
 				const userName = localStorage.getItem('splitbug_userName') || 'User';
-				const userThemeColor = localStorage.getItem('splitbug_userThemeColor') || 'bg-[#6366f1]';
+				const userThemeColor = localStorage.getItem('splitbug_userThemeColor') || 'special-art-1';
 				const isAccountPath = window.location.pathname === '/account';
 				
 				if (userAvatar) {
-					navAccountIcon.innerHTML = `<img src="${userAvatar}" class="w-6 h-6 rounded-full object-cover mb-1 ring-2 ${isAccountPath ? 'ring-brand' : 'ring-transparent group-hover:ring-brand/30'} transition-all" />`;
+					navAccountIcon.innerHTML = `<img src="${userAvatar}" class="w-6 h-6 rounded-full object-cover ring-2 ${isAccountPath ? 'ring-brand' : 'ring-transparent group-hover:ring-brand/30'} transition-all" />`;
+				} else if (userThemeColor.startsWith('special-art-')) {
+					navAccountIcon.innerHTML = `<div class="w-6 h-6 rounded-full overflow-hidden ring-2 ${isAccountPath ? 'ring-brand' : 'ring-transparent group-hover:ring-brand/30'} transition-all">${renderAbstractArt(userThemeColor)}</div>`;
 				} else {
-					const parts = userName.trim().split(/\\s+/);
+					const parts = userName.trim().split(' ').filter(Boolean);
 					let initials = 'U';
 					if (parts.length > 0 && parts[0]) {
 						if (parts.length === 1) initials = parts[0].charAt(0).toUpperCase();
 						else initials = (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
 					}
-					navAccountIcon.innerHTML = `<div class="w-6 h-6 rounded-full ${userThemeColor} text-white flex items-center justify-center text-[10px] font-bold mb-1 ring-2 ${isAccountPath ? 'ring-brand' : 'ring-transparent group-hover:ring-brand/30'} transition-all">${initials}</div>`;
+					navAccountIcon.innerHTML = `<div class="w-6 h-6 rounded-full ${userThemeColor} text-white flex items-center justify-center text-[10px] font-bold ring-2 ${isAccountPath ? 'ring-brand' : 'ring-transparent group-hover:ring-brand/30'} transition-all">${initials}</div>`;
 				}
 			}
 		</script>

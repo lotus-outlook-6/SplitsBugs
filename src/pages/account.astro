@@ -18,9 +18,6 @@ import Layout from '../layouts/Layout.astro';
           <div id="profileAvatar" class="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-brand text-white flex items-center justify-center text-4xl sm:text-5xl font-bold mb-4 overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all">
             <!-- Initials or Image -->
           </div>
-          <button class="absolute bottom-4 right-0 w-8 h-8 bg-canvas border border-hairline rounded-full flex items-center justify-center text-ink shadow-md group-hover:bg-brand group-hover:text-white group-hover:border-brand transition-colors">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-          </button>
         </div>
         
         <h2 id="profileName" class="text-2xl font-bold text-ink leading-tight mb-1">Name</h2>
@@ -47,15 +44,7 @@ import Layout from '../layouts/Layout.astro';
               </div>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-mute"><polyline points="9 18 15 12 9 6"></polyline></svg>
             </a>
-            <a href="/notification-settings" class="w-full flex items-center justify-between p-4 text-left hover:bg-canvas-soft transition-colors border-b border-hairline group">
-              <div class="flex items-center gap-4">
-                <div class="w-8 h-8 rounded-full bg-canvas-soft flex items-center justify-center text-mute group-hover:text-ink group-hover:bg-hairline transition-colors">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                </div>
-                <span class="text-ink font-medium">Device & push notifications</span>
-              </div>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-mute"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            </a>
+
             <a href="/change-password" id="securityBtn" class="w-full flex items-center justify-between p-4 text-left hover:bg-canvas-soft transition-colors border-b border-hairline group">
               <div class="flex items-center gap-4">
                 <div class="w-8 h-8 rounded-full bg-canvas-soft flex items-center justify-center text-mute group-hover:text-ink group-hover:bg-hairline transition-colors">
@@ -81,22 +70,22 @@ import Layout from '../layouts/Layout.astro';
         <div>
           <h3 class="text-xs font-bold text-mute uppercase tracking-wider mb-3">Feedback & Support</h3>
           <div class="bg-canvas border border-hairline rounded-xl overflow-hidden shadow-sm">
-            <button class="w-full flex items-center justify-between p-4 text-left hover:bg-canvas-soft transition-colors border-b border-hairline group">
+            <a href="https://play.google.com/store/apps/details?id=com.splitbugs.app" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-between p-4 text-left hover:bg-canvas-soft transition-colors border-b border-hairline group">
               <div class="flex items-center gap-4">
                 <div class="w-8 h-8 rounded-full bg-canvas-soft flex items-center justify-center text-mute group-hover:text-ink group-hover:bg-hairline transition-colors">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
                 </div>
                 <span class="text-ink font-medium">Rate SplitBugs</span>
               </div>
-            </button>
-            <button class="w-full flex items-center justify-between p-4 text-left hover:bg-canvas-soft transition-colors group">
+            </a>
+            <a href="/contact-support" class="w-full flex items-center justify-between p-4 text-left hover:bg-canvas-soft transition-colors group">
               <div class="flex items-center gap-4">
                 <div class="w-8 h-8 rounded-full bg-canvas-soft flex items-center justify-center text-mute group-hover:text-ink group-hover:bg-hairline transition-colors">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
                 </div>
                 <span class="text-ink font-medium">Contact Support</span>
               </div>
-            </button>
+            </a>
           </div>
         </div>
 
@@ -113,19 +102,31 @@ import Layout from '../layouts/Layout.astro';
     <!-- Footer Branding -->
     <div class="mt-16 text-center flex flex-col items-center">
       <p class="text-sm text-mute mb-1">Made with ❤️ by Lotus Outlook 6</p>
-      <a href="#" class="text-xs font-medium text-brand hover:underline mt-2">Privacy Policy</a>
+      <a href="/privacy-policy" class="text-xs font-medium text-brand hover:underline mt-2">Privacy Policy</a>
       <p class="text-[10px] text-mute mt-4">v1.0.0</p>
     </div>
     </main>
   </div>
 
   <script>
+    function renderAbstractArt(type: string) {
+      if (type === 'special-art-1') return '<div class="w-full h-full" style="background: conic-gradient(from 45deg, #FF6B6B, #4ECDC4, #45B7D1, #FF6B6B);"></div>';
+      if (type === 'special-art-2') return '<div class="w-full h-full" style="background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 99%, #FECFEF 100%);"><div class="w-1/2 h-1/2 bg-white/30 rounded-br-full backdrop-blur-md"></div></div>';
+      if (type === 'special-art-3') return '<div class="w-full h-full flex"><div class="w-1/2 h-full bg-indigo-500"></div><div class="w-1/2 h-full bg-rose-400 rounded-tl-full"></div></div>';
+      return '';
+    }
+
     // Populate User Details
     function loadUserData() {
+      if (!localStorage.getItem('geo_migrated_3')) {
+        localStorage.setItem('splitbug_userThemeColor', 'special-art-1');
+        localStorage.setItem('geo_migrated_3', 'true');
+      }
+
       const userName = localStorage.getItem('splitbug_userName') || 'User';
       const userEmail = localStorage.getItem('splitbug_userEmail') || 'user@example.com';
       const userAvatar = localStorage.getItem('splitbug_userAvatar');
-      const userThemeColor = localStorage.getItem('splitbug_userThemeColor') || 'bg-[#6366f1]';
+      const userThemeColor = localStorage.getItem('splitbug_userThemeColor') || 'special-art-1';
       
       document.getElementById('profileName')!.textContent = userName;
       document.getElementById('profileEmail')!.textContent = userEmail;
@@ -134,8 +135,11 @@ import Layout from '../layouts/Layout.astro';
       if (userAvatar) {
         avatarEl!.innerHTML = `<img src="${userAvatar}" class="w-full h-full object-cover" />`;
         avatarEl!.className = "w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-transparent text-white flex items-center justify-center text-4xl sm:text-5xl font-bold mb-4 overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all";
+      } else if (userThemeColor.startsWith('special-art-')) {
+        avatarEl!.innerHTML = renderAbstractArt(userThemeColor);
+        avatarEl!.className = "w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-transparent text-white mb-4 overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all";
       } else {
-        const parts = userName.trim().split(/\\s+/);
+        const parts = userName.trim().split(' ').filter(Boolean);
         let initials = 'U';
         if (parts.length > 0 && parts[0]) {
           if (parts.length === 1) initials = parts[0].charAt(0).toUpperCase();

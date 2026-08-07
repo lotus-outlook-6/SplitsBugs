@@ -255,6 +255,8 @@ import Layout from '../layouts/Layout.astro';
   </div>
   
   <script>
+    const currentUserEmail = localStorage.getItem('splitbug_userEmail') || 'user@example.com';
+    const DATA_KEY = 'splitsbug_data_' + currentUserEmail;
     function showToast(message: string, isError = false) {
       const toast = document.getElementById('toastNotification');
       const toastMsg = document.getElementById('toastMessage');
@@ -736,7 +738,7 @@ import Layout from '../layouts/Layout.astro';
 
     function renderGroups(searchQuery = '') {
       if (!groupsGrid) return;
-      const dataStr = localStorage.getItem('splitsbug_data');
+      const dataStr = localStorage.getItem(DATA_KEY);
       if (!dataStr) {
         groupsGrid.innerHTML = `<div class="col-span-full p-12 text-center border border-hairline border-dashed rounded-lg bg-canvas-soft text-mute">No groups yet. Create one to get started!</div>`;
         return;
@@ -908,11 +910,11 @@ import Layout from '../layouts/Layout.astro';
           createdAt: Date.now()
         };
 
-        let dataStr = localStorage.getItem('splitsbug_data');
+        let dataStr = localStorage.getItem(DATA_KEY);
         let data = dataStr ? JSON.parse(dataStr) : { groups: {} };
         
         data.groups[groupId] = newGroup;
-        localStorage.setItem('splitsbug_data', JSON.stringify(data));
+        localStorage.setItem(DATA_KEY, JSON.stringify(data));
 
         nameInput.value = '';
         currentMembers = [(window as any).MY_DISPLAY_NAME];

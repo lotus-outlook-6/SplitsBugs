@@ -55,8 +55,11 @@ import Layout from '../layouts/Layout.astro';
         
         <!-- Email -->
         <div class="relative">
-          <label class="block text-sm font-medium text-ink mb-1">Email address</label>
-          <input type="text" required id="emailInput" class="w-full p-3 rounded-md border border-hairline bg-canvas focus:outline-none focus:border-brand transition-colors text-ink placeholder:text-mute" placeholder="john@example.com" />
+          <label class="block text-sm font-medium text-ink mb-1 flex items-center justify-between">
+            Email address
+            <span class="text-xs text-mute flex items-center gap-1"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Locked</span>
+          </label>
+          <input type="text" required id="emailInput" readonly class="w-full p-3 rounded-md border border-hairline bg-canvas-soft text-mute cursor-not-allowed pointer-events-none opacity-80 focus:outline-none" placeholder="john@example.com" />
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -73,13 +76,15 @@ import Layout from '../layouts/Layout.astro';
 
           <!-- Contact Number -->
           <div>
-            <label class="block text-sm font-medium text-ink mb-1">Contact Number</label>
-            <div class="flex border border-hairline rounded-md focus-within:border-brand transition-colors bg-canvas overflow-hidden">
-              <button type="button" id="countryCodeBtn" class="px-3 rounded-l-md flex items-center gap-1 border-r border-hairline hover:bg-canvas-soft transition-colors text-ink">
+            <label class="block text-sm font-medium text-ink mb-1 flex items-center justify-between">
+              Contact Number
+              <span class="text-xs text-mute flex items-center gap-1"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Locked</span>
+            </label>
+            <div class="flex border border-hairline rounded-md bg-canvas-soft overflow-hidden opacity-80">
+              <div class="px-3 rounded-l-md flex items-center gap-1 border-r border-hairline text-mute cursor-not-allowed">
                 <span id="countryCodeLabel">+1</span>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-              </button>
-              <input type="text" required id="phoneInput" autocomplete="off" maxlength="10" class="flex-1 p-3 w-full bg-transparent focus:outline-none text-ink placeholder:text-mute" placeholder="XXXXXXXXXX" />
+              </div>
+              <input type="text" required id="phoneInput" readonly autocomplete="off" maxlength="10" class="flex-1 p-3 w-full bg-transparent focus:outline-none text-mute cursor-not-allowed pointer-events-none" placeholder="XXXXXXXXXX" />
             </div>
           </div>
         </div>
@@ -157,9 +162,24 @@ import Layout from '../layouts/Layout.astro';
     
     const THEME_COLORS = ['bg-[#6366f1]', 'bg-[#ec4899]', 'bg-[#10b981]', 'bg-[#f59e0b]', 'bg-[#8b5cf6]', 'bg-[#ef4444]', 'bg-[#06b6d4]'];
     let currentThemeColor = localStorage.getItem('splitbug_userThemeColor') || THEME_COLORS[0];
+    
+    if (!localStorage.getItem('geo_migrated_edit_3')) {
+      if (!currentThemeColor.startsWith('special-art-')) {
+        currentThemeColor = 'special-art-1';
+        localStorage.setItem('splitbug_userThemeColor', 'special-art-1');
+      }
+      localStorage.setItem('geo_migrated_edit_3', 'true');
+    }
+
+    function renderAbstractArt(type: string) {
+      if (type === 'special-art-1') return '<div class="w-full h-full" style="background: conic-gradient(from 45deg, #FF6B6B, #4ECDC4, #45B7D1, #FF6B6B);"></div>';
+      if (type === 'special-art-2') return '<div class="w-full h-full" style="background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 99%, #FECFEF 100%);"><div class="w-1/2 h-1/2 bg-white/30 rounded-br-full backdrop-blur-md"></div></div>';
+      if (type === 'special-art-3') return '<div class="w-full h-full flex"><div class="w-1/2 h-full bg-indigo-500"></div><div class="w-1/2 h-full bg-rose-400 rounded-tl-full"></div></div>';
+      return '';
+    }
 
     function getInitials(name: string) {
-      const parts = name.trim().split(/\s+/);
+      const parts = name.trim().split(' ').filter(Boolean);
       if (parts.length === 0 || !parts[0]) return 'U';
       if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
       return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
@@ -171,6 +191,11 @@ import Layout from '../layouts/Layout.astro';
         profileAvatar.className = "w-24 h-24 sm:w-32 sm:h-32 rounded-full flex items-center justify-center text-4xl sm:text-5xl font-bold overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all text-white bg-transparent";
         removePhotoBtn.classList.remove('hidden');
         refreshColorBtn.classList.add('hidden');
+      } else if (currentThemeColor.startsWith('special-art-')) {
+        profileAvatar.innerHTML = renderAbstractArt(currentThemeColor);
+        profileAvatar.className = "w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all bg-transparent";
+        removePhotoBtn.classList.add('hidden');
+        refreshColorBtn.classList.remove('hidden');
       } else {
         profileAvatar.innerHTML = getInitials(nameInput.value);
         profileAvatar.className = `w-24 h-24 sm:w-32 sm:h-32 rounded-full ${currentThemeColor} text-white flex items-center justify-center text-4xl sm:text-5xl font-bold overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all`;
@@ -222,8 +247,16 @@ import Layout from '../layouts/Layout.astro';
 
     refreshColorBtn.addEventListener('click', (e) => {
       e.stopPropagation(); // Keep menu open if desired, or let it close
-      const idx = THEME_COLORS.indexOf(currentThemeColor);
-      currentThemeColor = THEME_COLORS[(idx + 1) % THEME_COLORS.length];
+      
+      const rnd = Math.floor(Math.random() * 26);
+      if (rnd === 0) {
+        const artType = Math.floor(Math.random() * 3) + 1;
+        currentThemeColor = `special-art-${artType}`;
+      } else {
+        const idx = THEME_COLORS.indexOf(currentThemeColor);
+        currentThemeColor = THEME_COLORS[idx === -1 ? 0 : (idx + 1) % THEME_COLORS.length];
+      }
+      
       updateAvatarView();
     });
     
@@ -316,11 +349,13 @@ import Layout from '../layouts/Layout.astro';
       });
     }
 
-    countryCodeBtn.addEventListener('click', () => {
-      renderCountries();
-      countrySearchInput.value = '';
-      countryCodeModal.showModal();
-    });
+    if (countryCodeBtn) {
+      countryCodeBtn.addEventListener('click', () => {
+        countrySearchInput.value = '';
+        renderCountries();
+        countryCodeModal.showModal();
+      });
+    }
 
     countrySearchInput.addEventListener('input', (e) => {
       renderCountries((e.target as HTMLInputElement).value);
@@ -362,10 +397,7 @@ import Layout from '../layouts/Layout.astro';
       if(phone && phone.length !== selectedCountry.length) return showError(`Please enter a valid ${selectedCountry.length}-digit phone number`);
 
       localStorage.setItem('splitbug_userName', nameInput.value);
-      localStorage.setItem('splitbug_userEmail', emailInput.value);
       localStorage.setItem('splitbug_userDob', dobInput.value);
-      localStorage.setItem('splitbug_userPhone', phoneInput.value);
-      localStorage.setItem('splitbug_userCode', countryCodeLabel.textContent || '+91');
       localStorage.setItem('splitbug_userAvatar', currentAvatarBase64);
       localStorage.setItem('splitbug_userThemeColor', currentThemeColor);
 

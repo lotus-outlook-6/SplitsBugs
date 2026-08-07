@@ -12,122 +12,146 @@ import Layout from '../layouts/Layout.astro';
       <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-ink">Appearance</h1>
     </header>
 
-    <main class="flex-1 w-full max-w-5xl mx-auto p-4 sm:p-6 lg:p-8 pb-16">
+    <main class="flex-1 w-full max-w-5xl mx-auto p-4 sm:p-6 lg:p-8">
       <p class="text-mute mb-4 text-sm sm:text-base">Customize how SplitBugs looks on this device.</p>
 
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-3 sm:gap-6" id="themeGrid">
         
         <!-- System Default -->
-        <button type="button" class="theme-card relative group text-left rounded-2xl overflow-hidden border-2 border-hairline hover:border-brand transition-colors bg-canvas focus:outline-none" data-theme="system">
+        <button id="card-system" type="button" class="theme-card preview-light-white relative group text-left rounded-2xl overflow-hidden border-2 border-[var(--p-border)] hover:border-[var(--p-brand)] transition-colors bg-[var(--p-canvas)] focus:outline-none" data-theme="system">
           <div class="absolute inset-0 bg-gradient-to-br from-transparent to-black/5 pointer-events-none"></div>
-          <div class="p-4 border-b border-hairline bg-canvas flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-canvas-soft flex items-center justify-center text-ink border border-hairline">
+          <div class="p-4 border-b border-[var(--p-border)] bg-[var(--p-canvas)] flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-[var(--p-soft)] flex items-center justify-center text-[var(--p-ink)] border border-[var(--p-border)]">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
             </div>
             <div class="flex-1">
-              <div class="h-2.5 w-24 bg-ink opacity-20 rounded-full mb-1.5"></div>
-              <div class="h-2 w-16 bg-ink opacity-10 rounded-full"></div>
+              <div class="h-2.5 w-24 bg-[var(--p-ink)] opacity-20 rounded-full mb-1.5"></div>
+              <div class="h-2 w-16 bg-[var(--p-ink)] opacity-10 rounded-full"></div>
             </div>
           </div>
-          <div class="p-3 sm:p-5 flex flex-col gap-2 sm:gap-3 bg-canvas-soft h-24 sm:h-32">
-            <div class="self-end bg-brand text-white text-[10px] sm:text-xs px-2 py-1 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl rounded-tr-sm shadow-sm truncate max-w-full">Follows device settings</div>
-            <div class="self-start bg-canvas border border-hairline text-ink text-[10px] sm:text-xs px-2 py-1 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl rounded-tl-sm shadow-sm truncate max-w-full">Matches your system</div>
+          <div class="p-3 sm:p-5 flex flex-col gap-2 sm:gap-3 bg-[var(--p-soft)] h-24 sm:h-32">
+            <div class="self-end bg-[var(--p-brand)] text-white text-[10px] sm:text-xs px-2 py-1 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl rounded-tr-sm shadow-sm truncate max-w-full">Follows device</div>
+            <div class="self-start bg-[var(--p-canvas)] border border-[var(--p-border)] text-[var(--p-ink)] text-[10px] sm:text-xs px-2 py-1 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl rounded-tl-sm shadow-sm truncate max-w-full">Auto light/dark</div>
           </div>
-          <div class="p-4 border-t border-hairline bg-canvas flex items-center justify-between">
-            <span class="font-bold text-ink">System Default</span>
-            <div class="w-5 h-5 rounded-full border border-hairline flex items-center justify-center check-indicator">
+          <div class="p-4 border-t border-[var(--p-border)] bg-[var(--p-canvas)] flex items-center justify-between">
+            <span class="font-bold text-[var(--p-ink)]">System Default</span>
+            <div class="w-5 h-5 rounded-full border border-[var(--p-border)] flex items-center justify-center check-indicator">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-white hidden"><polyline points="20 6 9 17 4 12"></polyline></svg>
             </div>
           </div>
         </button>
 
         <!-- Light (White) -->
-        <button type="button" class="theme-card relative group text-left rounded-2xl overflow-hidden border-2 border-[#ebebeb] hover:border-[#6366f1] transition-colors bg-[#ffffff] focus:outline-none" data-theme="light-white">
-          <div class="p-4 border-b border-[#ebebeb] bg-[#ffffff] flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-[#f4f4f5] flex items-center justify-center text-[#171717] border border-[#ebebeb]">
+        <button type="button" class="theme-card preview-light-white relative group text-left rounded-2xl overflow-hidden border-2 border-[var(--p-border)] hover:border-[var(--p-brand)] transition-colors bg-[var(--p-canvas)] focus:outline-none" data-theme="light-white">
+          <div class="p-4 border-b border-[var(--p-border)] bg-[var(--p-canvas)] flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-[var(--p-soft)] flex items-center justify-center text-[var(--p-ink)] border border-[var(--p-border)]">
               <span class="font-bold text-xs">W</span>
             </div>
             <div class="flex-1">
-              <div class="h-2.5 w-24 bg-[#171717] opacity-20 rounded-full mb-1.5"></div>
-              <div class="h-2 w-16 bg-[#171717] opacity-10 rounded-full"></div>
+              <div class="h-2.5 w-24 bg-[var(--p-ink)] opacity-20 rounded-full mb-1.5"></div>
+              <div class="h-2 w-16 bg-[var(--p-ink)] opacity-10 rounded-full"></div>
             </div>
           </div>
-          <div class="p-3 sm:p-5 flex flex-col gap-2 sm:gap-3 bg-[#f4f4f5] h-24 sm:h-32">
-            <div class="self-end bg-[#6366f1] text-white text-[10px] sm:text-xs px-2 py-1 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl rounded-tr-sm shadow-sm truncate max-w-full">Hello, White!</div>
-            <div class="self-start bg-[#ffffff] border border-[#ebebeb] text-[#171717] text-[10px] sm:text-xs px-2 py-1 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl rounded-tl-sm shadow-sm truncate max-w-full">Clean and bright</div>
+          <div class="p-3 sm:p-5 flex flex-col gap-2 sm:gap-3 bg-[var(--p-soft)] h-24 sm:h-32">
+            <div class="self-end bg-[var(--p-brand)] text-white text-[10px] sm:text-xs px-2 py-1 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl rounded-tr-sm shadow-sm truncate max-w-full">Hello, White!</div>
+            <div class="self-start bg-[var(--p-canvas)] border border-[var(--p-border)] text-[var(--p-ink)] text-[10px] sm:text-xs px-2 py-1 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl rounded-tl-sm shadow-sm truncate max-w-full">Clean and bright</div>
           </div>
-          <div class="p-4 border-t border-[#ebebeb] bg-[#ffffff] flex items-center justify-between">
-            <span class="font-bold text-[#171717]">Light (White)</span>
-            <div class="w-5 h-5 rounded-full border border-[#ebebeb] flex items-center justify-center check-indicator">
+          <div class="p-4 border-t border-[var(--p-border)] bg-[var(--p-canvas)] flex items-center justify-between">
+            <span class="font-bold text-[var(--p-ink)]">Light (White)</span>
+            <div class="w-5 h-5 rounded-full border border-[var(--p-border)] flex items-center justify-center check-indicator">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-white hidden"><polyline points="20 6 9 17 4 12"></polyline></svg>
             </div>
           </div>
         </button>
 
         <!-- Light (Cream) -->
-        <button type="button" class="theme-card relative group text-left rounded-2xl overflow-hidden border-2 border-[#e3d3b6] hover:border-[#6366f1] transition-colors bg-[#fffaed] focus:outline-none" data-theme="light-cream">
-          <div class="p-4 border-b border-[#e3d3b6] bg-[#fffaed] flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-[#f4ead5] flex items-center justify-center text-[#2f271a] border border-[#e3d3b6]">
+        <button type="button" class="theme-card preview-light-cream relative group text-left rounded-2xl overflow-hidden border-2 border-[var(--p-border)] hover:border-[var(--p-brand)] transition-colors bg-[var(--p-canvas)] focus:outline-none" data-theme="light-cream">
+          <div class="p-4 border-b border-[var(--p-border)] bg-[var(--p-canvas)] flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-[var(--p-soft)] flex items-center justify-center text-[var(--p-ink)] border border-[var(--p-border)]">
               <span class="font-bold text-xs">C</span>
             </div>
             <div class="flex-1">
-              <div class="h-2.5 w-24 bg-[#2f271a] opacity-20 rounded-full mb-1.5"></div>
-              <div class="h-2 w-16 bg-[#2f271a] opacity-10 rounded-full"></div>
+              <div class="h-2.5 w-24 bg-[var(--p-ink)] opacity-20 rounded-full mb-1.5"></div>
+              <div class="h-2 w-16 bg-[var(--p-ink)] opacity-10 rounded-full"></div>
             </div>
           </div>
-          <div class="p-3 sm:p-5 flex flex-col gap-2 sm:gap-3 bg-[#f4ead5] h-24 sm:h-32">
-            <div class="self-end bg-[#6366f1] text-white text-[10px] sm:text-xs px-2 py-1 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl rounded-tr-sm shadow-sm truncate max-w-full">Warm and cozy</div>
-            <div class="self-start bg-[#fffaed] border border-[#e3d3b6] text-[#2f271a] text-[10px] sm:text-xs px-2 py-1 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl rounded-tl-sm shadow-sm truncate max-w-full">Easy on the eyes</div>
+          <div class="p-3 sm:p-5 flex flex-col gap-2 sm:gap-3 bg-[var(--p-soft)] h-24 sm:h-32">
+            <div class="self-end bg-[var(--p-brand)] text-white text-[10px] sm:text-xs px-2 py-1 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl rounded-tr-sm shadow-sm truncate max-w-full">Warm and cozy</div>
+            <div class="self-start bg-[var(--p-canvas)] border border-[var(--p-border)] text-[var(--p-ink)] text-[10px] sm:text-xs px-2 py-1 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl rounded-tl-sm shadow-sm truncate max-w-full">Easy on the eyes</div>
           </div>
-          <div class="p-4 border-t border-[#e3d3b6] bg-[#fffaed] flex items-center justify-between">
-            <span class="font-bold text-[#2f271a]">Light (Cream)</span>
-            <div class="w-5 h-5 rounded-full border border-[#e3d3b6] flex items-center justify-center check-indicator">
+          <div class="p-4 border-t border-[var(--p-border)] bg-[var(--p-canvas)] flex items-center justify-between">
+            <span class="font-bold text-[var(--p-ink)]">Light (Cream)</span>
+            <div class="w-5 h-5 rounded-full border border-[var(--p-border)] flex items-center justify-center check-indicator">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-white hidden"><polyline points="20 6 9 17 4 12"></polyline></svg>
             </div>
           </div>
         </button>
 
         <!-- Dark (Grey) -->
-        <button type="button" class="theme-card relative group text-left rounded-2xl overflow-hidden border-2 border-[#2e2e33] hover:border-[#818cf8] transition-colors bg-[#1a1a1c] focus:outline-none" data-theme="dark-grey">
-          <div class="p-4 border-b border-[#2e2e33] bg-[#1a1a1c] flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-[#28282c] flex items-center justify-center text-[#f0f0f2] border border-[#2e2e33]">
+        <button type="button" class="theme-card preview-dark-grey relative group text-left rounded-2xl overflow-hidden border-2 border-[var(--p-border)] hover:border-[var(--p-brand)] transition-colors bg-[var(--p-canvas)] focus:outline-none" data-theme="dark-grey">
+          <div class="p-4 border-b border-[var(--p-border)] bg-[var(--p-canvas)] flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-[var(--p-soft)] flex items-center justify-center text-[var(--p-ink)] border border-[var(--p-border)]">
               <span class="font-bold text-xs">G</span>
             </div>
             <div class="flex-1">
-              <div class="h-2.5 w-24 bg-[#f0f0f2] opacity-20 rounded-full mb-1.5"></div>
-              <div class="h-2 w-16 bg-[#f0f0f2] opacity-10 rounded-full"></div>
+              <div class="h-2.5 w-24 bg-[var(--p-ink)] opacity-20 rounded-full mb-1.5"></div>
+              <div class="h-2 w-16 bg-[var(--p-ink)] opacity-10 rounded-full"></div>
             </div>
           </div>
-          <div class="p-3 sm:p-5 flex flex-col gap-2 sm:gap-3 bg-[#28282c] h-24 sm:h-32">
-            <div class="self-end bg-[#818cf8] text-white text-[10px] sm:text-xs px-2 py-1 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl rounded-tr-sm shadow-sm truncate max-w-full">Hello, Darkness!</div>
-            <div class="self-start bg-[#1a1a1c] border border-[#2e2e33] text-[#f0f0f2] text-[10px] sm:text-xs px-2 py-1 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl rounded-tl-sm shadow-sm truncate max-w-full">Sleek grey tones</div>
+          <div class="p-3 sm:p-5 flex flex-col gap-2 sm:gap-3 bg-[var(--p-soft)] h-24 sm:h-32">
+            <div class="self-end bg-[var(--p-brand)] text-white text-[10px] sm:text-xs px-2 py-1 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl rounded-tr-sm shadow-sm truncate max-w-full">Hello, Darkness!</div>
+            <div class="self-start bg-[var(--p-canvas)] border border-[var(--p-border)] text-[var(--p-ink)] text-[10px] sm:text-xs px-2 py-1 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl rounded-tl-sm shadow-sm truncate max-w-full">Sleek grey tones</div>
           </div>
-          <div class="p-4 border-t border-[#2e2e33] bg-[#1a1a1c] flex items-center justify-between">
-            <span class="font-bold text-[#f0f0f2]">Dark (Grey)</span>
-            <div class="w-5 h-5 rounded-full border border-[#2e2e33] flex items-center justify-center check-indicator">
+          <div class="p-4 border-t border-[var(--p-border)] bg-[var(--p-canvas)] flex items-center justify-between">
+            <span class="font-bold text-[var(--p-ink)]">Dark (Grey)</span>
+            <div class="w-5 h-5 rounded-full border border-[var(--p-border)] flex items-center justify-center check-indicator">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-white hidden"><polyline points="20 6 9 17 4 12"></polyline></svg>
             </div>
           </div>
         </button>
 
         <!-- Dark (AMOLED) -->
-        <button type="button" class="theme-card relative group text-left rounded-2xl overflow-hidden border-2 border-[#2f2f2f] hover:border-[#818cf8] transition-colors bg-[#000000] focus:outline-none" data-theme="dark-amoled">
-          <div class="p-4 border-b border-[#2f2f2f] bg-[#000000] flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-[#0a0a0a] flex items-center justify-center text-[#ffffff] border border-[#2f2f2f]">
+        <button type="button" class="theme-card preview-dark-amoled relative group text-left rounded-2xl overflow-hidden border-2 border-[var(--p-border)] hover:border-[var(--p-brand)] transition-colors bg-[var(--p-canvas)] focus:outline-none" data-theme="dark-amoled">
+          <div class="p-4 border-b border-[var(--p-border)] bg-[var(--p-canvas)] flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-[var(--p-soft)] flex items-center justify-center text-[var(--p-ink)] border border-[var(--p-border)]">
               <span class="font-bold text-xs">A</span>
             </div>
             <div class="flex-1">
-              <div class="h-2.5 w-24 bg-[#ffffff] opacity-20 rounded-full mb-1.5"></div>
-              <div class="h-2 w-16 bg-[#ffffff] opacity-10 rounded-full"></div>
+              <div class="h-2.5 w-24 bg-[var(--p-ink)] opacity-20 rounded-full mb-1.5"></div>
+              <div class="h-2 w-16 bg-[var(--p-ink)] opacity-10 rounded-full"></div>
             </div>
           </div>
-          <div class="p-3 sm:p-5 flex flex-col gap-2 sm:gap-3 bg-[#0a0a0a] h-24 sm:h-32">
-            <div class="self-end bg-[#818cf8] text-white text-[10px] sm:text-xs px-2 py-1 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl rounded-tr-sm shadow-sm truncate max-w-full">Pitch Black</div>
-            <div class="self-start bg-[#000000] border border-[#2f2f2f] text-[#ffffff] text-[10px] sm:text-xs px-2 py-1 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl rounded-tl-sm shadow-sm truncate max-w-full">Saves battery</div>
+          <div class="p-3 sm:p-5 flex flex-col gap-2 sm:gap-3 bg-[var(--p-soft)] h-24 sm:h-32">
+            <div class="self-end bg-[var(--p-brand)] text-white text-[10px] sm:text-xs px-2 py-1 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl rounded-tr-sm shadow-sm truncate max-w-full">Pitch Black</div>
+            <div class="self-start bg-[var(--p-canvas)] border border-[var(--p-border)] text-[var(--p-ink)] text-[10px] sm:text-xs px-2 py-1 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl rounded-tl-sm shadow-sm truncate max-w-full">Saves battery</div>
           </div>
-          <div class="p-4 border-t border-[#2f2f2f] bg-[#000000] flex items-center justify-between">
-            <span class="font-bold text-[#ffffff]">Dark (AMOLED)</span>
-            <div class="w-5 h-5 rounded-full border border-[#2f2f2f] flex items-center justify-center check-indicator">
+          <div class="p-4 border-t border-[var(--p-border)] bg-[var(--p-canvas)] flex items-center justify-between">
+            <span class="font-bold text-[var(--p-ink)]">Dark (AMOLED)</span>
+            <div class="w-5 h-5 rounded-full border border-[var(--p-border)] flex items-center justify-center check-indicator">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-white hidden"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+          </div>
+        </button>
+
+        <!-- Splitsbug Custom -->
+        <button id="card-splitsbug" type="button" class="theme-card preview-light-white relative group text-left rounded-2xl overflow-hidden border-2 border-[var(--p-border)] hover:border-[var(--p-brand)] transition-colors bg-[var(--p-canvas)] focus:outline-none" data-theme="splitsbug">
+          <div class="absolute inset-0 bg-brand/5 pointer-events-none"></div>
+          <div class="p-4 border-b border-[var(--p-border)] bg-[var(--p-canvas)] flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-[var(--p-brand)] flex items-center justify-center text-white border border-brand/20">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            </div>
+            <div class="flex-1">
+              <div class="h-2.5 w-24 bg-[var(--p-ink)] opacity-20 rounded-full mb-1.5"></div>
+              <div class="h-2 w-16 bg-[var(--p-ink)] opacity-10 rounded-full"></div>
+            </div>
+          </div>
+          <div class="p-3 sm:p-5 flex flex-col gap-2 sm:gap-3 bg-[var(--p-soft)] h-24 sm:h-32">
+            <div class="self-end bg-[var(--p-brand)] text-white text-[10px] sm:text-xs px-2 py-1 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl rounded-tr-sm shadow-sm truncate max-w-full">Changes automatically</div>
+            <div class="self-start bg-[var(--p-canvas)] border border-[var(--p-border)] text-[var(--p-ink)] text-[10px] sm:text-xs px-2 py-1 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl rounded-tl-sm shadow-sm truncate max-w-full">Time based shifts</div>
+          </div>
+          <div class="p-4 border-t border-[var(--p-border)] bg-[var(--p-canvas)] flex items-center justify-between">
+            <span class="font-bold text-[var(--p-ink)]">Splitsbug Theme</span>
+            <div class="w-5 h-5 rounded-full border border-[var(--p-border)] flex items-center justify-center check-indicator">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-white hidden"><polyline points="20 6 9 17 4 12"></polyline></svg>
             </div>
           </div>
@@ -137,10 +161,38 @@ import Layout from '../layouts/Layout.astro';
     </main>
   </div>
 
+  <style>
+    .preview-light-white { --p-canvas: #ffffff; --p-soft: #f4f4f5; --p-ink: #171717; --p-border: #ebebeb; --p-brand: #6366f1; }
+    .preview-light-cream { --p-canvas: #fffaed; --p-soft: #f4ead5; --p-ink: #2f271a; --p-border: #e3d3b6; --p-brand: #6366f1; }
+    .preview-dark-grey { --p-canvas: #1a1a1c; --p-soft: #28282c; --p-ink: #f0f0f2; --p-border: #2e2e33; --p-brand: #818cf8; }
+    .preview-dark-amoled { --p-canvas: #000000; --p-soft: #0a0a0a; --p-ink: #ffffff; --p-border: #2f2f2f; --p-brand: #818cf8; }
+  </style>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const savedTheme = localStorage.getItem('splitbug_theme') || 'system';
       const cards = document.querySelectorAll('.theme-card');
+      const cardSystem = document.getElementById('card-system');
+      const cardSplitsbug = document.getElementById('card-splitsbug');
+
+      function updateDynamicPreviews() {
+        if (cardSystem) {
+          const isDarkOS = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          cardSystem.classList.remove('preview-light-white', 'preview-light-cream', 'preview-dark-grey', 'preview-dark-amoled');
+          cardSystem.classList.add(isDarkOS ? 'preview-dark-grey' : 'preview-light-white');
+        }
+        if (cardSplitsbug) {
+          const hour = new Date().getHours();
+          let sbTheme = 'preview-light-white';
+          if (hour >= 5 && hour < 7) sbTheme = 'preview-light-cream';
+          else if (hour >= 7 && hour < 17) sbTheme = 'preview-light-white';
+          else if (hour >= 17 && hour < 18) sbTheme = 'preview-light-cream';
+          else if (hour >= 18 && hour < 21) sbTheme = 'preview-dark-grey';
+          else sbTheme = 'preview-dark-amoled';
+          
+          cardSplitsbug.classList.remove('preview-light-white', 'preview-light-cream', 'preview-dark-grey', 'preview-dark-amoled');
+          cardSplitsbug.classList.add(sbTheme);
+        }
+      }
 
       function updateActiveState(activeTheme: string) {
         cards.forEach(card => {
@@ -150,31 +202,31 @@ import Layout from '../layouts/Layout.astro';
           
           if (isSelected) {
             // Apply selected styling
-            card.classList.add('ring-2', 'ring-brand', 'ring-offset-2', 'ring-offset-canvas');
+            card.classList.add('ring-2', 'ring-[var(--p-brand)]', 'ring-offset-2', 'ring-offset-canvas');
             if (indicator) {
-              indicator.classList.remove('border-hairline', 'border-[#ebebeb]', 'border-[#e3d3b6]', 'border-[#2e2e33]', 'border-[#2f2f2f]');
-              indicator.classList.add('bg-brand', 'border-brand');
+              indicator.classList.remove('border-[var(--p-border)]');
+              indicator.classList.add('bg-[var(--p-brand)]', 'border-[var(--p-brand)]');
             }
             if (checkIcon) checkIcon.classList.remove('hidden');
           } else {
             // Remove selected styling
-            card.classList.remove('ring-2', 'ring-brand', 'ring-offset-2', 'ring-offset-canvas');
+            card.classList.remove('ring-2', 'ring-[var(--p-brand)]', 'ring-offset-2', 'ring-offset-canvas');
             if (indicator) {
-              indicator.classList.remove('bg-brand', 'border-brand');
-              // Restore original border color based on theme
-              const t = card.getAttribute('data-theme');
-              if (t === 'system') indicator.classList.add('border-hairline');
-              else if (t === 'light-white') indicator.classList.add('border-[#ebebeb]');
-              else if (t === 'light-cream') indicator.classList.add('border-[#e3d3b6]');
-              else if (t === 'dark-grey') indicator.classList.add('border-[#2e2e33]');
-              else if (t === 'dark-amoled') indicator.classList.add('border-[#2f2f2f]');
+              indicator.classList.remove('bg-[var(--p-brand)]', 'border-[var(--p-brand)]');
+              indicator.classList.add('border-[var(--p-border)]');
             }
             if (checkIcon) checkIcon.classList.add('hidden');
           }
         });
       }
 
+      // Initial Update
+      updateDynamicPreviews();
       updateActiveState(savedTheme);
+
+      // Listeners for dynamic updates
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateDynamicPreviews);
+      setInterval(updateDynamicPreviews, 60000); // update splitsbug preview every minute
 
       cards.forEach(card => {
         card.addEventListener('click', () => {
