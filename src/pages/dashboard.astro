@@ -71,9 +71,12 @@ import Layout from '../layouts/Layout.astro';
     <dialog id="notificationsModal" class="backdrop:bg-black/50 text-ink fixed inset-0 z-40 w-full h-full max-w-none max-h-none m-0 p-0 bg-canvas border-0 overflow-hidden open:flex flex-col pb-[calc(4rem+env(safe-area-inset-bottom))] sm:pb-0 sm:m-auto sm:w-[95vw] sm:max-w-sm sm:h-auto sm:max-h-[80vh] sm:rounded-xl sm:border sm:border-hairline shadow-xl">
       <div class="px-4 py-3 flex items-center justify-between border-b border-hairline bg-canvas shrink-0">
         <h2 class="text-lg font-medium text-ink">Notifications</h2>
-        <button type="button" id="closeNotificationsBtn" class="p-1 hover:bg-canvas-soft rounded-full transition-colors cursor-pointer">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-ink"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
+        <div class="flex items-center gap-2">
+          <button type="button" id="markAllReadBtn" class="text-xs font-medium text-brand hover:text-brand-deep cursor-pointer hidden">Mark all read</button>
+          <button type="button" id="closeNotificationsBtn" class="p-1 hover:bg-canvas-soft rounded-full transition-colors cursor-pointer">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-ink"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
       </div>
       <div id="invitesList" class="flex-1 overflow-y-auto bg-canvas p-4 min-h-0 space-y-3">
         <div class="text-center text-sm text-mute mt-4">No new notifications</div>
@@ -783,10 +786,10 @@ import Layout from '../layouts/Layout.astro';
         const exps = group.expenses || [];
         
         exps.forEach((exp: any) => {
-          const isPaidByMe = exp.paidBy === 'You' || exp.paidBy === (window as any).MY_DISPLAY_NAME;
+          const isPaidByMe = exp.paidBy === 'You' || exp.paidBy === (window as any).MY_DISPLAY_NAME || exp.paidBy === currentUserEmail;
           const amount = exp.amount;
           const participants = exp.participants || group.members;
-          const isParticipant = participants.includes('You') || participants.includes((window as any).MY_DISPLAY_NAME);
+          const isParticipant = participants.includes('You') || participants.includes((window as any).MY_DISPLAY_NAME) || participants.includes(currentUserEmail);
           
           const myShare = isParticipant ? (amount / participants.length) : 0;
           
@@ -938,6 +941,36 @@ import Layout from '../layouts/Layout.astro';
         data.groups[groupId] = newGroup;
         localStorage.setItem(GLOBAL_GROUPS_KEY, JSON.stringify(data));
 
+        // Create notification for creating the group
+        const notifsDataStr = localStorage.getItem('splitsbug_notifications');
+        let allNotifs = notifsDataStr ? JSON.parse(notifsDataStr) : {};
+        if (!allNotifs[currentUserEmail]) allNotifs[currentUserEmail] = [];
+        allNotifs[currentUserEmail].push({
+          id: Date.now().toString() + Math.random().toString(36).substring(7),
+          groupId: groupId,
+          message: `You created the group "${name}".`,
+          timestamp: Date.now()
+        });
+        if (allNotifs[currentUserEmail].length > 20) allNotifs[currentUserEmail] = allNotifs[currentUserEmail].slice(-20);
+        localStorage.setItem('splitsbug_notifications', JSON.stringify(allNotifs));
+
+        // Add persistent activity
+        const activitiesDataStr = localStorage.getItem('splitsbug_global_activities');
+        let allActivities = activitiesDataStr ? JSON.parse(activitiesDataStr) : [];
+        allActivities.push({
+          id: Date.now().toString() + Math.random().toString(36).substring(7),
+          groupId: groupId,
+          groupName: name,
+          type: 'group_created',
+          description: 'Created group',
+          amount: 0,
+          currency: currency,
+          paidBy: currentUserEmail,
+          participants: newGroup.members,
+          timestamp: Date.now()
+        });
+        localStorage.setItem('splitsbug_global_activities', JSON.stringify(allActivities));
+
         nameInput.value = '';
         currentMembers = [(window as any).MY_DISPLAY_NAME];
         renderTags();
@@ -1064,9 +1097,30 @@ import Layout from '../layouts/Layout.astro';
       
       const myPendingInvites = invitesData.invites.filter((inv: any) => inv.inviteeEmail === currentUserEmail && inv.status === 'pending');
       
+      const notifsDataStr = localStorage.getItem('splitsbug_notifications');
+      let myNotifs: any[] = [];
+      if (notifsDataStr) {
+        try {
+          const allNotifs = JSON.parse(notifsDataStr);
+          myNotifs = allNotifs[currentUserEmail] || [];
+        } catch(e) {}
+      }
+
+      const unreadNotifs = myNotifs.filter((n: any) => !n.read);
+      const totalNotifsCount = myPendingInvites.length + unreadNotifs.length;
+      
+      const markAllReadBtn = document.getElementById('markAllReadBtn');
+      if (markAllReadBtn) {
+        if (unreadNotifs.length > 0) {
+          markAllReadBtn.classList.remove('hidden');
+        } else {
+          markAllReadBtn.classList.add('hidden');
+        }
+      }
+
       if (notificationBadge) {
-        if (myPendingInvites.length > 0) {
-          notificationBadge.textContent = myPendingInvites.length > 9 ? '9+' : myPendingInvites.length.toString();
+        if (totalNotifsCount > 0) {
+          notificationBadge.textContent = totalNotifsCount >= 99 ? ':)' : totalNotifsCount.toString();
           notificationBadge.classList.remove('hidden');
         } else {
           notificationBadge.classList.add('hidden');
@@ -1074,7 +1128,7 @@ import Layout from '../layouts/Layout.astro';
       }
 
       if (invitesList) {
-        if (myPendingInvites.length === 0) {
+        if (totalNotifsCount === 0) {
           invitesList.innerHTML = '<div class="p-4 text-center text-xs text-mute">No new notifications</div>';
           return;
         }
@@ -1086,7 +1140,7 @@ import Layout from '../layouts/Layout.astro';
           banner.className = 'p-3 bg-brand/10 border-b border-brand/20 flex flex-col gap-2 items-start';
           banner.innerHTML = `
             <span class="text-xs text-brand font-medium">Enable push notifications to never miss an invite or expense.</span>
-            <button id="enableNotifsBtn" class="bg-brand text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-brand-deep transition-colors">Enable Notifications</button>
+            <button id="enableNotifsBtn" class="bg-brand text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-brand-deep transition-colors cursor-pointer">Enable Notifications</button>
           `;
           invitesList.appendChild(banner);
 
@@ -1114,9 +1168,44 @@ import Layout from '../layouts/Layout.astro';
               <span class="font-bold">${inv.inviterName}</span> invited you to join <span class="font-bold">${inv.groupName}</span> as a ${inv.role}.
             </p>
             <div class="flex gap-3">
-              <button class="join-invite-btn flex-1 bg-brand text-white px-4 py-2 text-sm font-medium rounded-md hover:bg-brand-deep transition-colors text-center" data-id="${inv.id}">Join</button>
-              <button class="reject-invite-btn flex-1 bg-canvas text-ink border border-hairline px-4 py-2 text-sm font-medium rounded-md hover:bg-canvas-soft transition-colors text-center" data-id="${inv.id}">Decline</button>
+              <button class="join-invite-btn flex-1 bg-brand text-white px-4 py-2 text-sm font-medium rounded-md hover:bg-brand-deep transition-colors text-center cursor-pointer" data-id="${inv.id}">Join</button>
+              <button class="reject-invite-btn flex-1 bg-canvas text-ink border border-hairline px-4 py-2 text-sm font-medium rounded-md hover:bg-canvas-soft transition-colors text-center cursor-pointer" data-id="${inv.id}">Decline</button>
             </div>
+          `;
+          invitesList.appendChild(item);
+        });
+
+        myNotifs.forEach((notif: any) => {
+          const item = document.createElement('div');
+          const isUnread = !notif.read;
+          const bgClass = isUnread ? 'bg-brand/5' : '';
+          item.className = `p-3 border-b border-hairline hover:bg-canvas-soft transition-colors flex items-start justify-between group ${bgClass}`;
+          
+          let actionUrl = notif.groupId ? `/group?id=${notif.groupId}` : '#';
+          
+          // Try to extract an initial
+          let initial = 'N';
+          const match = notif.message.match(/^[A-Za-z]/);
+          if (match) initial = match[0].toUpperCase();
+
+          const unreadDot = isUnread ? `<div class="w-2 h-2 rounded-full bg-brand shrink-0 mt-1 hidden sm:block"></div>` : '';
+          
+          item.innerHTML = `
+            <a href="${actionUrl}" class="flex-1 pr-2 flex items-start gap-3 notif-link" data-id="${notif.id}">
+              <div class="flex flex-col items-center gap-1 shrink-0">
+                <div class="w-10 h-10 rounded-full bg-brand/10 text-brand flex items-center justify-center font-bold">
+                  ${initial}
+                </div>
+                ${unreadDot}
+              </div>
+              <div>
+                <p class="text-sm text-ink mb-1 leading-snug ${isUnread ? 'font-medium' : ''}">${notif.message}</p>
+                <p class="text-xs text-mute">${new Date(notif.timestamp).toLocaleString()}</p>
+              </div>
+            </a>
+            <button class="dismiss-notif-btn text-mute hover:text-danger opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity p-1 cursor-pointer shrink-0" data-id="${notif.id}" title="Dismiss">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
           `;
           invitesList.appendChild(item);
         });
@@ -1134,8 +1223,66 @@ import Layout from '../layouts/Layout.astro';
             handleInviteAction(inviteId, 'rejected');
           });
         });
+
+        document.querySelectorAll('.dismiss-notif-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const notifId = (e.currentTarget as HTMLElement).getAttribute('data-id');
+            dismissNotification(notifId);
+          });
+        });
+
+        document.querySelectorAll('.notif-link').forEach(link => {
+          link.addEventListener('click', (e) => {
+            const notifId = (e.currentTarget as HTMLElement).getAttribute('data-id');
+            if (notifId) markNotificationAsRead(notifId);
+          });
+        });
       }
     }
+
+    const markAllReadBtn = document.getElementById('markAllReadBtn');
+    if (markAllReadBtn) {
+      markAllReadBtn.addEventListener('click', () => {
+        const notifsDataStr = localStorage.getItem('splitsbug_notifications');
+        if (notifsDataStr) {
+          let allNotifs = JSON.parse(notifsDataStr);
+          if (allNotifs[currentUserEmail]) {
+            allNotifs[currentUserEmail].forEach((n: any) => n.read = true);
+            localStorage.setItem('splitsbug_notifications', JSON.stringify(allNotifs));
+            renderNotifications();
+          }
+        }
+      });
+    }
+
+    function markNotificationAsRead(notifId: string) {
+      const notifsDataStr = localStorage.getItem('splitsbug_notifications');
+      if (!notifsDataStr) return;
+      let allNotifs = JSON.parse(notifsDataStr);
+      if (allNotifs[currentUserEmail]) {
+        const notif = allNotifs[currentUserEmail].find((n: any) => n.id === notifId);
+        if (notif && !notif.read) {
+          notif.read = true;
+          localStorage.setItem('splitsbug_notifications', JSON.stringify(allNotifs));
+        }
+      }
+    }
+
+    function dismissNotification(notifId: string | null) {
+      if (!notifId) return;
+      const notifsDataStr = localStorage.getItem('splitsbug_notifications');
+      if (!notifsDataStr) return;
+      
+      let allNotifs = JSON.parse(notifsDataStr);
+      if (allNotifs[currentUserEmail]) {
+        allNotifs[currentUserEmail] = allNotifs[currentUserEmail].filter((n: any) => n.id !== notifId);
+        localStorage.setItem('splitsbug_notifications', JSON.stringify(allNotifs));
+        renderNotifications();
+      }
+    }
+
 
     function handleInviteAction(inviteId: string | null, newStatus: string) {
       if (!inviteId) return;
@@ -1201,9 +1348,22 @@ import Layout from '../layouts/Layout.astro';
               }
               group.roles[newId] = invite.role || 'viewer';
             }
-            
             localStorage.setItem(GLOBAL_GROUPS_KEY, JSON.stringify(groupsData));
             showToast(`Joined ${invite.groupName}!`);
+            
+            // Create notification for joining the group
+            const notifsDataStr = localStorage.getItem('splitsbug_notifications');
+            let allNotifs = notifsDataStr ? JSON.parse(notifsDataStr) : {};
+            if (!allNotifs[currentUserEmail]) allNotifs[currentUserEmail] = [];
+            allNotifs[currentUserEmail].push({
+              id: Date.now().toString() + Math.random().toString(36).substring(7),
+              groupId: group.id,
+              message: `You joined the group "${group.name}".`,
+              timestamp: Date.now()
+            });
+            if (allNotifs[currentUserEmail].length > 20) allNotifs[currentUserEmail] = allNotifs[currentUserEmail].slice(-20);
+            localStorage.setItem('splitsbug_notifications', JSON.stringify(allNotifs));
+
             renderGroups();
           }
         }

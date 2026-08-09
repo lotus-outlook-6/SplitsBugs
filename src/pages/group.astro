@@ -637,6 +637,17 @@ import Layout from '../layouts/Layout.astro';
       if (!raw) return '';
       if (!raw.includes('@')) return raw;
       if (raw === currentUserEmail) return (window as any).MY_DISPLAY_NAME || 'You';
+      
+      const usersStr = localStorage.getItem('splitbug_users');
+      if (usersStr) {
+        try {
+          const users = JSON.parse(usersStr);
+          if (users[raw] && users[raw].name) {
+            return users[raw].name;
+          }
+        } catch(e) {}
+      }
+      
       return raw.split('@')[0];
     };
     const typeColorMap: Record<string, string> = {
@@ -838,6 +849,53 @@ import Layout from '../layouts/Layout.astro';
             localStorage.setItem(DATA_KEY, JSON.stringify(data));
           }
 
+          // Add notifications for settled debts
+          const notifsDataStr = localStorage.getItem('splitsbug_notifications');
+          let allNotifs = notifsDataStr ? JSON.parse(notifsDataStr) : {};
+          
+          checkedOptions.forEach(opt => {
+            const debt = JSON.parse(opt.value);
+            const payerName = debt.from === currentUserEmail || debt.from === (window as any).MY_DISPLAY_NAME || debt.from === 'You' ? (window as any).MY_DISPLAY_NAME : (window as any).getDisplayName(debt.from);
+            
+            const p = debt.to;
+            // Don't notify if somehow paying themselves
+            if (p === currentUserEmail || p === debt.from || p === (window as any).MY_DISPLAY_NAME || p === 'You') return;
+            
+            if (!allNotifs[p]) allNotifs[p] = [];
+            allNotifs[p].push({
+              id: Date.now().toString() + Math.random().toString(36).substring(7),
+              groupId: groupId,
+              message: `${payerName} paid you ${curr}${debt.amount.toFixed(2)}.`,
+              timestamp: Date.now()
+            });
+            if (allNotifs[p].length > 20) allNotifs[p] = allNotifs[p].slice(-20);
+          });
+          
+          if (checkedOptions.length > 0) {
+            localStorage.setItem('splitsbug_notifications', JSON.stringify(allNotifs));
+
+            // Add persistent activities
+            const activitiesDataStr = localStorage.getItem('splitsbug_global_activities');
+            let allActivities = activitiesDataStr ? JSON.parse(activitiesDataStr) : [];
+            
+            checkedOptions.forEach(opt => {
+              const debt = JSON.parse(opt.value);
+              allActivities.push({
+                id: Date.now().toString() + Math.random().toString(36).substring(7),
+                groupId: groupId,
+                groupName: groupData.name,
+                type: 'debt_settled',
+                description: 'Payment',
+                amount: debt.amount,
+                currency: curr,
+                paidBy: debt.from,
+                participants: [debt.to],
+                timestamp: Date.now()
+              });
+            });
+            localStorage.setItem('splitsbug_global_activities', JSON.stringify(allActivities));
+          }
+
           renderFeed();
           renderBalances();
           
@@ -1036,11 +1094,21 @@ import Layout from '../layouts/Layout.astro';
         
         const openInviteMemberBtn = document.getElementById('openInviteMemberBtn');
         if (openInviteMemberBtn) {
-          if (groupData.memberPermissions === 'admins' && myRole !== 'owner' && myRole !== 'editor') {
+          if (groupData.memberPermissions === 'admins' && myRole !== 'owner' && myRole !== 'admin') {
             openInviteMemberBtn.style.display = 'none';
           } else {
             openInviteMemberBtn.style.display = 'flex';
           }
+        }
+
+        const deleteGroupBtn = document.getElementById('settingsDeleteGroupBtn');
+        const editGroupBtn = document.getElementById('editGroupBtn');
+        if (myRole !== 'owner' && myRole !== 'admin') {
+          if (deleteGroupBtn) deleteGroupBtn.style.display = 'none';
+          if (editGroupBtn) editGroupBtn.style.display = 'none';
+        } else {
+          if (deleteGroupBtn) deleteGroupBtn.style.display = 'flex';
+          if (editGroupBtn) editGroupBtn.style.display = 'flex';
         }
 
       // Update UI Header
@@ -1233,6 +1301,24 @@ import Layout from '../layouts/Layout.astro';
             const data = JSON.parse(dataStr);
             delete data.groups[groupId!];
             localStorage.setItem(DATA_KEY, JSON.stringify(data));
+
+            // Add persistent activity
+            const activitiesDataStr = localStorage.getItem('splitsbug_global_activities');
+            let allActivities = activitiesDataStr ? JSON.parse(activitiesDataStr) : [];
+            allActivities.push({
+              id: Date.now().toString() + Math.random().toString(36).substring(7),
+              groupId: groupId,
+              groupName: groupData.name,
+              type: 'group_deleted',
+              description: 'Deleted group',
+              amount: 0,
+              currency: groupData.currency || '$',
+              paidBy: currentUserEmail,
+              participants: groupData.members,
+              timestamp: Date.now()
+            });
+            localStorage.setItem('splitsbug_global_activities', JSON.stringify(allActivities));
+
             window.location.href = '/dashboard';
           }
         }, 1500);
@@ -1522,6 +1608,43 @@ import Layout from '../layouts/Layout.astro';
           localStorage.setItem(DATA_KEY, JSON.stringify(data));
         }
 
+        // Add notifications for involved participants
+        const notifsDataStr = localStorage.getItem('splitsbug_notifications');
+        let allNotifs = notifsDataStr ? JSON.parse(notifsDataStr) : {};
+        const payerName = paidBy === currentUserEmail || paidBy === (window as any).MY_DISPLAY_NAME || paidBy === 'You' ? (window as any).MY_DISPLAY_NAME : (window as any).getDisplayName(paidBy);
+        
+        participants.forEach(p => {
+          // Don't notify the payer themselves
+          if (p === currentUserEmail || p === paidBy || p === (window as any).MY_DISPLAY_NAME || p === 'You') return;
+          
+          if (!allNotifs[p]) allNotifs[p] = [];
+          allNotifs[p].push({
+            id: Date.now().toString() + Math.random().toString(36).substring(7),
+            groupId: groupId,
+            message: `${payerName} added the expense "${desc}" in "${groupData.name}".`,
+            timestamp: Date.now()
+          });
+          if (allNotifs[p].length > 20) allNotifs[p] = allNotifs[p].slice(-20);
+        });
+        localStorage.setItem('splitsbug_notifications', JSON.stringify(allNotifs));
+
+        // Add persistent activity
+        const activitiesDataStr = localStorage.getItem('splitsbug_global_activities');
+        let allActivities = activitiesDataStr ? JSON.parse(activitiesDataStr) : [];
+        allActivities.push({
+          id: Date.now().toString() + Math.random().toString(36).substring(7),
+          groupId: groupId,
+          groupName: groupData.name,
+          type: 'expense_added',
+          description: desc,
+          amount: amount,
+          currency: curr,
+          paidBy: paidBy,
+          participants: participants,
+          timestamp: Date.now()
+        });
+        localStorage.setItem('splitsbug_global_activities', JSON.stringify(allActivities));
+
         renderFeed();
         renderBalances();
         
@@ -1757,13 +1880,17 @@ import Layout from '../layouts/Layout.astro';
         if (roleText === 'owner') roleText = 'Admin';
         
         let memberRoleText = `<span class="text-xs text-mute mt-0.5 capitalize">${roleText}</span>`;
-        if (isYou && groupData.roles?.[currentUserEmail]) {
-           let myRole = groupData.roles[currentUserEmail];
-           if (myRole === 'owner') myRole = 'Admin';
-           memberRoleText = `<span class="text-xs text-mute mt-0.5 capitalize">${myRole}</span>`;
+        const myDisplayName = (window as any).MY_DISPLAY_NAME;
+        const resolvedMyRole = groupData.roles?.[currentUserEmail] || (myDisplayName && groupData.roles?.[myDisplayName]);
+
+        if (isYou && resolvedMyRole) {
+           let displayRole = resolvedMyRole;
+           if (displayRole === 'owner') displayRole = 'Admin';
+           memberRoleText = `<span class="text-xs text-mute mt-0.5 capitalize">${displayRole}</span>`;
         }
         
-        const canManageMembers = groupData.memberPermissions === 'all' || myRole === 'owner' || myRole === 'admin';
+        const currentUserRole = resolvedMyRole || 'editor';
+        const canManageMembers = groupData.memberPermissions === 'all' || currentUserRole === 'owner' || currentUserRole === 'admin';
 
         if (!isYou && canManageMembers) {
           // Check for pending invites
@@ -1795,7 +1922,7 @@ import Layout from '../layouts/Layout.astro';
             actionsHtml = `
               <div class="relative ml-2">
                 <button onclick="window.openInviteModal('${m}', '', '', 'invite')" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-brand/10 text-mute hover:text-brand transition-colors" title="Invite">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
                 </button>
               </div>
             `;
@@ -2175,6 +2302,23 @@ import Layout from '../layouts/Layout.astro';
           localStorage.setItem(DATA_KEY, JSON.stringify(data));
         }
 
+        // Add persistent activity
+        const activitiesDataStr = localStorage.getItem('splitsbug_global_activities');
+        let allActivities = activitiesDataStr ? JSON.parse(activitiesDataStr) : [];
+        allActivities.push({
+          id: Date.now().toString() + Math.random().toString(36).substring(7),
+          groupId: groupId,
+          groupName: groupData.name,
+          type: 'group_settings_changed',
+          description: 'Updated group settings',
+          amount: 0,
+          currency: groupData.currency || '$',
+          paidBy: currentUserEmail,
+          participants: groupData.members,
+          timestamp: Date.now()
+        });
+        localStorage.setItem('splitsbug_global_activities', JSON.stringify(allActivities));
+
         showToast("Group saved!");
         initGroupData();
         renderSettings(); // update the modal underneath
@@ -2448,17 +2592,17 @@ import Layout from '../layouts/Layout.astro';
           emailInput.readOnly = true;
           emailInput.classList.add('bg-canvas-soft', 'text-mute');
           emailInput.classList.remove('bg-canvas', 'text-ink');
-          removeBtn.classList.remove('hidden');
-          removeBtn.onclick = function() {
-            (window as any).removeMemberFromGroup(memberId);
-            inviteMemberModal?.close();
-          };
         } else {
           emailInput.readOnly = false;
           emailInput.classList.remove('bg-canvas-soft', 'text-mute');
           emailInput.classList.add('bg-canvas', 'text-ink');
-          removeBtn.classList.add('hidden');
         }
+        
+        removeBtn.classList.remove('hidden');
+        removeBtn.onclick = function() {
+          (window as any).removeMemberFromGroup(memberId);
+          inviteMemberModal?.close();
+        };
       }
 
       inviteMemberModal?.showModal();

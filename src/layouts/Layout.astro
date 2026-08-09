@@ -25,7 +25,7 @@ const isGroups = pathname === '/dashboard' || pathname === '/';
 		<script src="/js/categories.js" is:inline></script>
 		<script is:inline>
 			// Apply Theme
-			const savedTheme = localStorage.getItem('splitbug_theme') || 'system';
+			const savedTheme = localStorage.getItem('splitbug_theme') || 'dark-grey';
 			window.applyTheme = (theme) => {
 				document.documentElement.className = '';
 				if (theme === 'system') {

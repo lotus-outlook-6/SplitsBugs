@@ -47,7 +47,24 @@ import Layout from '../layouts/Layout.astro';
 
     const feedContainer = document.getElementById('activityFeedContainer');
     
-
+    (window as any).MY_DISPLAY_NAME = localStorage.getItem('splitbug_userName') || 'You';
+    (window as any).getDisplayName = function(raw: string) {
+      if (!raw) return '';
+      if (!raw.includes('@')) return raw;
+      if (raw === currentUserEmail) return (window as any).MY_DISPLAY_NAME || 'You';
+      
+      const usersStr = localStorage.getItem('splitbug_users');
+      if (usersStr) {
+        try {
+          const users = JSON.parse(usersStr);
+          if (users[raw] && users[raw].name) {
+            return users[raw].name;
+          }
+        } catch(e) {}
+      }
+      
+      return raw.split('@')[0];
+    };
 
     function formatDate(ts: number) {
       const d = new Date(ts);
@@ -62,84 +79,72 @@ import Layout from '../layouts/Layout.astro';
 
     function renderActivity(searchQuery = '') {
       if (!feedContainer) return;
-      const dataStr = localStorage.getItem(DATA_KEY);
-      if (!dataStr) {
+      const activitiesStr = localStorage.getItem('splitsbug_global_activities');
+      if (!activitiesStr) {
         feedContainer.innerHTML = `<div class="p-8 text-center text-mute">No activity to display.</div>`;
         return;
       }
 
-      const data = JSON.parse(dataStr);
-      const allGroupEntries = Object.entries(data.groups || {});
-      const groups = allGroupEntries.filter(([_, g]: [string, any]) => g.roles && g.roles[currentUserEmail]);
-
-      let activities: any[] = [];
-
-      // Add group creation and group expenses
-      groups.forEach(([groupId, g]: [string, any]) => {
-        // Group creation activity
-        activities.push({
-          type: 'group_create',
-          groupId: groupId,
-          groupName: g.name,
-          timestamp: g.createdAt || Date.now() - 1000000 // Fallback if no timestamp
-        });
-
-        // Group expenses
-        const exps = g.expenses || [];
-        exps.forEach((exp: any) => {
-          activities.push({
-            type: 'group_expense',
-            groupId: groupId,
-            groupName: g.name,
-            description: exp.description,
-            amount: exp.amount,
-            paidBy: exp.paidBy,
-            participants: exp.participants || g.members,
-            currency: exp.currency || '₹',
-            timestamp: exp.timestamp || Date.now() - 500000
-          });
-        });
+      let allActivities = JSON.parse(activitiesStr);
+      
+      // Filter activities for this user
+      let activities = allActivities.filter((act: any) => {
+        if (!act.participants) return false;
+        return act.participants.includes(currentUserEmail) || 
+               act.paidBy === currentUserEmail || 
+               act.participants.includes('You') || 
+               act.participants.includes((window as any).MY_DISPLAY_NAME);
       });
 
       // Filter by search query if provided
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
-        activities = activities.filter(act => {
-          if (act.type === 'group_create') return act.groupName.toLowerCase().includes(query);
-          if (act.type === 'group_expense') {
-             return act.groupName.toLowerCase().includes(query) || 
-                    act.description.toLowerCase().includes(query) || 
-                    act.paidBy.toLowerCase().includes(query);
-          }
-          return false;
+        activities = activities.filter((act: any) => {
+          return act.groupName.toLowerCase().includes(query) || 
+                 (act.description && act.description.toLowerCase().includes(query)) || 
+                 (act.paidBy && act.paidBy.toLowerCase().includes(query));
         });
       }
 
       // Sort chronological descending
-      activities.sort((a, b) => b.timestamp - a.timestamp);
+      activities.sort((a: any, b: any) => b.timestamp - a.timestamp);
 
       if (activities.length === 0) {
         feedContainer.innerHTML = `<div class="p-8 text-center text-mute">No activity to display.</div>`;
         return;
       }
 
+      const groupsDataStr = localStorage.getItem(GLOBAL_GROUPS_KEY);
+      const groupsData = groupsDataStr ? JSON.parse(groupsDataStr) : { groups: {} };
+
       feedContainer.innerHTML = '';
-      activities.forEach((act) => {
+      activities.forEach((act: any) => {
         let avatarLetter = 'A';
         let mainText = '';
         let subTextHTML = '';
 
-        if (act.type === 'group_create') {
+        const who = act.paidBy === 'You' || act.paidBy === (window as any).MY_DISPLAY_NAME || act.paidBy === currentUserEmail ? 'You' : (window as any).getDisplayName(act.paidBy);
+
+        if (act.type === 'group_created') {
           avatarLetter = act.groupName.charAt(0).toUpperCase();
-          mainText = `<span class="font-bold text-ink">You</span> created the group "<span class="font-bold text-ink">${act.groupName}</span>".`;
-          subTextHTML = ``; // No subtext
-        } else if (act.type === 'group_expense') {
+          mainText = `<span class="font-bold text-ink">${who}</span> created the group "<span class="font-bold text-ink">${act.groupName}</span>".`;
+        } else if (act.type === 'group_deleted') {
+          avatarLetter = act.groupName.charAt(0).toUpperCase();
+          mainText = `<span class="font-bold text-ink">${who}</span> deleted the group "<span class="font-bold text-ink">${act.groupName}</span>".`;
+        } else if (act.type === 'group_settings_changed') {
+          avatarLetter = act.groupName.charAt(0).toUpperCase();
+          mainText = `<span class="font-bold text-ink">${who}</span> updated settings for "<span class="font-bold text-ink">${act.groupName}</span>".`;
+        } else if (act.type === 'expense_added' || act.type === 'debt_settled') {
           avatarLetter = act.description.charAt(0).toUpperCase();
-          const who = act.paidBy === 'You' || act.paidBy === (window as any).MY_DISPLAY_NAME ? 'You' : act.paidBy;
-          mainText = `<span class="font-bold text-ink">${who}</span> added "<span class="font-bold text-ink">${act.description}</span>" in "<span class="font-bold text-ink">${act.groupName}</span>".`;
+          if (act.type === 'debt_settled') {
+             const toWho = act.participants[0] === currentUserEmail || act.participants[0] === (window as any).MY_DISPLAY_NAME ? 'you' : (window as any).getDisplayName(act.participants[0]);
+             mainText = `<span class="font-bold text-ink">${who}</span> paid ${toWho} ${act.currency}${act.amount.toFixed(2)} in "<span class="font-bold text-ink">${act.groupName}</span>".`;
+          } else {
+             mainText = `<span class="font-bold text-ink">${who}</span> added "<span class="font-bold text-ink">${act.description}</span>" in "<span class="font-bold text-ink">${act.groupName}</span>".`;
+          }
           
-          const isParticipant = act.participants.includes('You') || act.participants.includes((window as any).MY_DISPLAY_NAME);
-          const isPayer = act.paidBy === 'You' || act.paidBy === (window as any).MY_DISPLAY_NAME;
+          const isParticipant = act.participants.includes('You') || act.participants.includes((window as any).MY_DISPLAY_NAME) || act.participants.includes(currentUserEmail);
+          const isPayer = act.paidBy === 'You' || act.paidBy === (window as any).MY_DISPLAY_NAME || act.paidBy === currentUserEmail;
           const myShare = isParticipant ? (act.amount / act.participants.length) : 0;
           const curr = act.currency;
 
@@ -162,8 +167,10 @@ import Layout from '../layouts/Layout.astro';
         const dateStr = formatDate(act.timestamp);
         const faviconPath = "/SplitBugs-Brand/favicon/favicon.svg";
 
+        const isGroupDeleted = !groupsData.groups[act.groupId];
+
         const itemHTML = `
-          <a href="/group?id=${act.groupId}" class="flex items-start gap-4 p-4 lg:p-5 border-b border-hairline hover:bg-canvas-soft transition-colors block cursor-pointer">
+          <a ${isGroupDeleted ? 'data-deleted="true"' : `href="/group?id=${act.groupId}"`} class="activity-item flex items-start gap-4 p-4 lg:p-5 border-b border-hairline hover:bg-canvas-soft transition-colors block cursor-pointer">
             <div class="relative shrink-0 mt-1">
               <div class="w-12 h-12 rounded-lg bg-[#b2dfdb] border border-hairline flex items-center justify-center font-bold text-2xl text-ink">
                 ${avatarLetter}
@@ -178,6 +185,14 @@ import Layout from '../layouts/Layout.astro';
           </a>
         `;
         feedContainer.insertAdjacentHTML('beforeend', itemHTML);
+      });
+
+      // Add listeners for deleted groups
+      document.querySelectorAll('.activity-item[data-deleted="true"]').forEach(el => {
+        el.addEventListener('click', (e) => {
+          e.preventDefault();
+          alert('This group no longer exists and was deleted by the admin.');
+        });
       });
     }
 

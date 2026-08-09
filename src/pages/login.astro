@@ -98,6 +98,12 @@ import Layout from '../layouts/Layout.astro';
       localStorage.setItem('splitbug_userPhone', user.phone || '');
       localStorage.setItem('splitbug_userThemeColor', user.themeColor || 'special-art-1');
       
+      if (user.avatar) {
+        localStorage.setItem('splitbug_userAvatar', user.avatar);
+      } else {
+        localStorage.removeItem('splitbug_userAvatar');
+      }
+      
       localStorage.setItem('splitbug_loggedIn', 'true');
       window.location.href = '/dashboard';
     });

@@ -448,6 +448,7 @@ import Layout from '../layouts/Layout.astro';
       localStorage.setItem('splitbug_userDob', dobInput.value);
       localStorage.setItem('splitbug_userPhone', phone);
       localStorage.setItem('splitbug_userThemeColor', 'special-art-1');
+      localStorage.removeItem('splitbug_userAvatar');
       
       window.location.href = '/login?registered=true';
     });
