@@ -628,10 +628,16 @@ import Layout from '../layouts/Layout.astro';
   </div>
 
   <script>
+    import { db, auth } from '../firebase';
+    import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, deleteField, setDoc, addDoc, collection, onSnapshot, query, where } from 'firebase/firestore';
+
     const currentUserEmail = localStorage.getItem('splitbug_userEmail') || 'user@example.com';
     (window as any).MY_DISPLAY_NAME = localStorage.getItem('splitbug_userName') || 'You';
     const GLOBAL_GROUPS_KEY = 'splitsbug_global_groups';
     const DATA_KEY = GLOBAL_GROUPS_KEY;
+    
+    let groupDocRef: any = null;
+    let isGroupLoaded = false;
 
     (window as any).getDisplayName = function(raw: string) {
       if (!raw) return '';
@@ -825,76 +831,75 @@ import Layout from '../layouts/Layout.astro';
             return;
           }
           
-          if (!groupData.expenses) groupData.expenses = [];
           const curr = currencySymbol?.textContent || '$';
           
-          checkedOptions.forEach(opt => {
-            const debt = JSON.parse(opt.value);
-            const settlementExpense = {
-              id: Date.now().toString() + Math.random().toString(36).substring(7),
-              description: 'Payment',
-              amount: debt.amount,
-              paidBy: debt.from,
-              participants: [debt.to],
-              splitAmong: 1,
-              currency: curr
-            };
-            groupData.expenses.push(settlementExpense);
-          });
-          
-          const dataStr = localStorage.getItem(DATA_KEY);
-          if (dataStr) {
-            const data = JSON.parse(dataStr);
-            data.groups[groupId!] = groupData;
-            localStorage.setItem(DATA_KEY, JSON.stringify(data));
+          const recordBtn = document.getElementById('recordSettleBtn') as HTMLButtonElement;
+          if (recordBtn) {
+            recordBtn.disabled = true;
+            recordBtn.textContent = 'Recording...';
           }
 
-          // Add notifications for settled debts
-          const notifsDataStr = localStorage.getItem('splitsbug_notifications');
-          let allNotifs = notifsDataStr ? JSON.parse(notifsDataStr) : {};
-          
-          checkedOptions.forEach(opt => {
-            const debt = JSON.parse(opt.value);
-            const payerName = debt.from === currentUserEmail || debt.from === (window as any).MY_DISPLAY_NAME || debt.from === 'You' ? (window as any).MY_DISPLAY_NAME : (window as any).getDisplayName(debt.from);
-            
-            const p = debt.to;
-            // Don't notify if somehow paying themselves
-            if (p === currentUserEmail || p === debt.from || p === (window as any).MY_DISPLAY_NAME || p === 'You') return;
-            
-            if (!allNotifs[p]) allNotifs[p] = [];
-            allNotifs[p].push({
-              id: Date.now().toString() + Math.random().toString(36).substring(7),
-              groupId: groupId,
-              message: `${payerName} paid you ${curr}${debt.amount.toFixed(2)}.`,
-              timestamp: Date.now()
-            });
-            if (allNotifs[p].length > 20) allNotifs[p] = allNotifs[p].slice(-20);
-          });
-          
-          if (checkedOptions.length > 0) {
-            localStorage.setItem('splitsbug_notifications', JSON.stringify(allNotifs));
-
-            // Add persistent activities
-            const activitiesDataStr = localStorage.getItem('splitsbug_global_activities');
-            let allActivities = activitiesDataStr ? JSON.parse(activitiesDataStr) : [];
-            
-            checkedOptions.forEach(opt => {
-              const debt = JSON.parse(opt.value);
-              allActivities.push({
-                id: Date.now().toString() + Math.random().toString(36).substring(7),
-                groupId: groupId,
-                groupName: groupData.name,
-                type: 'debt_settled',
-                description: 'Payment',
-                amount: debt.amount,
-                currency: curr,
-                paidBy: debt.from,
-                participants: [debt.to],
-                timestamp: Date.now()
+          (async () => {
+            try {
+              let newExpenses: any[] = [];
+              let newActivities: any[] = [];
+              let newNotifs: {to: string, msg: string}[] = [];
+              
+              checkedOptions.forEach(opt => {
+                const debt = JSON.parse(opt.value);
+                const settlementExpense = {
+                  id: Date.now().toString() + Math.random().toString(36).substring(7),
+                  description: 'Payment',
+                  amount: debt.amount,
+                  paidBy: debt.from,
+                  participants: [debt.to],
+                  splitAmong: 1,
+                  currency: curr,
+                  timestamp: Date.now()
+                };
+                newExpenses.push(settlementExpense);
+                
+                const payerName = debt.from === currentUserEmail || debt.from === (window as any).MY_DISPLAY_NAME || debt.from === 'You' ? (window as any).MY_DISPLAY_NAME : (window as any).getDisplayName(debt.from);
+                const p = debt.to;
+                if (p !== currentUserEmail && p !== debt.from && p !== (window as any).MY_DISPLAY_NAME && p !== 'You') {
+                  newNotifs.push({
+                    to: p,
+                    msg: `${payerName} paid you ${curr}${debt.amount.toFixed(2)}.`
+                  });
+                }
+                
+                newActivities.push({
+                  groupId: groupId,
+                  groupName: groupData.name,
+                  type: 'debt_settled',
+                  description: 'Payment',
+                  amount: debt.amount,
+                  currency: curr,
+                  paidBy: debt.from,
+                  participants: [debt.to],
+                  timestamp: Date.now()
+                });
               });
-            });
-            localStorage.setItem('splitsbug_global_activities', JSON.stringify(allActivities));
-          }
+              
+              if (newExpenses.length > 0) {
+                // We use arrayUnion. Note: arrayUnion takes spread arguments, but for array of objects we must spread it
+                await updateDoc(groupDocRef, {
+                  expenses: arrayUnion(...newExpenses)
+                });
+              }
+              
+              for (const notif of newNotifs) {
+                await addDoc(collection(db, "users", notif.to, "notifications"), {
+                  groupId: groupId,
+                  message: notif.msg,
+                  timestamp: Date.now(),
+                  read: false
+                });
+              }
+              
+              for (const act of newActivities) {
+                await addDoc(collection(db, "activities"), act);
+              }
 
           renderFeed();
           renderBalances();
@@ -944,6 +949,17 @@ import Layout from '../layouts/Layout.astro';
           } else {
             settleUpModal.close();
           }
+
+            } catch (error) {
+              console.error("Error settling up:", error);
+              showToast("Failed to settle up.", true);
+            } finally {
+              if (recordBtn) {
+                recordBtn.disabled = false;
+                recordBtn.textContent = 'Record Payments';
+              }
+            }
+          })();
         });
       }
     }
@@ -1059,11 +1075,7 @@ import Layout from '../layouts/Layout.astro';
     let groupData: any = null;
 
     function initGroupData() {
-      const dataStr = localStorage.getItem(DATA_KEY);
-      if (dataStr && groupId) {
-        const data = JSON.parse(dataStr);
-        groupData = data.groups?.[groupId];
-      }
+      // Data is loaded via Firebase onSnapshot
 
       if (!groupData) {
         document.getElementById('groupTitle')!.textContent = "Group not found";
@@ -1295,18 +1307,13 @@ import Layout from '../layouts/Layout.astro';
         if (deleteAnimState) deleteAnimState.classList.add('flex');
         if (deleteModalContent) deleteModalContent.classList.add('scale-95');
 
-        setTimeout(() => {
-          const dataStr = localStorage.getItem(DATA_KEY);
-          if (dataStr) {
-            const data = JSON.parse(dataStr);
-            delete data.groups[groupId!];
-            localStorage.setItem(DATA_KEY, JSON.stringify(data));
+        setTimeout(async () => {
+          try {
+            const { deleteDoc } = await import('firebase/firestore');
+            await deleteDoc(groupDocRef);
 
             // Add persistent activity
-            const activitiesDataStr = localStorage.getItem('splitsbug_global_activities');
-            let allActivities = activitiesDataStr ? JSON.parse(activitiesDataStr) : [];
-            allActivities.push({
-              id: Date.now().toString() + Math.random().toString(36).substring(7),
+            await addDoc(collection(db, "activities"), {
               groupId: groupId,
               groupName: groupData.name,
               type: 'group_deleted',
@@ -1317,9 +1324,11 @@ import Layout from '../layouts/Layout.astro';
               participants: groupData.members,
               timestamp: Date.now()
             });
-            localStorage.setItem('splitsbug_global_activities', JSON.stringify(allActivities));
 
             window.location.href = '/dashboard';
+          } catch (e) {
+            console.error("Error deleting group", e);
+            showToast("Failed to delete group", true);
           }
         }, 1500);
       });
@@ -1535,9 +1544,20 @@ import Layout from '../layouts/Layout.astro';
       });
     }
 
-    initGroupData();
+    if (groupId) {
+      groupDocRef = doc(db, 'groups', groupId);
+      onSnapshot(groupDocRef, (docSnap) => {
+        if (docSnap.exists()) {
+          groupData = { id: docSnap.id, ...docSnap.data() };
+          isGroupLoaded = true;
+          initGroupData();
+        } else {
+          document.getElementById('groupTitle')!.textContent = "Group not found";
+        }
+      });
+    }
 
-    if (addExpenseForm && activityFeed && groupData) {
+    if (addExpenseForm && activityFeed) {
       addExpenseForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const descInput = document.getElementById('expenseDescription') as HTMLInputElement;
@@ -1585,7 +1605,7 @@ import Layout from '../layouts/Layout.astro';
 
         const expenseCategoryValue = document.getElementById('expenseCategoryValue') as HTMLInputElement;
 
-        // Save to localStorage
+        // Save to Firestore
         const newExpense = {
           id: Date.now().toString(),
           description: desc,
@@ -1598,59 +1618,58 @@ import Layout from '../layouts/Layout.astro';
           timestamp: Date.now()
         };
 
-        if (!groupData.expenses) groupData.expenses = [];
-        groupData.expenses.push(newExpense);
-        
-        const dataStr = localStorage.getItem(DATA_KEY);
-        if (dataStr) {
-          const data = JSON.parse(dataStr);
-          data.groups[groupId!] = groupData;
-          localStorage.setItem(DATA_KEY, JSON.stringify(data));
+        const submitBtn = addExpenseForm.querySelector('button[type="submit"]') as HTMLButtonElement;
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Saving...';
         }
 
-        // Add notifications for involved participants
-        const notifsDataStr = localStorage.getItem('splitsbug_notifications');
-        let allNotifs = notifsDataStr ? JSON.parse(notifsDataStr) : {};
-        const payerName = paidBy === currentUserEmail || paidBy === (window as any).MY_DISPLAY_NAME || paidBy === 'You' ? (window as any).MY_DISPLAY_NAME : (window as any).getDisplayName(paidBy);
-        
-        participants.forEach(p => {
-          // Don't notify the payer themselves
-          if (p === currentUserEmail || p === paidBy || p === (window as any).MY_DISPLAY_NAME || p === 'You') return;
-          
-          if (!allNotifs[p]) allNotifs[p] = [];
-          allNotifs[p].push({
-            id: Date.now().toString() + Math.random().toString(36).substring(7),
-            groupId: groupId,
-            message: `${payerName} added the expense "${desc}" in "${groupData.name}".`,
-            timestamp: Date.now()
-          });
-          if (allNotifs[p].length > 20) allNotifs[p] = allNotifs[p].slice(-20);
-        });
-        localStorage.setItem('splitsbug_notifications', JSON.stringify(allNotifs));
+        (async () => {
+          try {
+            await updateDoc(groupDocRef, {
+              expenses: arrayUnion(newExpense)
+            });
 
-        // Add persistent activity
-        const activitiesDataStr = localStorage.getItem('splitsbug_global_activities');
-        let allActivities = activitiesDataStr ? JSON.parse(activitiesDataStr) : [];
-        allActivities.push({
-          id: Date.now().toString() + Math.random().toString(36).substring(7),
-          groupId: groupId,
-          groupName: groupData.name,
-          type: 'expense_added',
-          description: desc,
-          amount: amount,
-          currency: curr,
-          paidBy: paidBy,
-          participants: participants,
-          timestamp: Date.now()
-        });
-        localStorage.setItem('splitsbug_global_activities', JSON.stringify(allActivities));
+            // Add notifications for involved participants
+            const payerName = paidBy === currentUserEmail || paidBy === (window as any).MY_DISPLAY_NAME || paidBy === 'You' ? (window as any).MY_DISPLAY_NAME : (window as any).getDisplayName(paidBy);
+            
+            for (const p of participants) {
+              if (p === currentUserEmail || p === paidBy || p === (window as any).MY_DISPLAY_NAME || p === 'You') continue;
+              await addDoc(collection(db, "users", p, "notifications"), {
+                groupId: groupId,
+                message: `${payerName} added the expense "${desc}" in "${groupData.name}".`,
+                timestamp: Date.now(),
+                read: false
+              });
+            }
 
-        renderFeed();
-        renderBalances();
-        
-        // Reset and close
-        resetAddExpenseModal();
-        addExpenseModal?.close();
+            // Add persistent activity
+            await addDoc(collection(db, "activities"), {
+              groupId: groupId,
+              groupName: groupData.name,
+              type: 'expense_added',
+              description: desc,
+              amount: amount,
+              currency: curr,
+              paidBy: paidBy,
+              participants: participants,
+              timestamp: Date.now()
+            });
+
+            // Reset and close
+            resetAddExpenseModal();
+            addExpenseModal?.close();
+            showToast('Expense added successfully!', false);
+          } catch (error) {
+            console.error("Error adding expense:", error);
+            showToast('Failed to add expense.', true);
+          } finally {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.textContent = 'Add Expense';
+            }
+          }
+        })();
       });
     }
 
@@ -2138,25 +2157,33 @@ import Layout from '../layouts/Layout.astro';
         });
       }
 
-      addMemberForm?.addEventListener('submit', (e) => {
+      addMemberForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
         
         handleAddMember();
 
         if (groupData) {
-          groupData.members = [...tempMembers];
-          
-          const dataStr = localStorage.getItem(DATA_KEY);
-          if (dataStr) {
-            const data = JSON.parse(dataStr);
-            data.groups[groupId!] = groupData;
-            localStorage.setItem(DATA_KEY, JSON.stringify(data));
+          const submitBtn = addMemberForm.querySelector('button[type="submit"]') as HTMLButtonElement;
+          if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Adding...';
           }
-          
-          initGroupData();
-          renderSettings();
-          addMemberModal.close();
-          showToast(`Group members updated!`);
+
+          try {
+            await updateDoc(groupDocRef, {
+              members: [...tempMembers]
+            });
+            showToast("Members updated successfully!", false);
+          } catch (error) {
+            console.error("Error updating members:", error);
+            showToast("Failed to update members.", true);
+          } finally {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.textContent = 'Add Member';
+            }
+            addMemberModal.close();
+          }
         }
       });
     }
@@ -2313,49 +2340,61 @@ import Layout from '../layouts/Layout.astro';
       });
       closeEditGroupBtn?.addEventListener('click', () => editGroupModal.close());
       
-      editGroupForm?.addEventListener('submit', (e) => {
+      editGroupForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
         if(!groupData) return;
         
-        groupData.name = editGroupNameInput.value.trim();
-        groupData.type = editGroupTypeInput.value;
+        const newName = editGroupNameInput.value.trim();
+        const newType = editGroupTypeInput.value;
+        let newStart = null;
+        let newEnd = null;
         
         if (editAddDatesToggle.checked) {
-          groupData.startDate = editTripStartDate.value;
-          groupData.endDate = editTripEndDate.value;
-        } else {
-          groupData.startDate = null;
-          groupData.endDate = null;
+          newStart = editTripStartDate.value;
+          newEnd = editTripEndDate.value;
         }
 
-        const dataStr = localStorage.getItem(DATA_KEY);
-        if (dataStr) {
-          const data = JSON.parse(dataStr);
-          data.groups[groupId!] = groupData;
-          localStorage.setItem(DATA_KEY, JSON.stringify(data));
+        const submitBtn = editGroupForm.querySelector('button[type="submit"]') as HTMLButtonElement;
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Saving...';
         }
 
-        // Add persistent activity
-        const activitiesDataStr = localStorage.getItem('splitsbug_global_activities');
-        let allActivities = activitiesDataStr ? JSON.parse(activitiesDataStr) : [];
-        allActivities.push({
-          id: Date.now().toString() + Math.random().toString(36).substring(7),
-          groupId: groupId,
-          groupName: groupData.name,
-          type: 'group_settings_changed',
-          description: 'Updated group settings',
-          amount: 0,
-          currency: groupData.currency || '$',
-          paidBy: currentUserEmail,
-          participants: groupData.members,
-          timestamp: Date.now()
-        });
-        localStorage.setItem('splitsbug_global_activities', JSON.stringify(allActivities));
+        try {
+          await updateDoc(groupDocRef, {
+            name: newName,
+            type: newType,
+            startDate: newStart,
+            endDate: newEnd
+          });
 
-        showToast("Group saved!");
+          // Add persistent activity
+          await addDoc(collection(db, "activities"), {
+            groupId: groupId,
+            groupName: newName,
+            type: 'group_edited',
+            description: 'Updated group details',
+            amount: 0,
+            currency: '',
+            paidBy: currentUserEmail,
+            participants: [],
+            timestamp: Date.now()
+          });
+
+          editGroupModal.close();
+          showToast("Group updated successfully!", false);
+        } catch (error) {
+          console.error("Error updating group:", error);
+          showToast("Failed to update group.", true);
+        } finally {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Save Changes';
+          }
+        }
+        
         initGroupData();
         renderSettings(); // update the modal underneath
-        editGroupModal.close();
       });
     }
 
@@ -2652,7 +2691,7 @@ import Layout from '../layouts/Layout.astro';
     }
 
     if (inviteMemberForm) {
-      inviteMemberForm.addEventListener('submit', (e) => {
+      inviteMemberForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const emailInput = document.getElementById('inviteEmail') as HTMLInputElement;
         const roleValue = inviteRoleInput ? inviteRoleInput.value : 'viewer';
@@ -2694,20 +2733,15 @@ import Layout from '../layouts/Layout.astro';
 
         if (currentInviteState === 'manage') {
           if (!groupData) return;
-          if (!groupData.roles) groupData.roles = {};
-          groupData.roles[email] = roleValue;
-          
-          const GLOBAL_GROUPS_KEY = 'splitbug_groups';
-          const groupsDataStr = localStorage.getItem(GLOBAL_GROUPS_KEY);
-          if (groupsDataStr) {
-            let groupsData = JSON.parse(groupsDataStr);
-            if (groupsData.groups && groupsData.groups[groupId]) {
-              groupsData.groups[groupId] = groupData;
-              localStorage.setItem(GLOBAL_GROUPS_KEY, JSON.stringify(groupsData));
-              showToast("Role updated successfully.");
-              initGroupData();
-              inviteMemberModal?.close();
-            }
+          try {
+            await updateDoc(groupDocRef, {
+              [`roles.${email}`]: roleValue
+            });
+            showToast("Role updated successfully.");
+            inviteMemberModal?.close();
+          } catch (e) {
+            console.error("Error updating role:", e);
+            showToast("Failed to update role.", true);
           }
           return;
         }
@@ -2716,86 +2750,85 @@ import Layout from '../layouts/Layout.astro';
           showToast("User is already in this group.", true);
           return;
         }
-
-        const GLOBAL_INVITES_KEY = 'splitsbug_global_invites';
-        const invitesDataStr = localStorage.getItem(GLOBAL_INVITES_KEY);
-        let invitesData = invitesDataStr ? JSON.parse(invitesDataStr) : { invites: [] };
         
-        // Remove existing invite for this memberId if resending/editing
-        invitesData.invites = invitesData.invites.filter((inv: any) => 
-          !(inv.groupId === groupId && inv.memberId === currentInviteMemberId && inv.status === 'pending')
-        );
-        
-        invitesData.invites.push({
-          id: 'inv_' + Date.now() + Math.floor(Math.random()*1000),
-          groupId: groupId,
-          groupName: groupData.name,
-          memberId: currentInviteMemberId,
-          inviterEmail: currentUserEmail,
-          inviterName: (window as any).MY_DISPLAY_NAME,
-          inviteeEmail: email,
-          status: 'pending',
-          role: roleValue,
-          createdAt: Date.now()
-        });
-        
-        localStorage.setItem(GLOBAL_INVITES_KEY, JSON.stringify(invitesData));
-        
-        // Show success state
-        const inviteForm = document.getElementById('inviteMemberForm');
-        const inviteSuccessState = document.getElementById('inviteSuccessState');
-        const inviteSuccessTitle = document.getElementById('inviteSuccessTitle');
-        if (inviteSuccessTitle) {
-          inviteSuccessTitle.textContent = currentInviteState === 'reinvite' ? 'Invitation Resent' : 'Invitation Sent';
-        }
-        
-        // Refresh UI to show pending invite
-        initGroupData();
-        
-        if (inviteForm && inviteSuccessState) {
-          inviteForm.classList.add('hidden');
-          inviteSuccessState.classList.remove('hidden');
-          inviteSuccessState.classList.add('flex');
+        try {
+          const submitBtn = inviteMemberForm?.querySelector('button[type="submit"]') as HTMLButtonElement;
+          if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sending...';
+          }
           
-          setTimeout(() => {
-            inviteMemberModal?.close();
-            // Reset for next time
-            inviteForm.classList.remove('hidden');
-            inviteSuccessState.classList.add('hidden');
-            inviteSuccessState.classList.remove('flex');
+          await addDoc(collection(db, "invites"), {
+            groupId: groupId,
+            groupName: groupData.name,
+            memberId: currentInviteMemberId,
+            inviterEmail: currentUserEmail,
+            inviterName: (window as any).MY_DISPLAY_NAME,
+            inviteeEmail: email,
+            status: 'pending',
+            role: roleValue,
+            createdAt: Date.now()
+          });
+          
+          // Show success state
+          const inviteForm = document.getElementById('inviteMemberForm');
+          const inviteSuccessState = document.getElementById('inviteSuccessState');
+          const inviteSuccessTitle = document.getElementById('inviteSuccessTitle');
+          if (inviteSuccessTitle) {
+            inviteSuccessTitle.textContent = currentInviteState === 'reinvite' ? 'Invitation Resent' : 'Invitation Sent';
+          }
+          
+          if (inviteForm && inviteSuccessState) {
+            inviteForm.classList.add('hidden');
+            inviteSuccessState.classList.remove('hidden');
+            inviteSuccessState.classList.add('flex');
+            
+            setTimeout(() => {
+              inviteMemberModal?.close();
+              // Reset for next time
+              inviteForm.classList.remove('hidden');
+              inviteSuccessState.classList.add('hidden');
+              inviteSuccessState.classList.remove('flex');
+              emailInput.value = '';
+              if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Send Invite';
+              }
+            }, 2000);
+          } else {
+            showToast("Invite sent successfully!");
             emailInput.value = '';
-          }, 2000);
-        } else {
-          showToast("Invite sent successfully!");
-          emailInput.value = '';
-          inviteMemberModal?.close();
+            inviteMemberModal?.close();
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.textContent = 'Send Invite';
+            }
+          }
+        } catch (error) {
+          console.error("Error sending invite:", error);
+          showToast("Failed to send invite.", true);
+          const submitBtn = inviteMemberForm?.querySelector('button[type="submit"]') as HTMLButtonElement;
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Send Invite';
+          }
         }
       });
     }
 
-    (window as any).removeMemberFromGroup = function(email: string) {
+    (window as any).removeMemberFromGroup = async function(email: string) {
       if (confirm(`Are you sure you want to remove ${email} from this group?`)) {
         if (!groupData) return;
         
-        // Remove from members array
-        groupData.members = groupData.members.filter((m: string) => m !== email);
-        
-        // Remove from roles if exists
-        if (groupData.roles && groupData.roles[email]) {
-          delete groupData.roles[email];
-        }
-        
-        // Save back to localStorage
-        const GLOBAL_GROUPS_KEY = 'splitbug_groups';
-        const groupsDataStr = localStorage.getItem(GLOBAL_GROUPS_KEY);
-        if (groupsDataStr) {
-          let groupsData = JSON.parse(groupsDataStr);
-          if (groupsData.groups && groupsData.groups[groupId]) {
-            groupsData.groups[groupId] = groupData;
-            localStorage.setItem(GLOBAL_GROUPS_KEY, JSON.stringify(groupsData));
-            showToast("Member removed successfully.");
-            initGroupData();
-          }
+        try {
+          await updateDoc(groupDocRef, {
+            members: arrayRemove(email),
+            [`roles.${email}`]: deleteField()
+          });
+          showToast("Member removed successfully.");
+        } catch (error) {
+          console.error("Error removing member:", error);
+          showToast("Failed to remove member.", true);
         }
       }
     };
@@ -2897,7 +2930,7 @@ import Layout from '../layouts/Layout.astro';
     (window as any).renderComments();
 
     if (commentForm) {
-      commentForm.addEventListener('submit', (e) => {
+      commentForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         if (!groupData || !commentInput) return;
         const text = commentInput.value.trim();
@@ -2911,25 +2944,20 @@ import Layout from '../layouts/Layout.astro';
           timestamp: Date.now()
         };
 
-        if (!groupData.comments) {
-          groupData.comments = [];
-        }
-        
-        groupData.comments.push(newComment);
-        
-        // Save to localStorage
-        const dataStr = localStorage.getItem(DATA_KEY);
-        if (dataStr) {
-          const data = JSON.parse(dataStr);
-          data.groups[groupId!] = groupData;
-          localStorage.setItem(DATA_KEY, JSON.stringify(data));
-        }
-
-        commentInput.value = '';
         const submitBtn = document.getElementById('commentSubmitBtn') as HTMLButtonElement;
-        if(submitBtn) submitBtn.disabled = true;
-        
-        (window as any).renderComments();
+        if (submitBtn) submitBtn.disabled = true;
+
+        try {
+          await updateDoc(groupDocRef, {
+            comments: arrayUnion(newComment)
+          });
+          commentInput.value = '';
+        } catch (error) {
+          console.error("Error adding comment:", error);
+          showToast("Failed to add comment.", true);
+        } finally {
+          // Wait for snapshot update or just re-enable immediately
+        }
       });
       
       commentInput.addEventListener('input', () => {
@@ -2940,12 +2968,7 @@ import Layout from '../layouts/Layout.astro';
       });
     }
 
-    // Cross-tab syncing
-    window.addEventListener('storage', (e) => {
-      if (e.key === DATA_KEY) {
-        initGroupData();
-      }
-    });
+    // Cross-tab syncing removed, Firebase handles real-time updates
 
     // Global Modal Scroll Lock
     const observer = new MutationObserver((mutations) => {

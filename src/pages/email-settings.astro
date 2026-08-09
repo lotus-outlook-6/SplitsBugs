@@ -116,6 +116,11 @@ import Layout from '../layouts/Layout.astro';
   </dialog>
 
   <script>
+    import { auth, db } from '../firebase';
+    import { updateEmail } from 'firebase/auth';
+    import { doc, updateDoc } from 'firebase/firestore';
+    import { onAuthStateChanged } from 'firebase/auth';
+
     document.addEventListener('DOMContentLoaded', () => {
       const currentEmailDisplay = document.getElementById('currentEmailDisplay')!;
       const changeEmailBtn = document.getElementById('changeEmailBtn')!;
@@ -185,9 +190,12 @@ import Layout from '../layouts/Layout.astro';
 
       // Load existing state
       function loadState() {
-        const email = localStorage.getItem('splitbug_userEmail') || 'user@example.com';
-        currentEmailDisplay.textContent = email;
-        step1EmailStr.textContent = email;
+        const user = auth.currentUser;
+        if (user) {
+          const email = user.email || 'user@example.com';
+          currentEmailDisplay.textContent = email;
+          step1EmailStr.textContent = email;
+        }
 
         const notifs = localStorage.getItem('splitbug_email_notifs');
         if (notifs === 'true') {
@@ -214,7 +222,10 @@ import Layout from '../layouts/Layout.astro';
           });
         }
       }
-      loadState();
+      
+      onAuthStateChanged(auth, () => {
+        loadState();
+      });
 
       // Preferences Toggle
       emailNotifToggle.addEventListener('change', (e) => {
@@ -401,9 +412,20 @@ import Layout from '../layouts/Layout.astro';
         if (otp.length === 4) {
           await simulateVerification(step3VerifyBtn, 'Verify & Update');
           const newEmail = newEmailInput.value.trim();
-          localStorage.setItem('splitbug_userEmail', newEmail);
-          loadState();
-          changeEmailModal.close();
+          
+          try {
+            if (auth.currentUser) {
+              await updateEmail(auth.currentUser, newEmail);
+              await updateDoc(doc(db, "users", auth.currentUser.uid), {
+                email: newEmail
+              });
+              loadState();
+              changeEmailModal.close();
+            }
+          } catch (error: any) {
+            console.error("Error updating email:", error);
+            alert("Failed to update email. You might need to re-authenticate first. " + error.message);
+          }
         }
       });
     });

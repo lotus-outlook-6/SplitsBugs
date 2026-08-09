@@ -41,27 +41,28 @@ import Layout from '../layouts/Layout.astro';
   </div>
 
   <script>
-    const currentUserEmail = localStorage.getItem('splitbug_userEmail') || 'user@example.com';
-    const GLOBAL_GROUPS_KEY = 'splitsbug_global_groups';
-    const DATA_KEY = GLOBAL_GROUPS_KEY;
+    import { auth, db } from '../firebase';
+    import { onAuthStateChanged } from 'firebase/auth';
+    import { collection, onSnapshot, query, where, getDoc, doc } from 'firebase/firestore';
 
-    const feedContainer = document.getElementById('activityFeedContainer');
+    let currentUserEmail = 'user@example.com';
+    let currentUserName = 'You';
     
-    (window as any).MY_DISPLAY_NAME = localStorage.getItem('splitbug_userName') || 'You';
-    (window as any).getDisplayName = function(raw: string) {
+    const feedContainer = document.getElementById('activityFeedContainer');
+
+    (window as any).getDisplayName = async function(raw: string) {
       if (!raw) return '';
       if (!raw.includes('@')) return raw;
-      if (raw === currentUserEmail) return (window as any).MY_DISPLAY_NAME || 'You';
+      if (raw === currentUserEmail) return currentUserName || 'You';
       
-      const usersStr = localStorage.getItem('splitbug_users');
-      if (usersStr) {
-        try {
-          const users = JSON.parse(usersStr);
-          if (users[raw] && users[raw].name) {
-            return users[raw].name;
-          }
-        } catch(e) {}
-      }
+      try {
+        const userDocRef = doc(db, "users", raw);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          if (data.name) return data.name;
+        }
+      } catch (e) {}
       
       return raw.split('@')[0];
     };
@@ -77,30 +78,25 @@ import Layout from '../layouts/Layout.astro';
       return `${d.getDate()} ${months[d.getMonth()]}, ${hours}:${mins} ${ampm}`;
     }
 
+    let allActivities: any[] = [];
+    let groupsData: Record<string, any> = {};
+    let currentSearchQuery = '';
+
     function renderActivity(searchQuery = '') {
       if (!feedContainer) return;
-      const activitiesStr = localStorage.getItem('splitsbug_global_activities');
-      if (!activitiesStr) {
+
+      if (allActivities.length === 0) {
         feedContainer.innerHTML = `<div class="p-8 text-center text-mute">No activity to display.</div>`;
         return;
       }
 
-      let allActivities = JSON.parse(activitiesStr);
-      
-      // Filter activities for this user
-      let activities = allActivities.filter((act: any) => {
-        if (!act.participants) return false;
-        return act.participants.includes(currentUserEmail) || 
-               act.paidBy === currentUserEmail || 
-               act.participants.includes('You') || 
-               act.participants.includes((window as any).MY_DISPLAY_NAME);
-      });
+      let activities = [...allActivities];
 
       // Filter by search query if provided
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         activities = activities.filter((act: any) => {
-          return act.groupName.toLowerCase().includes(query) || 
+          return (act.groupName && act.groupName.toLowerCase().includes(query)) || 
                  (act.description && act.description.toLowerCase().includes(query)) || 
                  (act.paidBy && act.paidBy.toLowerCase().includes(query));
         });
@@ -113,9 +109,6 @@ import Layout from '../layouts/Layout.astro';
         feedContainer.innerHTML = `<div class="p-8 text-center text-mute">No activity to display.</div>`;
         return;
       }
-
-      const groupsDataStr = localStorage.getItem(GLOBAL_GROUPS_KEY);
-      const groupsData = groupsDataStr ? JSON.parse(groupsDataStr) : { groups: {} };
 
       feedContainer.innerHTML = '';
       activities.forEach((act: any) => {
@@ -131,7 +124,7 @@ import Layout from '../layouts/Layout.astro';
         } else if (act.type === 'group_deleted') {
           avatarLetter = act.groupName.charAt(0).toUpperCase();
           mainText = `<span class="font-bold text-ink">${who}</span> deleted the group "<span class="font-bold text-ink">${act.groupName}</span>".`;
-        } else if (act.type === 'group_settings_changed') {
+        } else if (act.type === 'group_edited') {
           avatarLetter = act.groupName.charAt(0).toUpperCase();
           mainText = `<span class="font-bold text-ink">${who}</span> updated settings for "<span class="font-bold text-ink">${act.groupName}</span>".`;
         } else if (act.type === 'expense_added' || act.type === 'debt_settled') {
@@ -167,7 +160,8 @@ import Layout from '../layouts/Layout.astro';
         const dateStr = formatDate(act.timestamp);
         const faviconPath = "/SplitBugs-Brand/favicon/favicon.svg";
 
-        const isGroupDeleted = !groupsData.groups[act.groupId];
+        // Check if group is deleted based on realtime listener
+        const isGroupDeleted = !groupsData[act.groupId];
 
         const itemHTML = `
           <a ${isGroupDeleted ? 'data-deleted="true"' : `href="/group?id=${act.groupId}"`} class="activity-item flex items-start gap-4 p-4 lg:p-5 border-b border-hairline hover:bg-canvas-soft transition-colors block cursor-pointer">
@@ -196,8 +190,59 @@ import Layout from '../layouts/Layout.astro';
       });
     }
 
-    // Initial render
-    renderActivity();
+    // Set up Firebase Listeners
+    function initFirebase() {
+      if (currentUserEmail) {
+        // 1. Listen for active groups to know if a group was deleted
+        const qGroups = query(collection(db, "groups"), where("members", "array-contains", currentUserEmail));
+        onSnapshot(qGroups, (snapshot) => {
+          const newGroupsData: Record<string, any> = {};
+          snapshot.forEach((doc) => {
+            newGroupsData[doc.id] = doc.data();
+          });
+          groupsData = newGroupsData;
+          renderActivity(currentSearchQuery);
+        });
+
+        // 2. Listen for activities where user is a participant
+        const qActivitiesParticipant = query(collection(db, "activities"), where("participants", "array-contains", currentUserEmail));
+        onSnapshot(qActivitiesParticipant, (snapshot) => {
+          const actsMap = new Map();
+          snapshot.forEach((doc) => actsMap.set(doc.id, { id: doc.id, ...doc.data() }));
+          
+          // Merge with activities where user is payer
+          allActivities = allActivities.filter(a => a.paidBy === currentUserEmail && !a.participants.includes(currentUserEmail)); 
+          actsMap.forEach((val) => allActivities.push(val));
+          
+          renderActivity(currentSearchQuery);
+        });
+
+        // 3. Listen for activities where user is payer (but not in participants array, e.g. some edge cases)
+        const qActivitiesPayer = query(collection(db, "activities"), where("paidBy", "==", currentUserEmail));
+        onSnapshot(qActivitiesPayer, (snapshot) => {
+          const actsMap = new Map();
+          snapshot.forEach((doc) => actsMap.set(doc.id, { id: doc.id, ...doc.data() }));
+          
+          // Merge with activities where user is participant
+          allActivities = allActivities.filter(a => a.participants.includes(currentUserEmail)); 
+          actsMap.forEach((val) => {
+            if (!allActivities.find(a => a.id === val.id)) {
+              allActivities.push(val);
+            }
+          });
+          
+          renderActivity(currentSearchQuery);
+        });
+      }
+    }
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUserEmail = user.email || 'user@example.com';
+        currentUserName = user.displayName || 'You';
+        initFirebase();
+      }
+    });
 
     // Search Logic
     const searchInput = document.getElementById('searchInput') as HTMLInputElement;
@@ -223,7 +268,8 @@ import Layout from '../layouts/Layout.astro';
             searchContainer.classList.add('hidden', 'sm:flex', 'left-1/2', '-translate-x-1/2', 'pointer-events-none');
             searchContainer.classList.remove('flex', 'inset-0', 'bg-canvas', 'pointer-events-auto');
             searchInput.value = '';
-            searchInput.dispatchEvent(new Event('input'));
+            currentSearchQuery = '';
+            renderActivity(currentSearchQuery);
           });
         }
         searchInput.focus();
@@ -232,8 +278,8 @@ import Layout from '../layouts/Layout.astro';
 
     if (searchInput && searchBtn) {
       const executeSearch = () => {
-        const query = searchInput.value.toLowerCase();
-        renderActivity(query);
+        currentSearchQuery = searchInput.value.toLowerCase();
+        renderActivity(currentSearchQuery);
       };
       
       searchInput.addEventListener('keydown', (e) => {
@@ -246,14 +292,11 @@ import Layout from '../layouts/Layout.astro';
       searchBtn.addEventListener('click', () => {
         executeSearch();
       });
+      
+      searchInput.addEventListener('input', () => {
+         currentSearchQuery = searchInput.value.toLowerCase();
+         renderActivity(currentSearchQuery);
+      });
     }
-
-    // Cross-tab syncing
-    window.addEventListener('storage', (e) => {
-      if (e.key === DATA_KEY) {
-        const query = searchInput ? searchInput.value.toLowerCase() : '';
-        renderActivity(query);
-      }
-    });
   </script>
 </Layout>

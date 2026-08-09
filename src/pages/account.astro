@@ -109,6 +109,10 @@ import Layout from '../layouts/Layout.astro';
   </div>
 
   <script>
+    import { auth, db } from '../firebase';
+    import { doc, getDoc } from 'firebase/firestore';
+    import { onAuthStateChanged, signOut } from 'firebase/auth';
+
     function renderAbstractArt(type: string) {
       if (type === 'special-art-1') return '<div class="w-full h-full" style="background: conic-gradient(from 45deg, #FF6B6B, #4ECDC4, #45B7D1, #FF6B6B);"></div>';
       if (type === 'special-art-2') return '<div class="w-full h-full" style="background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 99%, #FECFEF 100%);"><div class="w-1/2 h-1/2 bg-white/30 rounded-br-full backdrop-blur-md"></div></div>';
@@ -116,46 +120,55 @@ import Layout from '../layouts/Layout.astro';
       return '';
     }
 
-    // Populate User Details
-    function loadUserData() {
-      if (!localStorage.getItem('geo_migrated_3')) {
-        localStorage.setItem('splitbug_userThemeColor', 'special-art-1');
-        localStorage.setItem('geo_migrated_3', 'true');
-      }
-
-      const userName = localStorage.getItem('splitbug_userName') || 'User';
-      const userEmail = localStorage.getItem('splitbug_userEmail') || 'user@example.com';
-      const userAvatar = localStorage.getItem('splitbug_userAvatar');
-      const userThemeColor = localStorage.getItem('splitbug_userThemeColor') || 'special-art-1';
-      
-      document.getElementById('profileName')!.textContent = userName;
-      document.getElementById('profileEmail')!.textContent = userEmail;
-      
-      const avatarEl = document.getElementById('profileAvatar');
-      if (userAvatar) {
-        avatarEl!.innerHTML = `<img src="${userAvatar}" class="w-full h-full object-cover" />`;
-        avatarEl!.className = "w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-transparent text-white flex items-center justify-center text-4xl sm:text-5xl font-bold mb-4 overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all";
-      } else if (userThemeColor.startsWith('special-art-')) {
-        avatarEl!.innerHTML = renderAbstractArt(userThemeColor);
-        avatarEl!.className = "w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-transparent text-white mb-4 overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all";
-      } else {
-        const parts = userName.trim().split(' ').filter(Boolean);
-        let initials = 'U';
-        if (parts.length > 0 && parts[0]) {
-          if (parts.length === 1) initials = parts[0].charAt(0).toUpperCase();
-          else initials = (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        document.getElementById('profileEmail')!.textContent = user.email || 'user@example.com';
+        
+        try {
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          if (userDoc.exists()) {
+            const data = userDoc.data();
+            const userName = data.name || user.displayName || 'User';
+            const userAvatar = data.avatar || '';
+            const userThemeColor = data.themeColor || 'special-art-1';
+            
+            document.getElementById('profileName')!.textContent = userName;
+            
+            const avatarEl = document.getElementById('profileAvatar');
+            if (userAvatar) {
+              avatarEl!.innerHTML = `<img src="${userAvatar}" class="w-full h-full object-cover" />`;
+              avatarEl!.className = "w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-transparent text-white flex items-center justify-center text-4xl sm:text-5xl font-bold mb-4 overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all";
+            } else if (userThemeColor.startsWith('special-art-')) {
+              avatarEl!.innerHTML = renderAbstractArt(userThemeColor);
+              avatarEl!.className = "w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-transparent text-white mb-4 overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all";
+            } else {
+              const parts = userName.trim().split(' ').filter(Boolean);
+              let initials = 'U';
+              if (parts.length > 0 && parts[0]) {
+                if (parts.length === 1) initials = parts[0].charAt(0).toUpperCase();
+                else initials = (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+              }
+              avatarEl!.innerHTML = initials;
+              avatarEl!.className = `w-24 h-24 sm:w-32 sm:h-32 rounded-full ${userThemeColor} text-white flex items-center justify-center text-4xl sm:text-5xl font-bold mb-4 overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all`;
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
         }
-        avatarEl!.innerHTML = initials;
-        avatarEl!.className = `w-24 h-24 sm:w-32 sm:h-32 rounded-full ${userThemeColor} text-white flex items-center justify-center text-4xl sm:text-5xl font-bold mb-4 overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all`;
+      } else {
+        window.location.href = '/login';
       }
-    }
-    
-    loadUserData();
+    });
 
     // Log Out
-    document.getElementById('logoutBtn')?.addEventListener('click', () => {
-      localStorage.removeItem('splitbug_loggedIn');
-      window.location.href = '/login';
+    document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+      try {
+        await signOut(auth);
+        localStorage.removeItem('splitbug_loggedIn');
+        window.location.href = '/login';
+      } catch (error) {
+        console.error("Error signing out:", error);
+      }
     });
   </script>
 </Layout>

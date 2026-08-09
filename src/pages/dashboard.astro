@@ -274,7 +274,22 @@ import Layout from '../layouts/Layout.astro';
   </div>
   
   <script>
-    const currentUserEmail = localStorage.getItem('splitbug_userEmail') || 'user@example.com';
+    import { auth, db } from '../firebase';
+    import { collection, query, where, onSnapshot, doc, setDoc, addDoc, serverTimestamp, getDocs } from 'firebase/firestore';
+    import { onAuthStateChanged } from 'firebase/auth';
+
+    let allGroupsFromFirebase: any[] = [];
+    let allInvitesFromFirebase: any[] = [];
+    let allNotifsFromFirebase: any[] = [];
+    let isFirebaseLoaded = false;
+    let currentUserEmail = 'user@example.com';
+    
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUserEmail = user.email || 'user@example.com';
+        initFirebase();
+      }
+    });
     const GLOBAL_GROUPS_KEY = 'splitsbug_global_groups';
     const GLOBAL_INVITES_KEY = 'splitsbug_global_invites';
     function showToast(message: string, isError = false) {
@@ -757,16 +772,43 @@ import Layout from '../layouts/Layout.astro';
       if (endDisplay) endDisplay.addEventListener('input', formatGroupDateInput);
     }
 
+    // Set up Firebase listener for Groups
+    function initFirebase() {
+      if (currentUserEmail) {
+        const q = query(collection(db, "groups"), where("members", "array-contains", currentUserEmail));
+        onSnapshot(q, (snapshot) => {
+          isFirebaseLoaded = true;
+          allGroupsFromFirebase = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          
+          const searchInput = document.getElementById('searchInput') as HTMLInputElement;
+          renderGroups(searchInput ? searchInput.value.trim() : '');
+        });
+
+        // Invites Listener
+        const qInvites = query(collection(db, "invites"), where("inviteeEmail", "==", currentUserEmail), where("status", "==", "pending"));
+        onSnapshot(qInvites, (snapshot) => {
+          allInvitesFromFirebase = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          renderNotifications();
+        });
+
+        // Notifications Listener
+        const qNotifs = query(collection(db, "users", currentUserEmail, "notifications"));
+        onSnapshot(qNotifs, (snapshot) => {
+          allNotifsFromFirebase = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a: any, b: any) => b.timestamp - a.timestamp);
+          renderNotifications();
+        });
+      }
+    }
+
     function renderGroups(searchQuery = '') {
       if (!groupsGrid) return;
-      const dataStr = localStorage.getItem(GLOBAL_GROUPS_KEY);
-      if (!dataStr) {
-        groupsGrid.innerHTML = `<div class="col-span-full p-12 text-center border border-hairline border-dashed rounded-lg bg-canvas-soft text-mute">No groups yet. Create one to get started!</div>`;
+      
+      if (!isFirebaseLoaded) {
+        groupsGrid.innerHTML = `<div class="col-span-full p-12 text-center text-mute flex justify-center"><svg class="animate-spin h-6 w-6 text-brand" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></div>`;
         return;
       }
 
-      const data = JSON.parse(dataStr);
-      let allGroups = Object.values(data.groups || {});
+      let allGroups = allGroupsFromFirebase;
       
       // FILTER BY MEMBERSHIP (must have accepted invite or be creator)
       let groups = allGroups.filter((g: any) => g.roles && g.roles[currentUserEmail]);
@@ -881,7 +923,7 @@ import Layout from '../layouts/Layout.astro';
     }
 
     if (newGroupForm) {
-      newGroupForm.addEventListener('submit', (e) => {
+      newGroupForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const nameInput = document.getElementById('groupName') as HTMLInputElement;
         const currencySelect = document.getElementById('groupCurrency') as HTMLSelectElement;
@@ -922,60 +964,63 @@ import Layout from '../layouts/Layout.astro';
         const endDate = addDates ? parseDateDisplay('endCalDisplay') : null;
 
         const newGroup = {
-          id: groupId,
           name: name,
           currency: currency,
           type: groupType,
           startDate: startDate,
           endDate: endDate,
-          createdBy: (window as any).MY_DISPLAY_NAME,
+          createdBy: currentUserEmail,
           members: currentMembers.map((m, i) => i === 0 ? currentUserEmail : m),
           roles: { [currentUserEmail]: 'owner' },
           expenses: [],
           createdAt: Date.now()
         };
 
-        let dataStr = localStorage.getItem(GLOBAL_GROUPS_KEY);
-        let data = dataStr ? JSON.parse(dataStr) : { groups: {} };
-        
-        data.groups[groupId] = newGroup;
-        localStorage.setItem(GLOBAL_GROUPS_KEY, JSON.stringify(data));
+        const submitBtn = newGroupForm.querySelector('button[type="submit"]') as HTMLButtonElement;
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Creating...';
+        }
 
-        // Create notification for creating the group
-        const notifsDataStr = localStorage.getItem('splitsbug_notifications');
-        let allNotifs = notifsDataStr ? JSON.parse(notifsDataStr) : {};
-        if (!allNotifs[currentUserEmail]) allNotifs[currentUserEmail] = [];
-        allNotifs[currentUserEmail].push({
-          id: Date.now().toString() + Math.random().toString(36).substring(7),
-          groupId: groupId,
-          message: `You created the group "${name}".`,
-          timestamp: Date.now()
-        });
-        if (allNotifs[currentUserEmail].length > 20) allNotifs[currentUserEmail] = allNotifs[currentUserEmail].slice(-20);
-        localStorage.setItem('splitsbug_notifications', JSON.stringify(allNotifs));
+        try {
+          const docRef = await addDoc(collection(db, "groups"), newGroup);
 
-        // Add persistent activity
-        const activitiesDataStr = localStorage.getItem('splitsbug_global_activities');
-        let allActivities = activitiesDataStr ? JSON.parse(activitiesDataStr) : [];
-        allActivities.push({
-          id: Date.now().toString() + Math.random().toString(36).substring(7),
-          groupId: groupId,
-          groupName: name,
-          type: 'group_created',
-          description: 'Created group',
-          amount: 0,
-          currency: currency,
-          paidBy: currentUserEmail,
-          participants: newGroup.members,
-          timestamp: Date.now()
-        });
-        localStorage.setItem('splitsbug_global_activities', JSON.stringify(allActivities));
+          // Add persistent activity
+          await addDoc(collection(db, "activities"), {
+            groupId: docRef.id,
+            groupName: name,
+            type: 'group_created',
+            description: 'Created group',
+            amount: 0,
+            currency: currency,
+            paidBy: currentUserEmail,
+            participants: newGroup.members,
+            timestamp: Date.now()
+          });
 
-        nameInput.value = '';
-        currentMembers = [(window as any).MY_DISPLAY_NAME];
-        renderTags();
-        newGroupModal.close();
-        renderGroups();
+          // Create notification for creating the group
+          // We will store notifications as subcollections inside users for Firestore
+          await addDoc(collection(db, "users", currentUserEmail, "notifications"), {
+            groupId: docRef.id,
+            message: `You created the group "${name}".`,
+            timestamp: Date.now(),
+            read: false
+          });
+
+          nameInput.value = '';
+          currentMembers = [(window as any).MY_DISPLAY_NAME];
+          renderTags();
+          newGroupModal.close();
+          
+        } catch (error) {
+          console.error("Error creating group: ", error);
+          showToast("Failed to create group. Please try again.", true);
+        } finally {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Create Group';
+          }
+        }
       });
     }
 
@@ -1089,19 +1134,8 @@ import Layout from '../layouts/Layout.astro';
     const invitesList = document.getElementById('invitesList');
 
     function renderNotifications() {
-      const invitesDataStr = localStorage.getItem(GLOBAL_INVITES_KEY);
-      const invitesData = invitesDataStr ? JSON.parse(invitesDataStr) : { invites: [] };
-      
-      const myPendingInvites = invitesData.invites.filter((inv: any) => inv.inviteeEmail === currentUserEmail && inv.status === 'pending');
-      
-      const notifsDataStr = localStorage.getItem('splitsbug_notifications');
-      let myNotifs: any[] = [];
-      if (notifsDataStr) {
-        try {
-          const allNotifs = JSON.parse(notifsDataStr);
-          myNotifs = allNotifs[currentUserEmail] || [];
-        } catch(e) {}
-      }
+      const myPendingInvites = allInvitesFromFirebase || [];
+      const myNotifs = allNotifsFromFirebase || [];
 
       const unreadNotifs = myNotifs.filter((n: any) => !n.read);
       const totalNotifsCount = myPendingInvites.length + unreadNotifs.length;
@@ -1241,132 +1275,122 @@ import Layout from '../layouts/Layout.astro';
 
     const markAllReadBtn = document.getElementById('markAllReadBtn');
     if (markAllReadBtn) {
-      markAllReadBtn.addEventListener('click', () => {
-        const notifsDataStr = localStorage.getItem('splitsbug_notifications');
-        if (notifsDataStr) {
-          let allNotifs = JSON.parse(notifsDataStr);
-          if (allNotifs[currentUserEmail]) {
-            allNotifs[currentUserEmail].forEach((n: any) => n.read = true);
-            localStorage.setItem('splitsbug_notifications', JSON.stringify(allNotifs));
-            renderNotifications();
-          }
+      markAllReadBtn.addEventListener('click', async () => {
+        try {
+          const { writeBatch, doc } = await import('firebase/firestore');
+          const batch = writeBatch(db);
+          
+          allNotifsFromFirebase.filter(n => !n.read).forEach(notif => {
+            const ref = doc(db, "users", currentUserEmail, "notifications", notif.id);
+            batch.update(ref, { read: true });
+          });
+          
+          await batch.commit();
+        } catch (error) {
+          console.error("Error marking all read:", error);
         }
       });
     }
 
-    function markNotificationAsRead(notifId: string) {
-      const notifsDataStr = localStorage.getItem('splitsbug_notifications');
-      if (!notifsDataStr) return;
-      let allNotifs = JSON.parse(notifsDataStr);
-      if (allNotifs[currentUserEmail]) {
-        const notif = allNotifs[currentUserEmail].find((n: any) => n.id === notifId);
-        if (notif && !notif.read) {
-          notif.read = true;
-          localStorage.setItem('splitsbug_notifications', JSON.stringify(allNotifs));
-        }
-      }
-    }
-
-    function dismissNotification(notifId: string | null) {
+    async function markNotificationAsRead(notifId: string) {
       if (!notifId) return;
-      const notifsDataStr = localStorage.getItem('splitsbug_notifications');
-      if (!notifsDataStr) return;
-      
-      let allNotifs = JSON.parse(notifsDataStr);
-      if (allNotifs[currentUserEmail]) {
-        allNotifs[currentUserEmail] = allNotifs[currentUserEmail].filter((n: any) => n.id !== notifId);
-        localStorage.setItem('splitsbug_notifications', JSON.stringify(allNotifs));
-        renderNotifications();
+      try {
+        const { updateDoc, doc } = await import('firebase/firestore');
+        await updateDoc(doc(db, "users", currentUserEmail, "notifications", notifId), { read: true });
+      } catch (e) {
+        console.error(e);
       }
     }
 
+    async function dismissNotification(notifId: string | null) {
+      if (!notifId) return;
+      try {
+        const { deleteDoc, doc } = await import('firebase/firestore');
+        await deleteDoc(doc(db, "users", currentUserEmail, "notifications", notifId));
+      } catch (e) {
+        console.error(e);
+      }
+    }
 
-    function handleInviteAction(inviteId: string | null, newStatus: string) {
+    async function handleInviteAction(inviteId: string | null, newStatus: string) {
       if (!inviteId) return;
       
-      // Update invite status
-      const invitesDataStr = localStorage.getItem(GLOBAL_INVITES_KEY);
-      if (!invitesDataStr) return;
-      let invitesData = JSON.parse(invitesDataStr);
-      
-      const inviteIndex = invitesData.invites.findIndex((i: any) => i.id === inviteId);
-      if (inviteIndex === -1) return;
-      
-      const invite = invitesData.invites[inviteIndex];
-
-      if (newStatus === 'rejected') {
-        // Delete invite completely so it can be resent later
-        invitesData.invites.splice(inviteIndex, 1);
-      } else {
-        invite.status = newStatus;
-      }
-      
-      localStorage.setItem(GLOBAL_INVITES_KEY, JSON.stringify(invitesData));
-
-      if (newStatus === 'accepted') {
-        // Add to group
-        const groupsDataStr = localStorage.getItem(GLOBAL_GROUPS_KEY);
-        if (groupsDataStr) {
-          let groupsData = JSON.parse(groupsDataStr);
-          let group = groupsData.groups[invite.groupId];
-          if (group) {
-            if (!group.members) group.members = [];
-            if (!group.roles) group.roles = {};
-            
-            const oldId = invite.memberId;
-            const newId = currentUserEmail;
-            
-            if (oldId && group.members.includes(oldId)) {
-              // Replace in members array
-              const idx = group.members.indexOf(oldId);
-              group.members[idx] = newId;
+      try {
+        const { updateDoc, deleteDoc, doc, getDoc, addDoc, collection } = await import('firebase/firestore');
+        
+        if (newStatus === 'rejected') {
+          await deleteDoc(doc(db, "invites", inviteId));
+        } else {
+          await updateDoc(doc(db, "invites", inviteId), { status: newStatus });
+          
+          if (newStatus === 'accepted') {
+            const inviteDoc = await getDoc(doc(db, "invites", inviteId));
+            if (inviteDoc.exists()) {
+              const invite = inviteDoc.data();
+              const groupRef = doc(db, "groups", invite.groupId);
+              const groupSnap = await getDoc(groupRef);
               
-              // Replace in roles
-              if (group.roles && group.roles[oldId]) {
-                group.roles[newId] = invite.role || group.roles[oldId];
-                delete group.roles[oldId];
-              } else {
-                group.roles[newId] = invite.role || 'viewer';
-              }
-              
-              // Replace in expenses
-              if (group.expenses) {
-                group.expenses.forEach((exp: any) => {
-                  if (exp.paidBy === oldId) exp.paidBy = newId;
-                  if (exp.participants) {
-                    const pIdx = exp.participants.indexOf(oldId);
-                    if (pIdx > -1) exp.participants[pIdx] = newId;
+              if (groupSnap.exists()) {
+                const group = groupSnap.data();
+                const oldId = invite.memberId;
+                const newId = currentUserEmail;
+                
+                let updatedMembers = [...group.members];
+                let updatedRoles = { ...group.roles };
+                
+                if (oldId && updatedMembers.includes(oldId)) {
+                  const idx = updatedMembers.indexOf(oldId);
+                  updatedMembers[idx] = newId;
+                  
+                  if (updatedRoles[oldId]) {
+                    updatedRoles[newId] = invite.role || updatedRoles[oldId];
+                    delete updatedRoles[oldId];
+                  } else {
+                    updatedRoles[newId] = invite.role || 'viewer';
                   }
+                  
+                  let updatedExpenses = [...(group.expenses || [])];
+                  updatedExpenses.forEach((exp: any) => {
+                    if (exp.paidBy === oldId) exp.paidBy = newId;
+                    if (exp.participants) {
+                      const pIdx = exp.participants.indexOf(oldId);
+                      if (pIdx > -1) exp.participants[pIdx] = newId;
+                    }
+                  });
+                  
+                  await updateDoc(groupRef, {
+                    members: updatedMembers,
+                    roles: updatedRoles,
+                    expenses: updatedExpenses
+                  });
+                } else {
+                  if (!updatedMembers.includes(newId)) {
+                    updatedMembers.push(newId);
+                  }
+                  updatedRoles[newId] = invite.role || 'viewer';
+                  
+                  await updateDoc(groupRef, {
+                    members: updatedMembers,
+                    roles: updatedRoles
+                  });
+                }
+                
+                showToast(`Joined ${invite.groupName}!`);
+                
+                await addDoc(collection(db, "users", currentUserEmail, "notifications"), {
+                  groupId: group.id,
+                  message: `You joined the group "${group.name}".`,
+                  timestamp: Date.now(),
+                  read: false
                 });
               }
-            } else {
-              if (!group.members.includes(newId)) {
-                group.members.push(newId);
-              }
-              group.roles[newId] = invite.role || 'viewer';
             }
-            localStorage.setItem(GLOBAL_GROUPS_KEY, JSON.stringify(groupsData));
-            showToast(`Joined ${invite.groupName}!`);
-            
-            // Create notification for joining the group
-            const notifsDataStr = localStorage.getItem('splitsbug_notifications');
-            let allNotifs = notifsDataStr ? JSON.parse(notifsDataStr) : {};
-            if (!allNotifs[currentUserEmail]) allNotifs[currentUserEmail] = [];
-            allNotifs[currentUserEmail].push({
-              id: Date.now().toString() + Math.random().toString(36).substring(7),
-              groupId: group.id,
-              message: `You joined the group "${group.name}".`,
-              timestamp: Date.now()
-            });
-            if (allNotifs[currentUserEmail].length > 20) allNotifs[currentUserEmail] = allNotifs[currentUserEmail].slice(-20);
-            localStorage.setItem('splitsbug_notifications', JSON.stringify(allNotifs));
-
-            renderGroups();
           }
         }
+      } catch (error) {
+        console.error("Error updating invite: ", error);
+        showToast("Action failed.", true);
       }
-
-      renderNotifications();
     }
 
     if (notificationBtn && notificationsModal) {
@@ -1395,14 +1419,5 @@ import Layout from '../layouts/Layout.astro';
     // Initial render
     renderGroups();
     renderNotifications();
-
-    // Cross-tab syncing
-    window.addEventListener('storage', (e) => {
-      if (e.key === GLOBAL_GROUPS_KEY) {
-        renderGroups();
-      } else if (e.key === GLOBAL_INVITES_KEY) {
-        renderNotifications();
-      }
-    });
   </script>
 </Layout>

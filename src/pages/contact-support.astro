@@ -59,8 +59,11 @@ import Layout from '../layouts/Layout.astro';
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const email = localStorage.getItem('splitbug_userEmail') || 'Not provided';
+    import { auth } from '../firebase';
+    import { onAuthStateChanged } from 'firebase/auth';
+
+    onAuthStateChanged(auth, (user) => {
+      const email = user?.email || 'Not logged in';
       document.getElementById('userEmailDisplay')!.textContent = email;
     });
   </script>

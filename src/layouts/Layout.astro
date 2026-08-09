@@ -162,6 +162,44 @@ const isGroups = pathname === '/dashboard' || pathname === '/';
 				}
 			}
 		</script>
+		<script>
+			import { auth, db } from '../firebase';
+			import { onAuthStateChanged } from 'firebase/auth';
+			import { doc, getDoc } from 'firebase/firestore';
+
+			onAuthStateChanged(auth, async (user) => {
+				const isAuthPage = window.location.pathname === '/login' || window.location.pathname === '/signup';
+				if (user) {
+					localStorage.setItem('splitbug_loggedIn', 'true');
+					localStorage.setItem('splitbug_userEmail', user.email || '');
+					
+					// Fetch user doc to get name and theme if not already set correctly
+					if (!localStorage.getItem('splitbug_userName')) {
+						try {
+							const userDoc = await getDoc(doc(db, 'users', user.uid));
+							if (userDoc.exists()) {
+								const data = userDoc.data();
+								localStorage.setItem('splitbug_userName', data.name || user.email?.split('@')[0] || 'User');
+								if (data.themeColor) localStorage.setItem('splitbug_userThemeColor', data.themeColor);
+								window.dispatchEvent(new Event('storage'));
+							}
+						} catch(e) {}
+					}
+					
+					if (isAuthPage || window.location.pathname === '/') {
+						window.location.href = '/dashboard';
+					}
+				} else {
+					localStorage.removeItem('splitbug_loggedIn');
+					localStorage.removeItem('splitbug_userEmail');
+					localStorage.removeItem('splitbug_userName');
+					
+					if (!isAuthPage) {
+						window.location.href = '/login';
+					}
+				}
+			});
+		</script>
 	</body>
 </html>
 
