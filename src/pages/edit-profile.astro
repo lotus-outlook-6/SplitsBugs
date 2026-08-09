@@ -80,10 +80,11 @@ import Layout from '../layouts/Layout.astro';
               Contact Number
               <span class="text-xs text-mute flex items-center gap-1"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Locked</span>
             </label>
-            <div class="flex border border-hairline rounded-md bg-canvas-soft overflow-hidden opacity-80">
-              <div class="px-3 rounded-l-md flex items-center gap-1 border-r border-hairline text-mute cursor-not-allowed">
+            <div class="flex border border-hairline rounded-md bg-canvas-soft overflow-hidden opacity-80 cursor-not-allowed">
+              <button type="button" disabled id="countryCodeBtn" class="px-3 py-3 bg-canvas-soft flex items-center gap-1 border-r border-hairline text-mute cursor-not-allowed pointer-events-none focus:outline-none">
                 <span id="countryCodeLabel">+1</span>
-              </div>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="opacity-50"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </button>
               <input type="text" required id="phoneInput" readonly autocomplete="off" maxlength="10" class="flex-1 p-3 w-full bg-transparent focus:outline-none text-mute cursor-not-allowed pointer-events-none" placeholder="XXXXXXXXXX" />
             </div>
           </div>
@@ -209,9 +210,17 @@ import Layout from '../layouts/Layout.astro';
       const userName = localStorage.getItem('splitbug_userName') || '';
       const userEmail = localStorage.getItem('splitbug_userEmail') || '';
       const userDob = localStorage.getItem('splitbug_userDob') || '';
-      const userPhone = localStorage.getItem('splitbug_userPhone') || '';
+      let userPhone = localStorage.getItem('splitbug_userPhone') || '';
       const userCode = localStorage.getItem('splitbug_userCode') || '+91';
       const userAvatar = localStorage.getItem('splitbug_userAvatar') || '';
+      
+      // Fix bug where phone might have saved with country code prefix
+      if (userPhone.startsWith(userCode)) {
+        userPhone = userPhone.substring(userCode.length).trim();
+      } else if (userPhone.startsWith('+')) {
+        // Fallback for other country codes that might have snuck in
+        userPhone = userPhone.replace(/^\+\d+\s*/, '');
+      }
       
       nameInput.value = userName;
       emailInput.value = userEmail;
@@ -398,8 +407,25 @@ import Layout from '../layouts/Layout.astro';
 
       localStorage.setItem('splitbug_userName', nameInput.value);
       localStorage.setItem('splitbug_userDob', dobInput.value);
+      localStorage.setItem('splitbug_userPhone', phone);
+      localStorage.setItem('splitbug_userCode', selectedCountry.code);
       localStorage.setItem('splitbug_userAvatar', currentAvatarBase64);
       localStorage.setItem('splitbug_userThemeColor', currentThemeColor);
+      
+      const usersStr = localStorage.getItem('splitbug_users');
+      if (usersStr) {
+        try {
+          const users = JSON.parse(usersStr);
+          if (users[email]) {
+            users[email].name = nameInput.value;
+            users[email].phone = phone;
+            users[email].countryCode = selectedCountry.code;
+            users[email].avatar = currentAvatarBase64;
+            users[email].themeColor = currentThemeColor;
+            localStorage.setItem('splitbug_users', JSON.stringify(users));
+          }
+        } catch(e) {}
+      }
 
       window.location.href = '/account';
     });

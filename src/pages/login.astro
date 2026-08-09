@@ -69,23 +69,35 @@ import Layout from '../layouts/Layout.astro';
       const email = emailInput.value.trim();
       const password = passwordInput.value;
 
-      const storedEmail = localStorage.getItem('splitbug_userEmail');
-      const storedPassword = localStorage.getItem('splitbug_userPassword');
+      let users = {};
+      try {
+        const usersStr = localStorage.getItem('splitbug_users');
+        if (usersStr) users = JSON.parse(usersStr);
+      } catch (e) {}
+
+      const user = users[email];
 
       // In a real application, this would be an API call to a backend
-      if (!storedEmail) {
+      if (!user) {
         errorBox.textContent = 'No account found with this email. Please sign up.';
         errorBox.classList.remove('hidden');
         return;
       }
 
-      if (email !== storedEmail || password !== storedPassword) {
+      if (password !== user.password) {
         errorBox.textContent = 'Invalid email or password.';
         errorBox.classList.remove('hidden');
         return;
       }
 
-      // Login successful
+      // Login successful, set as current user
+      localStorage.setItem('splitbug_userName', user.name);
+      localStorage.setItem('splitbug_userEmail', email);
+      localStorage.setItem('splitbug_userPassword', user.password);
+      localStorage.setItem('splitbug_userDob', user.dob || '');
+      localStorage.setItem('splitbug_userPhone', user.phone || '');
+      localStorage.setItem('splitbug_userThemeColor', user.themeColor || 'special-art-1');
+      
       localStorage.setItem('splitbug_loggedIn', 'true');
       window.location.href = '/dashboard';
     });

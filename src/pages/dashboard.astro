@@ -37,6 +37,13 @@ import Layout from '../layouts/Layout.astro';
         <button id="mobileSearchBtn" class="sm:hidden bg-canvas-soft text-ink hover:bg-hairline p-2 rounded-full transition-colors cursor-pointer flex items-center justify-center border border-hairline shrink-0" title="Search">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
         </button>
+
+        <!-- Notification Bell -->
+        <button id="notificationBtn" class="bg-canvas-soft text-ink hover:bg-hairline p-2 rounded-full transition-colors cursor-pointer flex items-center justify-center border border-hairline shrink-0 relative" title="Notifications">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+          <span id="notificationBadge" class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-danger text-[10px] font-bold text-white hidden"></span>
+        </button>
+
         <button id="newGroupBtn" class="bg-canvas-soft text-ink hover:bg-hairline p-2 rounded-full transition-colors cursor-pointer flex items-center justify-center border border-hairline shrink-0" title="New Group">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
         </button>
@@ -59,6 +66,19 @@ import Layout from '../layouts/Layout.astro';
     </main>
 
 
+
+    <!-- Notifications Modal -->
+    <dialog id="notificationsModal" class="backdrop:bg-black/50 text-ink fixed inset-0 z-40 w-full h-full max-w-none max-h-none m-0 p-0 bg-canvas border-0 overflow-hidden open:flex flex-col pb-[calc(4rem+env(safe-area-inset-bottom))] sm:pb-0 sm:m-auto sm:w-[95vw] sm:max-w-sm sm:h-auto sm:max-h-[80vh] sm:rounded-xl sm:border sm:border-hairline shadow-xl">
+      <div class="px-4 py-3 flex items-center justify-between border-b border-hairline bg-canvas shrink-0">
+        <h2 class="text-lg font-medium text-ink">Notifications</h2>
+        <button type="button" id="closeNotificationsBtn" class="p-1 hover:bg-canvas-soft rounded-full transition-colors cursor-pointer">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-ink"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div id="invitesList" class="flex-1 overflow-y-auto bg-canvas p-4 min-h-0 space-y-3">
+        <div class="text-center text-sm text-mute mt-4">No new notifications</div>
+      </div>
+    </dialog>
 
     <!-- New Group Modal -->
     <dialog id="newGroupModal" class="backdrop:bg-black/50 text-ink fixed inset-0 z-40 w-full h-full max-w-none max-h-none m-0 p-0 bg-canvas border-0 overflow-hidden open:flex open:flex-col pb-[calc(4rem+env(safe-area-inset-bottom))] sm:pb-0 sm:m-auto sm:w-[95vw] sm:max-w-md sm:h-auto sm:max-h-[90vh] sm:rounded-xl sm:border sm:border-hairline shadow-xl">
@@ -153,6 +173,19 @@ import Layout from '../layouts/Layout.astro';
             </div>
           </div>
 
+          <!-- Group Members (Simple Names) -->
+          <div class="mb-6">
+            <label class="block text-xs font-medium text-ink mb-1">Group members</label>
+            <div class="flex gap-2 mb-3">
+              <input type="text" id="memberEmailInput" autocomplete="off" placeholder="Add a person by name..." class="flex-1 bg-transparent text-ink border border-hairline rounded-md px-3 h-10 text-sm focus:outline-none focus:border-brand transition-colors" />
+              <button type="button" id="addMemberBtn" class="bg-canvas-soft text-ink border border-hairline px-4 h-10 rounded-md font-medium text-sm hover:bg-hairline transition-colors">Add</button>
+            </div>
+            
+            <div id="membersTags" class="flex flex-wrap gap-2">
+              <!-- Tags added via JS -->
+            </div>
+          </div>
+
           <!-- Currency (Custom Dropdown) -->
           <div class="mb-6">
             <label class="block text-xs font-medium text-ink mb-1">Currency</label>
@@ -173,23 +206,6 @@ import Layout from '../layouts/Layout.astro';
             </div>
           </div>
           
-          <!-- Members (Existing feature) -->
-          <div class="mb-4">
-            <label class="block text-xs font-medium text-ink mb-1">Members</label>
-            <div class="relative">
-              <input type="text" id="memberInput" autocomplete="off" placeholder="Type a name and press Enter" class="w-full bg-canvas-soft text-ink border border-hairline rounded-md px-3 h-10 text-sm focus:outline-none focus:border-hairline-strong transition-colors" />
-            </div>
-            <p class="text-xs text-mute mt-1">Press enter to add next member</p>
-            <div class="relative mt-3">
-              <div id="membersTags" class="flex items-center gap-2 overflow-x-auto whitespace-nowrap pb-2 pr-8 w-full scrollbar-hide">
-                <!-- Member list will be rendered here -->
-              </div>
-              <div class="absolute right-0 top-0 bottom-2 w-8 bg-gradient-to-l from-canvas to-transparent pointer-events-none flex items-center justify-end pr-1 text-mute/50">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-              </div>
-            </div>
-          </div>
-
         </div>
       </form>
     </dialog>
@@ -256,7 +272,8 @@ import Layout from '../layouts/Layout.astro';
   
   <script>
     const currentUserEmail = localStorage.getItem('splitbug_userEmail') || 'user@example.com';
-    const DATA_KEY = 'splitsbug_data_' + currentUserEmail;
+    const GLOBAL_GROUPS_KEY = 'splitsbug_global_groups';
+    const GLOBAL_INVITES_KEY = 'splitsbug_global_invites';
     function showToast(message: string, isError = false) {
       const toast = document.getElementById('toastNotification');
       const toastMsg = document.getElementById('toastMessage');
@@ -518,25 +535,25 @@ import Layout from '../layouts/Layout.astro';
       };
     }
 
-    const memberInput = document.getElementById('memberInput') as HTMLInputElement;
+    const memberEmailInput = document.getElementById('memberEmailInput') as HTMLInputElement;
+    const addMemberBtn = document.getElementById('addMemberBtn');
     const membersTags = document.getElementById('membersTags');
-    let currentMembers: string[] = [(window as any).MY_DISPLAY_NAME];
+    
+    let currentMembers: string[] = [(window as any).MY_DISPLAY_NAME || 'You'];
 
     function renderTags() {
       if (!membersTags) return;
       membersTags.innerHTML = '';
       currentMembers.forEach((m, idx) => {
-        const isYou = m === (window as any).MY_DISPLAY_NAME;
+        const isYou = idx === 0;
         const item = document.createElement('div');
         
         let borderClass = isYou ? 'border-brand shadow-sm' : 'border-hairline';
-        let clickAttr = isYou ? '' : `onclick="removeMember(${idx})"`;
         let cursorClass = isYou ? 'cursor-default' : 'cursor-pointer hover:bg-hairline hover:text-error transition-colors';
         
         item.className = `flex items-center gap-1.5 bg-canvas-soft border ${borderClass} text-ink rounded-pill px-4 py-1.5 text-sm font-medium whitespace-nowrap select-none flex-shrink-0 ${cursorClass}`;
-        item.innerHTML = `
-          <span>${m}</span>
-        `;
+        item.innerHTML = `<span>${m}</span>`;
+        
         if (!isYou) {
           item.setAttribute('onclick', `removeMember(${idx})`);
         }
@@ -549,30 +566,31 @@ import Layout from '../layouts/Layout.astro';
       renderTags();
     };
 
-    if (memberInput) {
-      memberInput.addEventListener('keydown', (e) => {
+    function addMemberAction() {
+      if (!memberEmailInput) return;
+      let name = memberEmailInput.value.trim();
+      
+      if (name) {
+        if (currentMembers.find(m => m.toLowerCase() === name.toLowerCase())) {
+          showToast("This name is already added.", true);
+          return;
+        }
+        
+        currentMembers.push(name);
+        memberEmailInput.value = '';
+        renderTags();
+      }
+    }
+
+    if (addMemberBtn) {
+      addMemberBtn.addEventListener('click', addMemberAction);
+    }
+    
+    if (memberEmailInput) {
+      memberEmailInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
           e.preventDefault();
-          let val = memberInput.value.trim();
-          if (val) {
-            if (!/^[A-Za-z\s]+$/.test(val)) {
-              showToast("Only alphabets and spaces are allowed for names.", true);
-              return;
-            }
-            
-            val = val.replace(/\s+/g, ' '); // clean extra spaces
-            
-            let uniqueVal = val;
-            let counter = 2;
-            while (currentMembers.includes(uniqueVal)) {
-              uniqueVal = `${val} (${counter})`;
-              counter++;
-            }
-            
-            currentMembers.push(uniqueVal);
-            memberInput.value = '';
-            renderTags();
-          }
+          addMemberAction();
         }
       });
     }
@@ -580,8 +598,8 @@ import Layout from '../layouts/Layout.astro';
     function resetModal() {
       const nameInput = document.getElementById('groupName') as HTMLInputElement;
       if (nameInput) nameInput.value = '';
-      if (memberInput) memberInput.value = '';
-      currentMembers = [(window as any).MY_DISPLAY_NAME];
+      if (memberEmailInput) memberEmailInput.value = '';
+      currentMembers = [(window as any).MY_DISPLAY_NAME || 'You'];
       renderTags();
       
       const typeInput = document.getElementById('groupType') as HTMLInputElement;
@@ -738,14 +756,17 @@ import Layout from '../layouts/Layout.astro';
 
     function renderGroups(searchQuery = '') {
       if (!groupsGrid) return;
-      const dataStr = localStorage.getItem(DATA_KEY);
+      const dataStr = localStorage.getItem(GLOBAL_GROUPS_KEY);
       if (!dataStr) {
         groupsGrid.innerHTML = `<div class="col-span-full p-12 text-center border border-hairline border-dashed rounded-lg bg-canvas-soft text-mute">No groups yet. Create one to get started!</div>`;
         return;
       }
 
       const data = JSON.parse(dataStr);
-      let groups = Object.values(data.groups || {});
+      let allGroups = Object.values(data.groups || {});
+      
+      // FILTER BY MEMBERSHIP (must have accepted invite or be creator)
+      let groups = allGroups.filter((g: any) => g.roles && g.roles[currentUserEmail]);
 
       // Calculate Global Balance
       let globalNetBalance = 0;
@@ -905,16 +926,17 @@ import Layout from '../layouts/Layout.astro';
           startDate: startDate,
           endDate: endDate,
           createdBy: (window as any).MY_DISPLAY_NAME,
-          members: [...currentMembers],
+          members: currentMembers.map((m, i) => i === 0 ? currentUserEmail : m),
+          roles: { [currentUserEmail]: 'owner' },
           expenses: [],
           createdAt: Date.now()
         };
 
-        let dataStr = localStorage.getItem(DATA_KEY);
+        let dataStr = localStorage.getItem(GLOBAL_GROUPS_KEY);
         let data = dataStr ? JSON.parse(dataStr) : { groups: {} };
         
         data.groups[groupId] = newGroup;
-        localStorage.setItem(DATA_KEY, JSON.stringify(data));
+        localStorage.setItem(GLOBAL_GROUPS_KEY, JSON.stringify(data));
 
         nameInput.value = '';
         currentMembers = [(window as any).MY_DISPLAY_NAME];
@@ -1029,7 +1051,201 @@ import Layout from '../layouts/Layout.astro';
       });
     }
 
+    // --- Notifications & Invites Logic ---
+    const notificationBtn = document.getElementById('notificationBtn');
+    const notificationsModal = document.getElementById('notificationsModal') as HTMLDialogElement;
+    const closeNotificationsBtn = document.getElementById('closeNotificationsBtn');
+    const notificationBadge = document.getElementById('notificationBadge');
+    const invitesList = document.getElementById('invitesList');
+
+    function renderNotifications() {
+      const invitesDataStr = localStorage.getItem(GLOBAL_INVITES_KEY);
+      const invitesData = invitesDataStr ? JSON.parse(invitesDataStr) : { invites: [] };
+      
+      const myPendingInvites = invitesData.invites.filter((inv: any) => inv.inviteeEmail === currentUserEmail && inv.status === 'pending');
+      
+      if (notificationBadge) {
+        if (myPendingInvites.length > 0) {
+          notificationBadge.textContent = myPendingInvites.length > 9 ? '9+' : myPendingInvites.length.toString();
+          notificationBadge.classList.remove('hidden');
+        } else {
+          notificationBadge.classList.add('hidden');
+        }
+      }
+
+      if (invitesList) {
+        if (myPendingInvites.length === 0) {
+          invitesList.innerHTML = '<div class="p-4 text-center text-xs text-mute">No new notifications</div>';
+          return;
+        }
+
+        invitesList.innerHTML = '';
+        
+        if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+          const banner = document.createElement('div');
+          banner.className = 'p-3 bg-brand/10 border-b border-brand/20 flex flex-col gap-2 items-start';
+          banner.innerHTML = `
+            <span class="text-xs text-brand font-medium">Enable push notifications to never miss an invite or expense.</span>
+            <button id="enableNotifsBtn" class="bg-brand text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-brand-deep transition-colors">Enable Notifications</button>
+          `;
+          invitesList.appendChild(banner);
+
+          // Need timeout since we just appended it
+          setTimeout(() => {
+            const btn = document.getElementById('enableNotifsBtn');
+            if (btn) {
+              btn.addEventListener('click', () => {
+                Notification.requestPermission().then(permission => {
+                  if (permission === 'granted') {
+                    banner.remove();
+                    showToast("Notifications enabled!", false);
+                  }
+                });
+              });
+            }
+          }, 0);
+        }
+
+        myPendingInvites.forEach((inv: any) => {
+          const item = document.createElement('div');
+          item.className = 'p-3 border-b border-hairline hover:bg-canvas-soft transition-colors';
+          item.innerHTML = `
+            <p class="text-sm text-ink mb-3 leading-snug">
+              <span class="font-bold">${inv.inviterName}</span> invited you to join <span class="font-bold">${inv.groupName}</span> as a ${inv.role}.
+            </p>
+            <div class="flex gap-3">
+              <button class="join-invite-btn flex-1 bg-brand text-white px-4 py-2 text-sm font-medium rounded-md hover:bg-brand-deep transition-colors text-center" data-id="${inv.id}">Join</button>
+              <button class="reject-invite-btn flex-1 bg-canvas text-ink border border-hairline px-4 py-2 text-sm font-medium rounded-md hover:bg-canvas-soft transition-colors text-center" data-id="${inv.id}">Decline</button>
+            </div>
+          `;
+          invitesList.appendChild(item);
+        });
+
+        document.querySelectorAll('.join-invite-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const inviteId = (e.currentTarget as HTMLElement).getAttribute('data-id');
+            handleInviteAction(inviteId, 'accepted');
+          });
+        });
+
+        document.querySelectorAll('.reject-invite-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const inviteId = (e.currentTarget as HTMLElement).getAttribute('data-id');
+            handleInviteAction(inviteId, 'rejected');
+          });
+        });
+      }
+    }
+
+    function handleInviteAction(inviteId: string | null, newStatus: string) {
+      if (!inviteId) return;
+      
+      // Update invite status
+      const invitesDataStr = localStorage.getItem(GLOBAL_INVITES_KEY);
+      if (!invitesDataStr) return;
+      let invitesData = JSON.parse(invitesDataStr);
+      
+      const inviteIndex = invitesData.invites.findIndex((i: any) => i.id === inviteId);
+      if (inviteIndex === -1) return;
+      
+      const invite = invitesData.invites[inviteIndex];
+
+      if (newStatus === 'rejected') {
+        // Delete invite completely so it can be resent later
+        invitesData.invites.splice(inviteIndex, 1);
+      } else {
+        invite.status = newStatus;
+      }
+      
+      localStorage.setItem(GLOBAL_INVITES_KEY, JSON.stringify(invitesData));
+
+      if (newStatus === 'accepted') {
+        // Add to group
+        const groupsDataStr = localStorage.getItem(GLOBAL_GROUPS_KEY);
+        if (groupsDataStr) {
+          let groupsData = JSON.parse(groupsDataStr);
+          let group = groupsData.groups[invite.groupId];
+          if (group) {
+            if (!group.members) group.members = [];
+            if (!group.roles) group.roles = {};
+            
+            const oldId = invite.memberId;
+            const newId = currentUserEmail;
+            
+            if (oldId && group.members.includes(oldId)) {
+              // Replace in members array
+              const idx = group.members.indexOf(oldId);
+              group.members[idx] = newId;
+              
+              // Replace in roles
+              if (group.roles && group.roles[oldId]) {
+                group.roles[newId] = invite.role || group.roles[oldId];
+                delete group.roles[oldId];
+              } else {
+                group.roles[newId] = invite.role || 'viewer';
+              }
+              
+              // Replace in expenses
+              if (group.expenses) {
+                group.expenses.forEach((exp: any) => {
+                  if (exp.paidBy === oldId) exp.paidBy = newId;
+                  if (exp.participants) {
+                    const pIdx = exp.participants.indexOf(oldId);
+                    if (pIdx > -1) exp.participants[pIdx] = newId;
+                  }
+                });
+              }
+            } else {
+              if (!group.members.includes(newId)) {
+                group.members.push(newId);
+              }
+              group.roles[newId] = invite.role || 'viewer';
+            }
+            
+            localStorage.setItem(GLOBAL_GROUPS_KEY, JSON.stringify(groupsData));
+            showToast(`Joined ${invite.groupName}!`);
+            renderGroups();
+          }
+        }
+      }
+
+      renderNotifications();
+    }
+
+    if (notificationBtn && notificationsModal) {
+      notificationBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (window.innerWidth >= 640) {
+          notificationsModal.showModal();
+        } else {
+          notificationsModal.show();
+        }
+        renderNotifications();
+      });
+
+      closeNotificationsBtn?.addEventListener('click', () => {
+        notificationsModal.close();
+      });
+
+      notificationsModal.addEventListener('click', (e) => {
+        const d = notificationsModal.getBoundingClientRect();
+        if (e.clientX < d.left || e.clientX > d.right || e.clientY < d.top || e.clientY > d.bottom) {
+          notificationsModal.close();
+        }
+      });
+    }
+
     // Initial render
     renderGroups();
+    renderNotifications();
+
+    // Cross-tab syncing
+    window.addEventListener('storage', (e) => {
+      if (e.key === GLOBAL_GROUPS_KEY) {
+        renderGroups();
+      } else if (e.key === GLOBAL_INVITES_KEY) {
+        renderNotifications();
+      }
+    });
   </script>
 </Layout>

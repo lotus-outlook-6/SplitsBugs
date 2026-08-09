@@ -32,13 +32,24 @@ import Layout from '../layouts/Layout.astro';
       <div class="bg-canvas border border-hairline rounded-xl p-6 shadow-sm">
         <h2 class="text-sm font-bold text-mute uppercase tracking-wider mb-4">Manage Preferences</h2>
         
-        <div class="flex items-center justify-between py-2">
+        <div class="flex items-center justify-between py-3 border-b border-hairline">
           <div>
             <p class="font-medium text-ink">Email Notifications</p>
             <p class="text-sm text-mute">Receive updates, security alerts, and group invites via email.</p>
           </div>
           <label class="relative inline-flex items-center cursor-pointer shrink-0">
-            <input type="checkbox" id="emailNotifToggle" class="sr-only peer" checked>
+            <input type="checkbox" id="emailNotifToggle" class="sr-only peer">
+            <div class="w-11 h-6 bg-hairline-strong peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand"></div>
+          </label>
+        </div>
+
+        <div class="flex items-center justify-between py-3">
+          <div>
+            <p class="font-medium text-ink">Browser Notifications</p>
+            <p class="text-sm text-mute">Get push notifications in your browser when someone invites you or adds an expense.</p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer shrink-0">
+            <input type="checkbox" id="browserNotifToggle" class="sr-only peer">
             <div class="w-11 h-6 bg-hairline-strong peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand"></div>
           </label>
         </div>
@@ -179,17 +190,36 @@ import Layout from '../layouts/Layout.astro';
         step1EmailStr.textContent = email;
 
         const notifs = localStorage.getItem('splitbug_email_notifs');
-        if (notifs === 'false') {
-          emailNotifToggle.checked = false;
-        } else {
+        if (notifs === 'true') {
           emailNotifToggle.checked = true;
+        } else {
+          emailNotifToggle.checked = false;
+        }
+
+        const browserNotifs = document.getElementById('browserNotifToggle') as HTMLInputElement;
+        if (browserNotifs) {
+          if (Notification.permission === 'granted') {
+             browserNotifs.checked = true;
+          }
+          
+          browserNotifs.addEventListener('change', (e) => {
+            const checked = (e.target as HTMLInputElement).checked;
+            if (checked && Notification.permission !== 'granted') {
+              Notification.requestPermission().then(perm => {
+                if (perm !== 'granted') {
+                   browserNotifs.checked = false;
+                }
+              });
+            }
+          });
         }
       }
       loadState();
 
       // Preferences Toggle
       emailNotifToggle.addEventListener('change', (e) => {
-        localStorage.setItem('splitbug_email_notifs', (e.target as HTMLInputElement).checked.toString());
+        const isChecked = (e.target as HTMLInputElement).checked;
+        localStorage.setItem('splitbug_email_notifs', isChecked.toString());
       });
 
       // Verification Simulation

@@ -420,6 +420,28 @@ import Layout from '../layouts/Layout.astro';
       // Format phone
       const phone = `${countryCodeLabel.textContent} ${phoneInput.value}`;
 
+      let users = {};
+      try {
+        const usersStr = localStorage.getItem('splitbug_users');
+        if (usersStr) users = JSON.parse(usersStr);
+      } catch (e) {}
+
+      if (users[email]) {
+        errorBox.textContent = "An account with this email already exists.";
+        errorBox.classList.remove('hidden');
+        return;
+      }
+
+      users[email] = {
+        name: nameInput.value.trim(),
+        password: passwordInput.value,
+        dob: dobInput.value,
+        phone: phone,
+        themeColor: 'special-art-1'
+      };
+
+      localStorage.setItem('splitbug_users', JSON.stringify(users));
+
       localStorage.setItem('splitbug_userName', nameInput.value.trim());
       localStorage.setItem('splitbug_userEmail', email);
       localStorage.setItem('splitbug_userPassword', passwordInput.value);

@@ -30,7 +30,7 @@ import Layout from '../layouts/Layout.astro';
     </header>
 
     <!-- Activity Feed List -->
-    <main class="flex-1 w-full max-w-[800px] mx-auto bg-canvas border-x border-hairline min-h-[calc(100vh-4rem)] sm:min-h-0 sm:my-8 sm:border sm:rounded-xl overflow-hidden sm:shadow-sm">
+    <main class="w-full max-w-[800px] mx-auto bg-canvas border-x border-hairline sm:my-8 sm:border sm:rounded-xl overflow-hidden sm:shadow-sm">
       <div id="activityFeedContainer" class="flex flex-col">
         <!-- JS will populate this -->
       </div>
@@ -42,7 +42,8 @@ import Layout from '../layouts/Layout.astro';
 
   <script>
     const currentUserEmail = localStorage.getItem('splitbug_userEmail') || 'user@example.com';
-    const DATA_KEY = 'splitsbug_data_' + currentUserEmail;
+    const GLOBAL_GROUPS_KEY = 'splitsbug_global_groups';
+    const DATA_KEY = GLOBAL_GROUPS_KEY;
 
     const feedContainer = document.getElementById('activityFeedContainer');
     
@@ -63,15 +64,17 @@ import Layout from '../layouts/Layout.astro';
       if (!feedContainer) return;
       const dataStr = localStorage.getItem(DATA_KEY);
       if (!dataStr) {
-        feedContainer.innerHTML = `<div class="p-8 text-center text-mute">No activity yet.</div>`;
+        feedContainer.innerHTML = `<div class="p-8 text-center text-mute">No activity to display.</div>`;
         return;
       }
 
       const data = JSON.parse(dataStr);
+      const allGroupEntries = Object.entries(data.groups || {});
+      const groups = allGroupEntries.filter(([_, g]: [string, any]) => g.roles && g.roles[currentUserEmail]);
+
       let activities: any[] = [];
 
       // Add group creation and group expenses
-      const groups = Object.entries(data.groups || {});
       groups.forEach(([groupId, g]: [string, any]) => {
         // Group creation activity
         activities.push({
@@ -116,7 +119,7 @@ import Layout from '../layouts/Layout.astro';
       activities.sort((a, b) => b.timestamp - a.timestamp);
 
       if (activities.length === 0) {
-        feedContainer.innerHTML = `<div class="p-8 text-center text-mute">No activity yet.</div>`;
+        feedContainer.innerHTML = `<div class="p-8 text-center text-mute">No activity to display.</div>`;
         return;
       }
 
@@ -218,5 +221,13 @@ import Layout from '../layouts/Layout.astro';
         renderActivity(query);
       });
     }
+
+    // Cross-tab syncing
+    window.addEventListener('storage', (e) => {
+      if (e.key === DATA_KEY) {
+        const query = searchInput ? searchInput.value.toLowerCase() : '';
+        renderActivity(query);
+      }
+    });
   </script>
 </Layout>

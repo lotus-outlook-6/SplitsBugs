@@ -105,17 +105,96 @@ import Layout from '../layouts/Layout.astro';
         <!-- Sidebar: Balances (1/3 width on desktop) -->
         <div class="order-1 lg:order-2 lg:col-span-1 space-y-6">
           <section class="bg-canvas border border-hairline rounded-lg shadow-sm p-6">
-            <h2 class="text-lg font-bold mb-4">Balances</h2>
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-lg font-bold">Balances</h2>
+            </div>
             
             <div id="balancesContainer" class="space-y-4">
               <!-- Balances will be added here via JS -->
             </div>
-            
-            
+          </section>
+
+          <!-- Group Comments Section -->
+          <section id="commentsSection" class="bg-canvas border border-hairline rounded-lg shadow-sm p-5 flex flex-col h-[280px]">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-lg font-bold">Comments</h2>
+            </div>
+            <div id="commentsContainer" class="flex-1 overflow-y-auto space-y-4 mb-4 pr-2 scrollbar-hide">
+              <!-- Comments will be populated here -->
+              <div class="text-center text-mute text-sm mt-8">No comments yet. Start the conversation!</div>
+            </div>
+            <form id="commentForm" class="flex items-center mt-auto shrink-0 bg-canvas">
+              <div class="flex-1 bg-canvas border border-hairline rounded-full flex items-center p-1.5 focus-within:border-brand transition-colors shadow-sm">
+                <div id="commentAvatar" class="w-7 h-7 rounded-full bg-brand text-white flex items-center justify-center font-bold text-xs shrink-0 uppercase ml-0.5">U</div>
+                <input type="text" id="commentInput" autocomplete="off" placeholder="Add a comment..." class="flex-1 bg-transparent text-ink px-3 py-1.5 text-sm focus:outline-none placeholder:text-mute" />
+                <button type="submit" id="commentSubmitBtn" class="w-8 h-8 rounded-full bg-brand text-white flex items-center justify-center hover:opacity-90 transition-opacity shrink-0 disabled:opacity-50 disabled:bg-mute disabled:text-mute-strong" disabled>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                </button>
+              </div>
+            </form>
           </section>
         </div>
       </div>
     </main>
+
+    <!-- Invite Member Modal -->
+    <dialog id="inviteMemberModal" class="bg-transparent p-4 m-auto backdrop:bg-black/50 text-ink open:flex flex-col items-center justify-center w-full sm:max-w-md">
+      <div class="bg-canvas border border-hairline rounded-lg shadow-lg w-full max-w-sm mx-auto p-6 text-left relative overflow-hidden">
+        <div class="flex justify-between items-center mb-6">
+          <h2 id="inviteModalTitle" class="text-xl font-bold">Invite Member</h2>
+          <button id="closeInviteMemberBtn" class="text-mute hover:text-ink transition-colors focus:outline-none">✕</button>
+        </div>
+        
+        <!-- Success State (Hidden by default) -->
+        <div id="inviteSuccessState" class="hidden flex-col items-center justify-center py-6 text-center animate-in fade-in zoom-in duration-300">
+          <div class="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center text-success mb-4 mx-auto">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          </div>
+          <h3 id="inviteSuccessTitle" class="text-lg font-bold text-ink mb-1">Invitation Sent</h3>
+          <p class="text-sm text-mute">They will be notified shortly.</p>
+        </div>
+
+        <form id="inviteMemberForm" class="space-y-4" method="dialog" novalidate>
+          <div>
+            <label class="block text-sm font-medium text-ink mb-1">Email Address</label>
+            <input type="email" id="inviteEmail" autocomplete="off" placeholder="Friend's email" class="w-full bg-canvas text-ink border border-hairline rounded-md px-3 h-10 text-sm focus:outline-none focus:border-brand transition-colors" required />
+          </div>
+          <div class="relative">
+            <label class="block text-sm font-medium text-ink mb-1">Role</label>
+            <input type="hidden" id="inviteRole" value="editor" />
+            <button type="button" id="inviteRoleBtn" class="w-full bg-canvas text-ink border border-hairline rounded-md px-3 h-10 text-sm focus:outline-none focus:border-brand transition-colors flex justify-between items-center">
+              <span id="inviteRoleText">Editor (Can add expenses)</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-mute"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div id="inviteRoleDropdown" class="absolute left-0 top-full mt-1 w-full bg-canvas border border-hairline rounded-md shadow-lg hidden z-50 overflow-hidden">
+              <button type="button" class="invite-role-option w-full text-left px-3 py-2 text-sm hover:bg-canvas-soft transition-colors flex items-center justify-between" data-value="admin">
+                <span>Admin (Full access)</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-brand hidden check-icon"><polyline points="20 6 9 17 4 12"/></svg>
+              </button>
+              <button type="button" class="invite-role-option w-full text-left px-3 py-2 text-sm hover:bg-canvas-soft transition-colors flex items-center justify-between" data-value="editor">
+                <span>Editor (Can add expenses)</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-brand hidden check-icon"><polyline points="20 6 9 17 4 12"/></svg>
+              </button>
+              <button type="button" class="invite-role-option w-full text-left px-3 py-2 text-sm hover:bg-canvas-soft transition-colors flex items-center justify-between" data-value="viewer">
+                <span>Viewer (Read-only)</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-brand hidden check-icon"><polyline points="20 6 9 17 4 12"/></svg>
+              </button>
+            </div>
+          </div>
+          
+          <div class="flex justify-between items-center mt-6 pt-4 border-t border-hairline">
+            <button type="button" id="inviteRemoveBtn" class="hidden px-2 py-2 text-sm font-medium text-danger hover:bg-danger/10 rounded-md transition-colors focus:outline-none flex items-center gap-1">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+              Remove
+            </button>
+            <div class="flex justify-end gap-3 w-full" id="inviteActionButtons">
+              <button type="button" id="cancelInviteMemberBtn" class="px-4 py-2 text-sm font-medium text-mute hover:text-ink transition-colors focus:outline-none">Cancel</button>
+              <button type="submit" id="inviteSubmitBtn" class="bg-brand text-white px-5 py-2 rounded-md font-medium text-sm hover:bg-brand-deep transition-colors shadow-sm focus:outline-none">Send Invite</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </dialog>
 
     <!-- Add Expense Modal -->
     <dialog id="addExpenseModal" class="bg-transparent p-0 m-auto backdrop:bg-black/50 text-ink open:flex flex-col items-center justify-center w-[92vw] sm:w-full max-w-lg">
@@ -328,15 +407,14 @@ import Layout from '../layouts/Layout.astro';
             <span class="text-body font-medium flex-1">Manage members</span>
           </button>
 
-          <div id="settingsMembersList" class="mt-2 space-y-1">
+          <div id="settingsMembersList" class="mt-2 space-y-1 scrollbar-hide">
             <!-- Members injected via JS -->
           </div>
         </section>
 
         <!-- Advanced Settings -->
         <section>
-          <h4 class="text-xs font-bold text-mute uppercase tracking-wider mb-4 px-2">Advanced settings</h4>
-
+          
           <!-- Delete Group moved here -->
           <button type="button" id="settingsDeleteGroupBtn" class="w-full flex items-center justify-center gap-2 px-2 py-3 bg-danger text-white rounded-lg transition-colors group cursor-pointer hover:opacity-90">
             <div class="w-6 h-6 flex items-center justify-center">
@@ -452,8 +530,29 @@ import Layout from '../layouts/Layout.astro';
               </div>
             </div>
           </div>
+
+          <!-- Member Permissions -->
+          <div id="memberPermissionsSection" class="mb-8 border-t border-hairline pt-6">
+            <label class="block text-xs font-medium text-ink mb-2">Who can manage members?</label>
+            <div class="space-y-2">
+              <label class="flex items-center gap-3 p-3 border border-hairline rounded-lg cursor-pointer hover:bg-canvas-soft transition-colors bg-canvas has-[:checked]:border-brand has-[:checked]:bg-brand/5">
+                <input type="radio" name="memberPermissions" value="all" class="text-brand focus:ring-brand accent-brand w-4 h-4" checked>
+                <div class="flex-1">
+                  <span class="block text-sm font-medium text-ink">All members</span>
+                  <span class="block text-xs text-mute">Anyone can add or remove members</span>
+                </div>
+              </label>
+              <label class="flex items-center gap-3 p-3 border border-hairline rounded-lg cursor-pointer hover:bg-canvas-soft transition-colors bg-canvas has-[:checked]:border-brand has-[:checked]:bg-brand/5">
+                <input type="radio" name="memberPermissions" value="admins" class="text-brand focus:ring-brand accent-brand w-4 h-4">
+                <div class="flex-1">
+                  <span class="block text-sm font-medium text-ink">Admins only</span>
+                  <span class="block text-xs text-mute">Only the Owner and Admins can manage members</span>
+                </div>
+              </label>
+            </div>
+          </div>
           
-          <button type="submit" class="w-full mt-6 bg-brand hover:opacity-90 transition-opacity text-white font-bold py-3 px-4 rounded-full shadow-sm text-lg border border-transparent">
+          <button type="submit" class="w-full mt-2 bg-brand hover:opacity-90 transition-opacity text-white font-bold py-3 px-4 rounded-full shadow-sm text-lg border border-transparent">
             Save Changes
           </button>
         </form>
@@ -530,7 +629,16 @@ import Layout from '../layouts/Layout.astro';
 
   <script>
     const currentUserEmail = localStorage.getItem('splitbug_userEmail') || 'user@example.com';
-    const DATA_KEY = 'splitsbug_data_' + currentUserEmail;
+    (window as any).MY_DISPLAY_NAME = localStorage.getItem('splitbug_userName') || 'You';
+    const GLOBAL_GROUPS_KEY = 'splitsbug_global_groups';
+    const DATA_KEY = GLOBAL_GROUPS_KEY;
+
+    (window as any).getDisplayName = function(raw: string) {
+      if (!raw) return '';
+      if (!raw.includes('@')) return raw;
+      if (raw === currentUserEmail) return (window as any).MY_DISPLAY_NAME || 'You';
+      return raw.split('@')[0];
+    };
     const typeColorMap: Record<string, string> = {
       'Trip': 'border-[#2563eb] bg-[#2563eb] text-white',
       'Couple': 'border-[#db2777] bg-[#db2777] text-white',
@@ -647,8 +755,12 @@ import Layout from '../layouts/Layout.astro';
       }
 
       const paidByText = document.getElementById('paidByText');
-      if (paidByText) paidByText.textContent = groupData?.members[0] || (window as any).MY_DISPLAY_NAME;
-
+      const paidByBtn = document.getElementById('paidByBtn');
+      if (paidByText) {
+        const defaultMember = groupData?.members[0] || currentUserEmail;
+        paidByText.textContent = (window as any).getDisplayName(defaultMember);
+        if (paidByBtn) paidByBtn.dataset.value = defaultMember;
+      }
       const splitText = document.getElementById('splitText');
       if (splitText) splitText.textContent = 'Equally';
 
@@ -900,6 +1012,37 @@ import Layout from '../layouts/Layout.astro';
         return;
       }
 
+      const myRole = groupData.roles ? groupData.roles[currentUserEmail] : 'editor';
+      if (myRole === 'viewer') {
+        const addExpenseBtn = document.getElementById('addExpenseBtn');
+        const settleUpBtn = document.getElementById('settleUpBtn');
+        const groupSettingsBtn = document.getElementById('groupSettingsBtn');
+        const stickySettingsBtn = document.getElementById('stickySettingsBtn');
+        if (addExpenseBtn) addExpenseBtn.style.display = 'none';
+        if (settleUpBtn) settleUpBtn.style.display = 'none';
+        if (groupSettingsBtn) groupSettingsBtn.style.display = 'none';
+        if (stickySettingsBtn) stickySettingsBtn.style.display = 'none';
+      }
+
+      // Hide settings options if not Admin (owner or admin)
+      const memberPermissionsSection = document.getElementById('memberPermissionsSection');
+      if (memberPermissionsSection) {
+        if (myRole === 'owner' || myRole === 'admin') {
+          memberPermissionsSection.style.display = 'block';
+        } else {
+          memberPermissionsSection.style.display = 'none';
+        }
+      }
+        
+        const openInviteMemberBtn = document.getElementById('openInviteMemberBtn');
+        if (openInviteMemberBtn) {
+          if (groupData.memberPermissions === 'admins' && myRole !== 'owner' && myRole !== 'editor') {
+            openInviteMemberBtn.style.display = 'none';
+          } else {
+            openInviteMemberBtn.style.display = 'flex';
+          }
+        }
+
       // Update UI Header
       document.getElementById('groupTitle')!.textContent = groupData.name;
       document.getElementById('memberCountText')!.textContent = `${groupData.members.length} people`;
@@ -997,13 +1140,14 @@ import Layout from '../layouts/Layout.astro';
 
       // Populate Dropdowns & Checklists
       const paidByMenu = document.getElementById('paidByMenu');
+      const paidByBtn = document.getElementById('paidByBtn');
       const splitChecklist = document.getElementById('splitParticipantsList');
       
       if (paidByMenu && splitChecklist) {
         paidByMenu.innerHTML = '';
         splitChecklist.innerHTML = '';
         groupData.members.forEach((member: string) => {
-          const displayMember = member === 'You' ? (window as any).MY_DISPLAY_NAME : member;
+          const displayMember = (window as any).getDisplayName(member);
           // Paid By Dropdown
           const btn = document.createElement('button');
           btn.type = 'button';
@@ -1012,6 +1156,7 @@ import Layout from '../layouts/Layout.astro';
           btn.addEventListener('click', () => {
             const span = document.getElementById('paidByText');
             if (span) span.textContent = displayMember;
+            if (paidByBtn) paidByBtn.dataset.value = member;
             paidByMenu.classList.add('hidden');
           });
           paidByMenu.appendChild(btn);
@@ -1030,7 +1175,9 @@ import Layout from '../layouts/Layout.astro';
         });
         const span = document.getElementById('paidByText');
         if (span) {
-          span.textContent = groupData.members[0] === 'You' ? (window as any).MY_DISPLAY_NAME : groupData.members[0];
+          const myIndex = groupData.members.findIndex((m: string) => m === currentUserEmail || m === 'You');
+          const defaultMember = myIndex !== -1 ? groupData.members[myIndex] : groupData.members[0];
+          span.textContent = (window as any).getDisplayName(defaultMember);
         }
         document.getElementById('splitParticipantsContainer')?.classList.add('is-equally');
       }
@@ -1042,6 +1189,9 @@ import Layout from '../layouts/Layout.astro';
 
       renderFeed();
       renderBalances();
+      if (typeof (window as any).renderComments === 'function') {
+        (window as any).renderComments();
+      }
     }
 
     // --- Delete Group Logic ---
@@ -1098,20 +1248,23 @@ import Layout from '../layouts/Layout.astro';
         return;
       }
 
+
+
       // Render items
       exps.forEach((exp: any) => {
         const letter = exp.description.charAt(0).toUpperCase();
         
-        let whoPaidText = `<span class="font-medium text-ink">${exp.paidBy}</span> paid ${exp.currency}${exp.amount.toFixed(2)}`;
+        const paidByName = (window as any).getDisplayName(exp.paidBy);
+        let whoPaidText = `<span class="font-medium text-ink">${paidByName}</span> paid ${exp.currency}${exp.amount.toFixed(2)}`;
         
         const participants = exp.participants || groupData.members;
         let splitTextInfo = '';
         if (participants.length === groupData.members.length) {
           splitTextInfo = 'Split for the whole group';
         } else if (participants.length <= 2) {
-          splitTextInfo = participants.join(' and ');
+          splitTextInfo = participants.map((p:string) => (window as any).getDisplayName(p)).join(' and ');
         } else {
-          splitTextInfo = `${participants[0]}, ${participants[1]} + ${participants.length - 2} more`;
+          splitTextInfo = `${(window as any).getDisplayName(participants[0])}, ${(window as any).getDisplayName(participants[1])} + ${participants.length - 2} more`;
         }
 
         const splitAmount = (exp.amount / participants.length).toFixed(2);
@@ -1120,7 +1273,7 @@ import Layout from '../layouts/Layout.astro';
         participants.forEach((p: string) => {
           detailsHTML += `
             <div class="flex justify-between items-center text-body">
-              <span>${p}</span>
+              <span>${(window as any).getDisplayName(p)}</span>
               <span class="font-medium">${exp.currency}${splitAmount}</span>
             </div>
           `;
@@ -1173,51 +1326,71 @@ import Layout from '../layouts/Layout.astro';
       if (!balancesContainer || !groupData) return;
       const exps = groupData.expenses || [];
       
-      // Compute raw balances
-      const balances: Record<string, number> = {};
-      groupData.members.forEach((m: string) => balances[m] = 0);
+      // Exact Pairwise Debt Tracking (No simplification)
+      const owes: Record<string, Record<string, number>> = {};
+      groupData.members.forEach((m: string) => {
+        owes[m] = {};
+        groupData.members.forEach((n: string) => owes[m][n] = 0);
+      });
 
       exps.forEach((exp: any) => {
-        balances[exp.paidBy] += exp.amount;
+        const payer = exp.paidBy;
         const participants = exp.participants || groupData.members;
         const splitAmount = exp.amount / participants.length;
         participants.forEach((m: string) => {
-          balances[m] -= splitAmount;
+          if (m !== payer && owes[m] && owes[m][payer] !== undefined) {
+             owes[m][payer] += splitAmount;
+          }
         });
       });
 
-      // Greedy Debt Simplification
-      let debtors = Object.keys(balances).filter(m => balances[m] < -0.01).map(m => ({ name: m, amount: -balances[m] }));
-      let creditors = Object.keys(balances).filter(m => balances[m] > 0.01).map(m => ({ name: m, amount: balances[m] }));
-      
-      debtors.sort((a, b) => b.amount - a.amount);
-      creditors.sort((a, b) => b.amount - a.amount);
-
       const transactions: { from: string, to: string, amount: number }[] = [];
+      const processedPairs = new Set<string>();
 
-      let d = 0, c = 0;
-      while (d < debtors.length && c < creditors.length) {
-        const debtor = debtors[d];
-        const creditor = creditors[c];
-        const minAmount = Math.min(debtor.amount, creditor.amount);
+      groupData.members.forEach((m1: string) => {
+        groupData.members.forEach((m2: string) => {
+          if (m1 !== m2) {
+             const pairKey = [m1, m2].sort().join('|');
+             if (!processedPairs.has(pairKey)) {
+                processedPairs.add(pairKey);
+                const m1OwesM2 = owes[m1][m2];
+                const m2OwesM1 = owes[m2][m1];
+                const net = m1OwesM2 - m2OwesM1;
 
-        transactions.push({ from: debtor.name, to: creditor.name, amount: minAmount });
+                if (net > 0.01) {
+                   transactions.push({ from: m1, to: m2, amount: net });
+                } else if (net < -0.01) {
+                   transactions.push({ from: m2, to: m1, amount: -net });
+                }
+             }
+          }
+        });
+      });
 
-        debtor.amount -= minAmount;
-        creditor.amount -= minAmount;
+      const myRole = (groupData.roles && groupData.roles[currentUserEmail]) ? groupData.roles[currentUserEmail] : 'viewer';
+      const myDisplayName = (window as any).MY_DISPLAY_NAME;
 
-        if (debtor.amount < 0.01) d++;
-        if (creditor.amount < 0.01) c++;
+      let settleTransactions = transactions;
+      if (myRole !== 'owner') {
+        settleTransactions = transactions.filter(t => 
+          t.from === myDisplayName || t.to === myDisplayName ||
+          t.from === 'You' || t.to === 'You' ||
+          t.from === currentUserEmail || t.to === currentUserEmail
+        );
       }
 
       // Populate Settle Up Debt List
       const settleDebtList = document.getElementById('settleDebtList');
       if (settleDebtList) {
         settleDebtList.innerHTML = '';
-        if (transactions.length === 0) {
-          settleDebtList.innerHTML = '<div class="text-sm text-mute text-center py-4">No debts to settle!</div>';
+        if (settleTransactions.length === 0) {
+          if (transactions.length > 0) {
+            settleDebtList.innerHTML = '<div class="text-sm text-mute text-center py-4">You have no personal debts to settle. Only the group creator can settle debts for others.</div>';
+          } else {
+            settleDebtList.innerHTML = '<div class="text-sm text-mute text-center py-4">No debts to settle!</div>';
+          }
         } else {
-          transactions.forEach((t, idx) => {
+          settleTransactions.forEach((t, idx) => {
             const valStr = JSON.stringify(t);
             const label = document.createElement('label');
             label.className = 'cursor-pointer select-none';
@@ -1225,7 +1398,7 @@ import Layout from '../layouts/Layout.astro';
               <input type="checkbox" name="settleDebtOption" value='${valStr}' class="hidden peer" />
               <div class="px-4 py-3 rounded-md text-sm font-medium border transition-colors
                           border-hairline bg-canvas text-body peer-checked:bg-ink peer-checked:text-canvas peer-checked:border-ink">
-                 ${t.from} pays ${t.to} <strong>${groupData.currency || '$'}${t.amount.toFixed(2)}</strong>
+                  ${(window as any).getDisplayName(t.from)} pays ${(window as any).getDisplayName(t.to)} <strong>${groupData.currency || '$'}${t.amount.toFixed(2)}</strong>
               </div>
             `;
             settleDebtList.appendChild(label);
@@ -1240,8 +1413,8 @@ import Layout from '../layouts/Layout.astro';
       }
 
       transactions.forEach((t) => {
-        const isYou = t.to === 'You' || t.to === (window as any).MY_DISPLAY_NAME; // Someone owes you
-        const isFromYou = t.from === 'You' || t.from === (window as any).MY_DISPLAY_NAME; // You owe someone
+        const isYou = t.to === currentUserEmail; // Someone owes you
+        const isFromYou = t.from === currentUserEmail; // You owe someone
 
         let colorClass = 'text-ink';
         let bgClass = 'bg-canvas-soft border-hairline';
@@ -1257,11 +1430,13 @@ import Layout from '../layouts/Layout.astro';
           letter = t.to.charAt(0).toUpperCase();
         }
 
+        const fromName = (window as any).getDisplayName(t.from);
+        const toName = (window as any).getDisplayName(t.to);
         const textHTML = isYou
-          ? `<span class="font-medium">${t.from}</span> owes you <span class="${colorClass} font-bold">${groupData.currency || '$'}${t.amount.toFixed(2)}</span>`
+          ? `<span class="font-medium">${fromName}</span> owes you <span class="${colorClass} font-bold">${groupData.currency || '$'}${t.amount.toFixed(2)}</span>`
           : isFromYou
-            ? `You owe <span class="font-medium">${t.to}</span> <span class="${colorClass} font-bold">${groupData.currency || '$'}${t.amount.toFixed(2)}</span>`
-            : `<span class="font-medium">${t.from}</span> owes <span class="font-medium">${t.to}</span> <span class="font-bold">${groupData.currency || '$'}${t.amount.toFixed(2)}</span>`;
+            ? `You owe <span class="font-medium">${toName}</span> <span class="${colorClass} font-bold">${groupData.currency || '$'}${t.amount.toFixed(2)}</span>`
+            : `<span class="font-medium">${fromName}</span> owes <span class="font-medium">${toName}</span> <span class="font-bold">${groupData.currency || '$'}${t.amount.toFixed(2)}</span>`;
 
         balancesContainer.innerHTML += `
           <div class="flex items-center justify-between text-sm py-1">
@@ -1309,7 +1484,8 @@ import Layout from '../layouts/Layout.astro';
         const desc = descInput.value.trim();
         const amount = parseFloat(amtInput.value);
         const curr = currencySymbol?.textContent || '$';
-        const paidBy = document.getElementById('paidByText')?.textContent || groupData.members[0];
+        const paidByBtn = document.getElementById('paidByBtn');
+        const paidBy = paidByBtn?.dataset.value || groupData.members[0];
 
         // Gather participants from checkboxes
         const checkboxes = document.querySelectorAll('.split-participant-checkbox:checked') as NodeListOf<HTMLInputElement>;
@@ -1540,12 +1716,34 @@ import Layout from '../layouts/Layout.astro';
       const curr = groupData.currency || '$';
       const bgColors = ['bg-[#b2dfdb] text-ink', 'bg-success/20 text-success', 'bg-warning/20 text-warning', 'bg-danger/20 text-danger'];
 
+      // Setup global click listener for member dropdowns
+      if (!(window as any).clickListenerAdded) {
+        document.addEventListener('click', (e) => {
+          const target = e.target as HTMLElement;
+          if (target && !target.closest('.member-dropdown-container')) {
+             document.querySelectorAll('.member-dropdown-menu').forEach(menu => menu.classList.add('hidden'));
+          }
+        });
+        (window as any).clickListenerAdded = true;
+      }
+
       groupData.members.forEach((m: string, i: number) => {
         const bal = balances[m] || 0;
-        const isYou = m === (window as any).MY_DISPLAY_NAME || m === 'You';
-        const displayName = isYou ? (window as any).MY_DISPLAY_NAME : m;
-        const letter = displayName.charAt(0).toUpperCase();
-        const colorClass = bgColors[i % bgColors.length];
+        const isYou = m === currentUserEmail;
+        const displayName = isYou ? (window as any).MY_DISPLAY_NAME || 'You' : (window as any).getDisplayName(m);
+        
+        const isRegisteredUser = m.includes('@');
+        
+        let avatarHtml = '';
+        if (isRegisteredUser) {
+          const tempDiv = document.createElement('div');
+          (window as any).updateAvatarNode(tempDiv, m, displayName, "w-10 h-10 text-sm");
+          avatarHtml = tempDiv.outerHTML;
+        } else {
+          const letter = displayName.charAt(0).toUpperCase();
+          const colorClass = bgColors[i % bgColors.length];
+          avatarHtml = `<div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${colorClass} shrink-0 uppercase">${letter}</div>`;
+        }
         
         let statusHtml = `<span class="text-xs font-medium text-mute uppercase">settled up</span><span class="font-bold text-ink">${curr}0.00</span>`;
         if (bal > 0.01) {
@@ -1554,20 +1752,80 @@ import Layout from '../layouts/Layout.astro';
           statusHtml = `<span class="text-[10px] font-bold text-warning uppercase">owes</span><span class="font-bold text-warning">${curr}${Math.abs(bal).toFixed(2)}</span>`;
         }
 
+        let actionsHtml = '';
+        let roleText = groupData.roles?.[m] || 'Member';
+        if (roleText === 'owner') roleText = 'Admin';
+        
+        let memberRoleText = `<span class="text-xs text-mute mt-0.5 capitalize">${roleText}</span>`;
+        if (isYou && groupData.roles?.[currentUserEmail]) {
+           let myRole = groupData.roles[currentUserEmail];
+           if (myRole === 'owner') myRole = 'Admin';
+           memberRoleText = `<span class="text-xs text-mute mt-0.5 capitalize">${myRole}</span>`;
+        }
+        
+        const canManageMembers = groupData.memberPermissions === 'all' || myRole === 'owner' || myRole === 'admin';
+
+        if (!isYou && canManageMembers) {
+          // Check for pending invites
+          const GLOBAL_INVITES_KEY = 'splitsbug_global_invites';
+          const invitesDataStr = localStorage.getItem(GLOBAL_INVITES_KEY);
+          const invitesData = invitesDataStr ? JSON.parse(invitesDataStr) : { invites: [] };
+          const pendingInvite = invitesData.invites.find((inv: any) => 
+            inv.groupId === groupId && inv.memberId === m && inv.status === 'pending'
+          );
+
+          if (pendingInvite) {
+            memberRoleText = `<span class="text-xs text-mute mt-0.5 capitalize">${pendingInvite.role}</span>`;
+            actionsHtml = `
+              <div class="relative ml-2">
+                <button onclick="window.openInviteModal('${m}', '${pendingInvite.inviteeEmail}', '${pendingInvite.role}', 'reinvite')" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-brand/10 text-mute hover:text-brand transition-colors" title="Options">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                </button>
+              </div>
+            `;
+          } else if (isRegisteredUser) {
+            actionsHtml = `
+              <div class="relative ml-2">
+                <button onclick="window.openInviteModal('${m}', '${m}', '${groupData.roles?.[m] || 'viewer'}', 'manage')" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-brand/10 text-mute hover:text-brand transition-colors" title="Options">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                </button>
+              </div>
+            `;
+          } else {
+            actionsHtml = `
+              <div class="relative ml-2">
+                <button onclick="window.openInviteModal('${m}', '', '', 'invite')" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-brand/10 text-mute hover:text-brand transition-colors" title="Invite">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                </button>
+              </div>
+            `;
+          }
+        }
+
         membersList.innerHTML += `
           <div class="flex items-center gap-4 px-2 py-3 hover:bg-canvas-soft rounded-lg transition-colors group">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${colorClass}">
-              ${letter}
-            </div>
+            ${avatarHtml}
             <div class="flex-1 flex flex-col justify-center">
               <span class="text-body font-bold text-ink leading-tight">${displayName}</span>
-              ${!isYou ? '<span class="text-xs text-mute mt-0.5">Member</span>' : ''}
+              ${memberRoleText}
             </div>
             <div class="flex flex-col items-end justify-center leading-tight">
               ${statusHtml}
             </div>
+            ${actionsHtml}
           </div>
         `;
+      });
+
+      // Attach dropdown listeners now that HTML is set
+      membersList.querySelectorAll('.member-dropdown-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          document.querySelectorAll('.member-dropdown-menu').forEach(menu => {
+            if (menu !== btn.nextElementSibling) menu.classList.add('hidden');
+          });
+          btn.nextElementSibling?.classList.toggle('hidden');
+        });
       });
     }
 
@@ -2106,5 +2364,432 @@ import Layout from '../layouts/Layout.astro';
       });
     }
 
+    // --- Invite Member Logic ---
+    const openInviteMemberBtn = document.getElementById('openInviteMemberBtn');
+    const closeInviteMemberBtn = document.getElementById('closeInviteMemberBtn');
+    const cancelInviteMemberBtn = document.getElementById('cancelInviteMemberBtn');
+    const inviteMemberModal = document.getElementById('inviteMemberModal') as HTMLDialogElement;
+    const inviteMemberForm = document.getElementById('inviteMemberForm') as HTMLFormElement;
+
+    // Custom Role Dropdown Logic
+    const inviteRoleBtn = document.getElementById('inviteRoleBtn');
+    const inviteRoleDropdown = document.getElementById('inviteRoleDropdown');
+    const inviteRoleText = document.getElementById('inviteRoleText');
+    const inviteRoleInput = document.getElementById('inviteRole') as HTMLInputElement;
+    const inviteRoleOptions = document.querySelectorAll('.invite-role-option');
+
+    if (inviteRoleBtn && inviteRoleDropdown) {
+      inviteRoleBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        inviteRoleDropdown.classList.toggle('hidden');
+      });
+
+      inviteRoleOptions.forEach(opt => {
+        opt.addEventListener('click', () => {
+          const val = opt.getAttribute('data-value') || 'viewer';
+          const text = opt.querySelector('span')?.textContent || '';
+          
+          if (inviteRoleInput) inviteRoleInput.value = val;
+          if (inviteRoleText) inviteRoleText.textContent = text;
+          
+          // Update checkmarks
+          inviteRoleOptions.forEach(o => o.querySelector('.check-icon')?.classList.add('hidden'));
+          opt.querySelector('.check-icon')?.classList.remove('hidden');
+          
+          inviteRoleDropdown.classList.add('hidden');
+        });
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!inviteRoleBtn.contains(e.target as Node) && !inviteRoleDropdown.contains(e.target as Node)) {
+          inviteRoleDropdown.classList.add('hidden');
+        }
+      });
+    }
+
+    let currentInviteMemberId = '';
+    let currentInviteState = 'invite';
+    (window as any).openInviteModal = function(memberId: string, prefillEmail = '', prefillRole = '', state = 'invite') {
+      currentInviteMemberId = memberId;
+      currentInviteState = state;
+      const emailInput = document.getElementById('inviteEmail') as HTMLInputElement;
+      if (emailInput) {
+        emailInput.value = prefillEmail;
+        emailInput.classList.remove('border-danger', 'focus:border-danger', 'border-2');
+        emailInput.classList.add('border-hairline', 'focus:border-brand');
+      }
+      
+      if (prefillRole && inviteRoleOptions.length > 0) {
+        const option = Array.from(inviteRoleOptions).find(o => o.getAttribute('data-value') === prefillRole);
+        if (option) (option as HTMLElement).click();
+      } else {
+        // default to editor
+        (inviteRoleOptions[1] as HTMLElement)?.click();
+      }
+      
+      const title = document.getElementById('inviteModalTitle');
+      const submitBtn = document.getElementById('inviteSubmitBtn');
+      const removeBtn = document.getElementById('inviteRemoveBtn');
+      
+      if (title) {
+        if (state === 'invite') title.textContent = 'Invite Member';
+        else if (state === 'reinvite') title.textContent = 'Reinvite Member';
+        else if (state === 'manage') title.textContent = 'Manage Member';
+      }
+      
+      if (submitBtn) {
+        if (state === 'invite') submitBtn.textContent = 'Send Invite';
+        else if (state === 'reinvite') submitBtn.textContent = 'Reinvite';
+        else if (state === 'manage') submitBtn.textContent = 'Save Changes';
+      }
+      
+      if (emailInput && removeBtn) {
+        if (state === 'manage') {
+          emailInput.readOnly = true;
+          emailInput.classList.add('bg-canvas-soft', 'text-mute');
+          emailInput.classList.remove('bg-canvas', 'text-ink');
+          removeBtn.classList.remove('hidden');
+          removeBtn.onclick = function() {
+            (window as any).removeMemberFromGroup(memberId);
+            inviteMemberModal?.close();
+          };
+        } else {
+          emailInput.readOnly = false;
+          emailInput.classList.remove('bg-canvas-soft', 'text-mute');
+          emailInput.classList.add('bg-canvas', 'text-ink');
+          removeBtn.classList.add('hidden');
+        }
+      }
+
+      inviteMemberModal?.showModal();
+    };
+
+    if (openInviteMemberBtn) {
+      openInviteMemberBtn.addEventListener('click', () => inviteMemberModal?.showModal());
+    }
+    if (closeInviteMemberBtn) {
+      closeInviteMemberBtn.addEventListener('click', () => inviteMemberModal?.close());
+    }
+    if (cancelInviteMemberBtn) {
+      cancelInviteMemberBtn.addEventListener('click', () => inviteMemberModal?.close());
+    }
+
+    if (inviteMemberForm) {
+      inviteMemberForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const emailInput = document.getElementById('inviteEmail') as HTMLInputElement;
+        const roleValue = inviteRoleInput ? inviteRoleInput.value : 'viewer';
+        const email = emailInput.value.trim().toLowerCase();
+        
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          showToast("Please enter a valid email address.", true);
+          return;
+        }
+
+        const usersStr = localStorage.getItem('splitbug_users');
+        let allUsers: Record<string, any> = {};
+        if (usersStr) {
+          try { allUsers = JSON.parse(usersStr); } catch (e) {}
+        }
+
+        if (!allUsers[email]) {
+          const modalContent = inviteMemberModal?.querySelector('.bg-canvas') as HTMLElement;
+          if (modalContent) {
+            // highlight the email input border
+            const emailInputElem = document.getElementById('inviteEmail');
+            if (emailInputElem) {
+              emailInputElem.classList.remove('border-hairline', 'focus:border-brand');
+              emailInputElem.classList.add('border-danger', 'focus:border-danger', 'border-2');
+            }
+            
+            modalContent.animate([
+              { transform: 'translateX(0)' },
+              { transform: 'translateX(-20px)' },
+              { transform: 'translateX(20px)' },
+              { transform: 'translateX(-20px)' },
+              { transform: 'translateX(20px)' },
+              { transform: 'translateX(0)' }
+            ], { duration: 400, easing: 'ease-in-out' });
+          }
+          showToast("No account exists with this email.", true);
+          return;
+        }
+
+        if (currentInviteState === 'manage') {
+          if (!groupData) return;
+          if (!groupData.roles) groupData.roles = {};
+          groupData.roles[email] = roleValue;
+          
+          const GLOBAL_GROUPS_KEY = 'splitbug_groups';
+          const groupsDataStr = localStorage.getItem(GLOBAL_GROUPS_KEY);
+          if (groupsDataStr) {
+            let groupsData = JSON.parse(groupsDataStr);
+            if (groupsData.groups && groupsData.groups[groupId]) {
+              groupsData.groups[groupId] = groupData;
+              localStorage.setItem(GLOBAL_GROUPS_KEY, JSON.stringify(groupsData));
+              showToast("Role updated successfully.");
+              initGroupData();
+              inviteMemberModal?.close();
+            }
+          }
+          return;
+        }
+
+        if (groupData && groupData.members.includes(email)) {
+          showToast("User is already in this group.", true);
+          return;
+        }
+
+        const GLOBAL_INVITES_KEY = 'splitsbug_global_invites';
+        const invitesDataStr = localStorage.getItem(GLOBAL_INVITES_KEY);
+        let invitesData = invitesDataStr ? JSON.parse(invitesDataStr) : { invites: [] };
+        
+        // Remove existing invite for this memberId if resending/editing
+        invitesData.invites = invitesData.invites.filter((inv: any) => 
+          !(inv.groupId === groupId && inv.memberId === currentInviteMemberId && inv.status === 'pending')
+        );
+        
+        invitesData.invites.push({
+          id: 'inv_' + Date.now() + Math.floor(Math.random()*1000),
+          groupId: groupId,
+          groupName: groupData.name,
+          memberId: currentInviteMemberId,
+          inviterEmail: currentUserEmail,
+          inviterName: (window as any).MY_DISPLAY_NAME,
+          inviteeEmail: email,
+          status: 'pending',
+          role: roleValue,
+          createdAt: Date.now()
+        });
+        
+        localStorage.setItem(GLOBAL_INVITES_KEY, JSON.stringify(invitesData));
+        
+        // Show success state
+        const inviteForm = document.getElementById('inviteMemberForm');
+        const inviteSuccessState = document.getElementById('inviteSuccessState');
+        const inviteSuccessTitle = document.getElementById('inviteSuccessTitle');
+        if (inviteSuccessTitle) {
+          inviteSuccessTitle.textContent = currentInviteState === 'reinvite' ? 'Invitation Resent' : 'Invitation Sent';
+        }
+        
+        // Refresh UI to show pending invite
+        initGroupData();
+        
+        if (inviteForm && inviteSuccessState) {
+          inviteForm.classList.add('hidden');
+          inviteSuccessState.classList.remove('hidden');
+          inviteSuccessState.classList.add('flex');
+          
+          setTimeout(() => {
+            inviteMemberModal?.close();
+            // Reset for next time
+            inviteForm.classList.remove('hidden');
+            inviteSuccessState.classList.add('hidden');
+            inviteSuccessState.classList.remove('flex');
+            emailInput.value = '';
+          }, 2000);
+        } else {
+          showToast("Invite sent successfully!");
+          emailInput.value = '';
+          inviteMemberModal?.close();
+        }
+      });
+    }
+
+    (window as any).removeMemberFromGroup = function(email: string) {
+      if (confirm(`Are you sure you want to remove ${email} from this group?`)) {
+        if (!groupData) return;
+        
+        // Remove from members array
+        groupData.members = groupData.members.filter((m: string) => m !== email);
+        
+        // Remove from roles if exists
+        if (groupData.roles && groupData.roles[email]) {
+          delete groupData.roles[email];
+        }
+        
+        // Save back to localStorage
+        const GLOBAL_GROUPS_KEY = 'splitbug_groups';
+        const groupsDataStr = localStorage.getItem(GLOBAL_GROUPS_KEY);
+        if (groupsDataStr) {
+          let groupsData = JSON.parse(groupsDataStr);
+          if (groupsData.groups && groupsData.groups[groupId]) {
+            groupsData.groups[groupId] = groupData;
+            localStorage.setItem(GLOBAL_GROUPS_KEY, JSON.stringify(groupsData));
+            showToast("Member removed successfully.");
+            initGroupData();
+          }
+        }
+      }
+    };
+
+    // --- Comments Logic ---
+    const commentForm = document.getElementById('commentForm') as HTMLFormElement;
+    const commentInput = document.getElementById('commentInput') as HTMLInputElement;
+    const commentsContainer = document.getElementById('commentsContainer');
+
+    function renderAbstractArt(type: string) {
+      if (type === 'special-art-1') return '<div class="w-full h-full" style="background: conic-gradient(from 45deg, #FF6B6B, #4ECDC4, #45B7D1, #FF6B6B);"></div>';
+      if (type === 'special-art-2') return '<div class="w-full h-full" style="background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 99%, #FECFEF 100%);"><div class="w-1/2 h-1/2 bg-white/30 rounded-br-full backdrop-blur-md"></div></div>';
+      if (type === 'special-art-3') return '<div class="w-full h-full flex"><div class="w-1/2 h-full bg-indigo-500"></div><div class="w-1/2 h-full bg-rose-400 rounded-tl-full"></div></div>';
+      return '';
+    }
+
+    (window as any).updateAvatarNode = function(node: HTMLElement, email: string, displayName: string, sizeClass: string) {
+      const usersStr = localStorage.getItem('splitbug_users');
+      const allUsers = usersStr ? JSON.parse(usersStr) : {};
+      const user = allUsers[email] || {};
+      const avatar = user.avatar;
+      const themeColor = user.themeColor || (email === currentUserEmail ? (localStorage.getItem('splitbug_userThemeColor') || 'special-art-1') : 'special-art-1');
+      
+      node.className = `${sizeClass} rounded-full shrink-0 overflow-hidden ring-1 ring-hairline/50`;
+      
+      if (avatar) {
+        node.innerHTML = `<img src="${avatar}" alt="${displayName}" class="w-full h-full object-cover" />`;
+      } else if (themeColor.startsWith('special-art-')) {
+        node.innerHTML = renderAbstractArt(themeColor);
+      } else {
+        const parts = displayName.trim().split(' ').filter(Boolean);
+        let initials = 'U';
+        if (parts.length > 0 && parts[0]) {
+          if (parts.length === 1) initials = parts[0].charAt(0).toUpperCase();
+          else initials = (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+        }
+        node.className = `${sizeClass} rounded-full ${themeColor} text-white flex items-center justify-center text-xs font-bold shrink-0 uppercase`;
+        node.innerHTML = initials;
+      }
+    };
+
+    (window as any).renderComments = function() {
+      if (!commentsContainer || !groupData) return;
+      
+      const bgColors = ['bg-[#b2dfdb] text-ink', 'bg-success/20 text-success', 'bg-warning/20 text-warning', 'bg-danger/20 text-danger'];
+      const usersStr = localStorage.getItem('splitbug_users');
+      const allUsers = usersStr ? JSON.parse(usersStr) : {};
+      
+      // Update form avatar
+      const myDisplayName = (window as any).getDisplayName(currentUserEmail);
+
+      const commentAvatar = document.getElementById('commentAvatar');
+      if (commentAvatar) {
+        (window as any).updateAvatarNode(commentAvatar, currentUserEmail, myDisplayName, "w-7 h-7");
+      }
+
+      commentsContainer.innerHTML = '';
+      if (!groupData.comments || groupData.comments.length === 0) {
+        commentsContainer.innerHTML = '<div class="text-center text-mute text-sm mt-8">No comments yet. Start the conversation!</div>';
+        return;
+      }
+      
+      groupData.comments.forEach((c: any) => {
+        const isMe = c.authorEmail === currentUserEmail;
+        const displayName = isMe ? 'You' : (window as any).getDisplayName(c.authorEmail);
+        const dateStr = new Date(c.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        
+        const tempDiv = document.createElement('div');
+        (window as any).updateAvatarNode(tempDiv, c.authorEmail, displayName, "w-7 h-7 mt-4");
+        const avatarHtml = tempDiv.outerHTML;
+        
+        const item = document.createElement('div');
+        item.className = `flex gap-2 w-full group ${isMe ? 'flex-row-reverse' : ''} mb-3`;
+        
+        const bubbleBg = isMe ? 'bg-brand text-white' : 'bg-canvas-soft border border-hairline text-ink';
+        const bubbleRadius = isMe ? 'rounded-2xl rounded-tr-sm' : 'rounded-2xl rounded-tl-sm';
+        const alignText = isMe ? 'items-end' : 'items-start';
+        
+        item.innerHTML = `
+          ${avatarHtml}
+          <div class="flex flex-col ${alignText} max-w-[80%]">
+            <div class="flex items-baseline gap-2 mx-1 mb-1 ${isMe ? 'flex-row-reverse' : ''}">
+              <span class="text-[11px] font-medium text-mute">${displayName}</span>
+              <span class="text-[10px] text-mute/70">${dateStr}</span>
+            </div>
+            <div class="px-3.5 py-2 ${bubbleBg} ${bubbleRadius} shadow-sm relative">
+              <p class="text-[13px] break-words leading-relaxed">${c.text}</p>
+            </div>
+          </div>
+        `;
+        commentsContainer.appendChild(item);
+      });
+      
+      // Auto-scroll to bottom
+      commentsContainer.scrollTop = commentsContainer.scrollHeight;
+    };
+
+    // Initial render for comments
+    (window as any).renderComments();
+
+    if (commentForm) {
+      commentForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!groupData || !commentInput) return;
+        const text = commentInput.value.trim();
+        if (!text) return;
+
+        const newComment = {
+          id: 'cmt_' + Date.now(),
+          authorEmail: currentUserEmail,
+          authorName: (window as any).MY_DISPLAY_NAME || 'You',
+          text: text,
+          timestamp: Date.now()
+        };
+
+        if (!groupData.comments) {
+          groupData.comments = [];
+        }
+        
+        groupData.comments.push(newComment);
+        
+        // Save to localStorage
+        const dataStr = localStorage.getItem(DATA_KEY);
+        if (dataStr) {
+          const data = JSON.parse(dataStr);
+          data.groups[groupId!] = groupData;
+          localStorage.setItem(DATA_KEY, JSON.stringify(data));
+        }
+
+        commentInput.value = '';
+        const submitBtn = document.getElementById('commentSubmitBtn') as HTMLButtonElement;
+        if(submitBtn) submitBtn.disabled = true;
+        
+        (window as any).renderComments();
+      });
+      
+      commentInput.addEventListener('input', () => {
+        const submitBtn = document.getElementById('commentSubmitBtn') as HTMLButtonElement;
+        if(submitBtn) {
+          submitBtn.disabled = commentInput.value.trim().length === 0;
+        }
+      });
+    }
+
+    // Cross-tab syncing
+    window.addEventListener('storage', (e) => {
+      if (e.key === DATA_KEY) {
+        initGroupData();
+      }
+    });
+
+    // Global Modal Scroll Lock
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'open') {
+          const dialog = mutation.target as HTMLDialogElement;
+          if (dialog.open) {
+            document.body.style.overflow = 'hidden';
+          } else {
+            // Check if any other dialogs are open before restoring
+            const anyOpen = document.querySelectorAll('dialog[open]').length > 0;
+            if (!anyOpen) {
+              document.body.style.overflow = '';
+            }
+          }
+        }
+      });
+    });
+
+    document.querySelectorAll('dialog').forEach(dialog => {
+      observer.observe(dialog, { attributes: true });
+    });
   </script>
 </Layout>
