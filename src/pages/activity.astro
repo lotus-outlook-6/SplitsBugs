@@ -231,9 +231,20 @@ import Layout from '../layouts/Layout.astro';
     }
 
     if (searchInput && searchBtn) {
-      searchInput.addEventListener('input', (e) => {
-        const query = (e.target as HTMLInputElement).value.toLowerCase();
+      const executeSearch = () => {
+        const query = searchInput.value.toLowerCase();
         renderActivity(query);
+      };
+      
+      searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          executeSearch();
+        }
+      });
+      
+      searchBtn.addEventListener('click', () => {
+        executeSearch();
       });
     }
 

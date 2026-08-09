@@ -77,6 +77,35 @@ const isGroups = pathname === '/dashboard' || pathname === '/';
 			} else if (isLoggedIn && window.location.pathname === '/') {
 				window.location.href = '/dashboard';
 			}
+
+			// Native Push Notifications Listener (Cross-tab)
+			window.addEventListener('storage', (e) => {
+				if (e.key === 'splitsbug_notifications') {
+					const userEmail = localStorage.getItem('splitbug_userEmail');
+					if (!userEmail) return;
+					
+					try {
+						const oldData = e.oldValue ? JSON.parse(e.oldValue) : {};
+						const newData = e.newValue ? JSON.parse(e.newValue) : {};
+						
+						const oldUserNotifs = oldData[userEmail] || [];
+						const newUserNotifs = newData[userEmail] || [];
+						
+						if (newUserNotifs.length > oldUserNotifs.length) {
+							const addedNotifs = newUserNotifs.filter((n) => !oldUserNotifs.some((old) => old.id === n.id));
+							
+							if (Notification.permission === 'granted') {
+								addedNotifs.forEach((notif) => {
+									new Notification("SplitsBug", {
+										body: notif.message,
+										icon: '/SplitBugs-Brand/favicon/favicon.svg'
+									});
+								});
+							}
+						}
+					} catch(err) {}
+				}
+			});
 		</script>
 	</head>
 	<body class="pb-28">

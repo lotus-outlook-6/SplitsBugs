@@ -1850,7 +1850,45 @@ import Layout from '../layouts/Layout.astro';
         (window as any).clickListenerAdded = true;
       }
 
-      groupData.members.forEach((m: string, i: number) => {
+      // Prepare pending invites map for quick lookup
+      const GLOBAL_INVITES_KEY = 'splitsbug_global_invites';
+      const invitesDataStr = localStorage.getItem(GLOBAL_INVITES_KEY);
+      const invitesData = invitesDataStr ? JSON.parse(invitesDataStr) : { invites: [] };
+      const pendingInvitesMap: Record<string, any> = {};
+      invitesData.invites.forEach((inv: any) => {
+        if (inv.groupId === groupId && inv.status === 'pending') {
+          pendingInvitesMap[inv.memberId] = inv;
+        }
+      });
+
+      const getDisplayNameStr = (m: string) => {
+        const isYou = m === currentUserEmail;
+        return isYou ? (window as any).MY_DISPLAY_NAME || 'You' : (window as any).getDisplayName(m);
+      };
+
+      const sortedMembers = [...groupData.members].sort((a, b) => {
+        const roleA = groupData.roles?.[a] || 'member';
+        const roleB = groupData.roles?.[b] || 'member';
+        
+        const isAdminA = roleA === 'owner';
+        const isAdminB = roleB === 'owner';
+        
+        if (isAdminA && !isAdminB) return -1;
+        if (!isAdminA && isAdminB) return 1;
+
+        const isJoinedA = a.includes('@') && !pendingInvitesMap[a];
+        const isJoinedB = b.includes('@') && !pendingInvitesMap[b];
+
+        if (isJoinedA && !isJoinedB) return -1;
+        if (!isJoinedA && isJoinedB) return 1;
+
+        const nameA = getDisplayNameStr(a).toLowerCase();
+        const nameB = getDisplayNameStr(b).toLowerCase();
+        return nameA.localeCompare(nameB);
+      });
+
+      sortedMembers.forEach((m: string) => {
+        const i = groupData.members.indexOf(m);
         const bal = balances[m] || 0;
         const isYou = m === currentUserEmail;
         const displayName = isYou ? (window as any).MY_DISPLAY_NAME || 'You' : (window as any).getDisplayName(m);
@@ -1894,12 +1932,7 @@ import Layout from '../layouts/Layout.astro';
 
         if (!isYou && canManageMembers) {
           // Check for pending invites
-          const GLOBAL_INVITES_KEY = 'splitsbug_global_invites';
-          const invitesDataStr = localStorage.getItem(GLOBAL_INVITES_KEY);
-          const invitesData = invitesDataStr ? JSON.parse(invitesDataStr) : { invites: [] };
-          const pendingInvite = invitesData.invites.find((inv: any) => 
-            inv.groupId === groupId && inv.memberId === m && inv.status === 'pending'
-          );
+          const pendingInvite = pendingInvitesMap[m];
 
           if (pendingInvite) {
             memberRoleText = `<span class="text-xs text-mute mt-0.5 capitalize">${pendingInvite.role}</span>`;
