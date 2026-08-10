@@ -168,6 +168,10 @@ import Layout from '../layouts/Layout.astro';
     .preview-dark-amoled { --p-canvas: #000000; --p-soft: #0a0a0a; --p-ink: #ffffff; --p-border: #2f2f2f; --p-brand: #818cf8; }
   </style>
   <script>
+    import { auth, db } from '../firebase';
+    import { doc, getDoc, updateDoc } from 'firebase/firestore';
+    import { onAuthStateChanged } from 'firebase/auth';
+
     document.addEventListener('DOMContentLoaded', () => {
       const savedTheme = localStorage.getItem('splitbug_theme') || 'system';
       const cards = document.querySelectorAll('.theme-card');
@@ -229,7 +233,7 @@ import Layout from '../layouts/Layout.astro';
       setInterval(updateDynamicPreviews, 60000); // update splitsbug preview every minute
 
       cards.forEach(card => {
-        card.addEventListener('click', () => {
+        card.addEventListener('click', async () => {
           const themeName = card.getAttribute('data-theme');
           if (themeName) {
             localStorage.setItem('splitbug_theme', themeName);
@@ -237,8 +241,37 @@ import Layout from '../layouts/Layout.astro';
               (window as any).applyTheme(themeName);
             }
             updateActiveState(themeName);
+
+            // Persist to Firestore
+            try {
+              const user = auth.currentUser;
+              if (user) {
+                await updateDoc(doc(db, 'users', user.uid), { appTheme: themeName });
+              }
+            } catch (e) {
+              console.error('Failed to save theme to Firestore:', e);
+            }
           }
         });
+      });
+
+      // On load: sync theme from Firestore in case user switched devices
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          try {
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            if (userDoc.exists()) {
+              const appTheme = userDoc.data().appTheme;
+              if (appTheme && appTheme !== savedTheme) {
+                localStorage.setItem('splitbug_theme', appTheme);
+                if (typeof (window as any).applyTheme === 'function') {
+                  (window as any).applyTheme(appTheme);
+                }
+                updateActiveState(appTheme);
+              }
+            }
+          } catch(e) {}
+        }
       });
     });
   </script>

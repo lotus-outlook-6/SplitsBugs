@@ -52,10 +52,9 @@ import Layout from '../layouts/Layout.astro';
 
     <main class="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 pb-28">
       <!-- Dynamic Global Balance Header -->
+      <!-- Dynamic Global Balance Header -->
       <div class="flex items-center justify-between mb-8">
         <h1 id="globalBalanceText" class="text-xl sm:text-2xl font-medium tracking-tight text-ink">
-          <!-- Populated via JS -->
-          Dashboard
         </h1>
       </div>
 
@@ -804,7 +803,7 @@ import Layout from '../layouts/Layout.astro';
       if (!groupsGrid) return;
       
       if (!isFirebaseLoaded) {
-        groupsGrid.innerHTML = `<div class="col-span-full p-12 text-center text-mute flex justify-center"><svg class="animate-spin h-6 w-6 text-brand" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></div>`;
+        groupsGrid.innerHTML = `<div class="col-span-full flex items-center justify-center min-h-[60vh]"><svg class="animate-spin h-10 w-10 text-brand" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></div>`;
         return;
       }
 
@@ -864,15 +863,15 @@ import Layout from '../layouts/Layout.astro';
       }
 
       if (groups.length === 0) {
-        groupsGrid.innerHTML = `<div class="col-span-full p-12 text-center border border-hairline border-dashed rounded-lg bg-canvas-soft text-mute">No groups yet. Create one to get started!</div>`;
+        const emptyHTML = `<div class="col-span-full p-12 text-center border border-hairline border-dashed rounded-lg bg-canvas-soft text-mute">No groups yet. Create one to get started!</div>`;
+        if (groupsGrid.innerHTML !== emptyHTML) {
+          groupsGrid.innerHTML = emptyHTML;
+        }
         return;
       }
 
-      groupsGrid.innerHTML = '';
+      let newHTML = '';
       groups.forEach((group: any) => {
-        // Calculate total balances for this user to show owes/owed status (Simplified)
-        // For phase 2, we just render a simple card to prove it works dynamically.
-        
         let membersHTML = '';
         const bgColors = ['bg-brand/20 text-brand', 'bg-success/20 text-success', 'bg-warning/20 text-warning', 'bg-danger/20 text-danger'];
         
@@ -897,8 +896,8 @@ import Layout from '../layouts/Layout.astro';
         const colors = getGroupColor(group.type, group.name);
         const accentHex = colors.dark;
 
-        const card = `
-          <a href="/group?id=${group.id}" style="background-color: ${accentHex}10;" class="group block p-6 border border-hairline rounded-md hover:border-brand transition-colors shadow-sm hover:shadow-md flex flex-col justify-between">
+        newHTML += `
+          <a href="/group?id=${group.id}" style="background-color: ${accentHex}10;" class="group block p-6 border border-hairline rounded-md hover:border-brand transition-all shadow-sm hover:shadow-md flex flex-col justify-between">
             <div class="flex justify-between items-start mb-4">
               <div class="flex items-center gap-4">
                 <div style="background-color: ${accentHex}20; color: ${accentHex};" class="w-12 h-12 shrink-0 rounded-lg border border-hairline/50 flex items-center justify-center text-xl font-bold bg-white/60">
@@ -918,8 +917,12 @@ import Layout from '../layouts/Layout.astro';
             </div>
           </a>
         `;
-        groupsGrid.insertAdjacentHTML('beforeend', card);
       });
+      
+      // Prevent UI flashing by only updating DOM if the generated HTML is actually different
+      if (groupsGrid.innerHTML !== newHTML) {
+        groupsGrid.innerHTML = newHTML;
+      }
     }
 
     if (newGroupForm) {

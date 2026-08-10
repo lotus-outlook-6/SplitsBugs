@@ -1,0 +1,59 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    match /users/{userId} {
+      // Anyone logged in can read basic user info (needed for search and display)
+      allow read: if isAuthenticated();
+      
+      // User can update their own document, admins can do anything
+      allow create, update, delete: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      
+      // Notifications (using email as doc ID)
+      match /notifications/{notifId} {
+        allow read, update, delete: if isAuthenticated() && (request.auth.token.email == userId || isAdmin());
+        allow create: if isAuthenticated();
+      }
+    }
+
+    match /groups/{groupId} {
+      // Allow read/update if user's email is in the members array
+      allow read, update: if isAuthenticated() && (request.auth.token.email in resource.data.members || isAdmin());
+      allow create: if isAuthenticated();
+      allow delete: if isAdmin(); // only admins should fully delete groups for now
+    }
+
+    match /invites/{inviteId} {
+      allow create: if isAuthenticated();
+      allow read, update, delete: if isAuthenticated() && (
+        request.auth.token.email == resource.data.inviterEmail || 
+        request.auth.token.email == resource.data.inviteeEmail ||
+        isAdmin()
+      );
+    }
+
+    match /activities/{activityId} {
+      // Users can only see activities they are involved in
+      allow read: if isAuthenticated() && (
+        request.auth.token.email in resource.data.participants || 
+        request.auth.token.email == resource.data.paidBy ||
+        isAdmin()
+      );
+      allow create, update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+
+    match /admins/{adminId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (isAdmin() || request.auth.token.email == 'kunalrabidas6@proton.me');
+    }
+  }
+}

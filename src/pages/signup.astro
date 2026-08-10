@@ -12,9 +12,9 @@ import Layout from '../layouts/Layout.astro';
       <form id="signupForm" class="flex flex-col gap-3">
         <div id="errorBox" class="hidden bg-danger/10 border border-danger/20 text-danger p-3 rounded-md text-sm font-medium"></div>
 
-        <!-- First Name -->
+        <!-- Name -->
         <div>
-          <label class="block text-sm font-medium text-ink mb-1">First Name</label>
+          <label class="block text-sm font-medium text-ink mb-1">Name</label>
           <input type="text" required id="nameInput" autocomplete="off" class="w-full p-3 rounded-md border border-hairline bg-canvas focus:outline-none focus:border-brand transition-colors text-ink placeholder:text-mute" placeholder="e.g. John Doe" />
         </div>
         
@@ -57,7 +57,13 @@ import Layout from '../layouts/Layout.astro';
         <!-- Password -->
         <div>
           <label class="block text-sm font-medium text-ink mb-1">Password</label>
-          <input type="password" required id="passwordInput" class="w-full p-3 rounded-md border border-hairline bg-canvas focus:outline-none focus:border-brand transition-colors text-ink placeholder:text-mute" placeholder="••••••••" />
+          <div class="relative">
+            <input type="password" required id="passwordInput" class="w-full p-3 rounded-md border border-hairline bg-canvas focus:outline-none focus:border-brand transition-colors text-ink placeholder:text-mute pr-10" placeholder="••••••••" />
+            <button type="button" id="togglePasswordBtn" class="absolute inset-y-0 right-0 px-3 flex items-center text-mute hover:text-ink focus:outline-none transition-colors">
+              <svg id="eyeIconOpen" class="hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg id="eyeIconClosed" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            </button>
+          </div>
           <ul class="text-xs text-mute mt-2 space-y-1">
             <li id="rule-length" class="flex items-center gap-1"><span class="icon-placeholder w-3 h-3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg></span> At least 8 characters</li>
             <li id="rule-upper" class="flex items-center gap-1"><span class="icon-placeholder w-3 h-3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg></span> 1 uppercase & 1 lowercase</li>
@@ -68,6 +74,17 @@ import Layout from '../layouts/Layout.astro';
         
         <button type="submit" id="submitBtn" class="w-full py-2.5 mt-2 bg-brand text-white rounded-md font-bold hover:bg-brand-deep transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
           Sign up
+        </button>
+
+        <div class="relative flex items-center py-2">
+          <div class="flex-grow border-t border-hairline"></div>
+          <span class="shrink-0 px-3 text-xs text-mute uppercase font-medium">Or sign up with</span>
+          <div class="flex-grow border-t border-hairline"></div>
+        </div>
+        
+        <button type="button" id="googleSignupBtn" class="w-full flex items-center justify-center gap-2 py-2.5 bg-canvas border border-hairline text-ink rounded-md font-medium hover:bg-canvas-soft transition-colors shadow-sm">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Google
         </button>
       </form>
 
@@ -145,9 +162,9 @@ import Layout from '../layouts/Layout.astro';
   </dialog>
 
   <script>
-    import { auth, db } from '../firebase';
-    import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-    import { doc, setDoc } from 'firebase/firestore';
+    import { auth, db, googleProvider } from '../firebase';
+    import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, onAuthStateChanged, updatePassword } from 'firebase/auth';
+    import { doc, setDoc, getDoc } from 'firebase/firestore';
 
     // Elements
     const form = document.getElementById('signupForm') as HTMLFormElement;
@@ -233,6 +250,23 @@ import Layout from '../layouts/Layout.astro';
     // Contact Number Restriction
     phoneInput.addEventListener('input', () => {
       phoneInput.value = phoneInput.value.replace(/[^0-9]/g, '');
+    });
+
+    // Password Toggle
+    const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+    const eyeIconOpen = document.getElementById('eyeIconOpen');
+    const eyeIconClosed = document.getElementById('eyeIconClosed');
+    
+    togglePasswordBtn?.addEventListener('click', () => {
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIconOpen?.classList.remove('hidden');
+        eyeIconClosed?.classList.add('hidden');
+      } else {
+        passwordInput.type = 'password';
+        eyeIconOpen?.classList.add('hidden');
+        eyeIconClosed?.classList.remove('hidden');
+      }
     });
 
     // Email Validation & Autocomplete
@@ -431,12 +465,30 @@ import Layout from '../layouts/Layout.astro';
       const phone = `${countryCodeLabel.textContent} ${phoneInput.value}`;
 
       try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, passwordInput.value);
-        const user = userCredential.user;
+        const isGoogleFlow = new URLSearchParams(window.location.search).get('google') === 'true';
+        let user;
 
-        await updateProfile(user, {
-          displayName: nameInput.value.trim()
-        });
+        if (isGoogleFlow && auth.currentUser) {
+          // Returning from a Google Sign in that redirected here
+          user = auth.currentUser;
+          // Set password on this account
+          await updatePassword(user, passwordInput.value);
+          await updateProfile(user, {
+            displayName: nameInput.value.trim()
+          });
+        } else {
+          // Standard Email/Password Sign in
+          const userCredential = await createUserWithEmailAndPassword(auth, email, passwordInput.value);
+          user = userCredential.user;
+          await updateProfile(user, {
+            displayName: nameInput.value.trim()
+          });
+        }
+
+        let hqAvatar = user.photoURL || '';
+        if (hqAvatar.includes('=s96-c')) {
+          hqAvatar = hqAvatar.replace('=s96-c', '=s960-c');
+        }
 
         // Save additional details to Firestore
         await setDoc(doc(db, "users", user.uid), {
@@ -444,11 +496,12 @@ import Layout from '../layouts/Layout.astro';
           name: nameInput.value.trim(),
           dob: dobInput.value,
           phone: phone,
+          avatar: hqAvatar,
           themeColor: 'special-art-1',
           createdAt: new Date().toISOString()
         });
 
-        window.location.href = '/login?registered=true';
+        window.location.href = isGoogleFlow ? '/dashboard' : '/login?registered=true';
       } catch (error: any) {
         if (submitBtn) {
           submitBtn.disabled = false;
@@ -456,6 +509,65 @@ import Layout from '../layouts/Layout.astro';
         }
         errorBox.textContent = error.message || "An error occurred during signup.";
         errorBox.classList.remove('hidden');
+      }
+    });
+
+    const googleSignupBtn = document.getElementById('googleSignupBtn');
+    googleSignupBtn?.addEventListener('click', async () => {
+      errorBox.classList.add('hidden');
+      try {
+        const result = await signInWithPopup(auth, googleProvider);
+        const user = result.user;
+        
+        const userDocRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userDocRef);
+        
+        if (!userDoc.exists()) {
+          // New user, populate form
+          window.history.replaceState({}, '', '/signup?google=true');
+          emailInput.value = user.email || '';
+          emailInput.disabled = true;
+          nameInput.value = user.displayName || '';
+          errorBox.textContent = 'Please complete your profile details and set a password.';
+          errorBox.className = 'bg-brand/10 border border-brand/20 text-brand p-3 rounded-md text-sm font-medium';
+          errorBox.classList.remove('hidden');
+        } else {
+          // Existing user, redirect to dashboard
+          window.location.href = '/dashboard';
+        }
+      } catch (error: any) {
+        if (error.code === 'auth/popup-closed-by-user') {
+          errorBox.textContent = 'Google signup popup closed';
+        } else if (error.message && (error.message.includes('closing') || error.message.includes('hidden'))) {
+          errorBox.textContent = 'Refreshing connection...';
+          setTimeout(() => window.location.reload(), 1000);
+        } else {
+          errorBox.textContent = error.message || 'Google signup failed.';
+        }
+        errorBox.className = 'bg-danger/10 border border-danger/20 text-danger p-3 rounded-md text-sm font-medium';
+        errorBox.classList.remove('hidden');
+      }
+    });
+
+    // Handle incoming google=true redirect
+    onAuthStateChanged(auth, async (user) => {
+      const isGoogleFlow = new URLSearchParams(window.location.search).get('google') === 'true';
+      if (isGoogleFlow && user) {
+        const userDocRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userDocRef);
+        
+        if (!userDoc.exists()) {
+          emailInput.value = user.email || '';
+          emailInput.disabled = true;
+          if (!nameInput.value) {
+            nameInput.value = user.displayName || '';
+          }
+          errorBox.textContent = 'Please complete your profile details and set a password.';
+          errorBox.className = 'bg-brand/10 border border-brand/20 text-brand p-3 rounded-md text-sm font-medium';
+          errorBox.classList.remove('hidden');
+        } else {
+           window.location.href = '/dashboard';
+        }
       }
     });
 

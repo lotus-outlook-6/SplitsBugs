@@ -70,9 +70,10 @@ const isGroups = pathname === '/dashboard' || pathname === '/';
 			// Auth Check
 			const isLoggedIn = localStorage.getItem('splitbug_loggedIn') === 'true';
 			const isAuthPage = window.location.pathname === '/login' || window.location.pathname === '/signup';
+			const isGoogleFlow = window.location.search.includes('google=true');
 			if (!isLoggedIn && !isAuthPage) {
 				window.location.href = '/login';
-			} else if (isLoggedIn && isAuthPage) {
+			} else if (isLoggedIn && isAuthPage && !isGoogleFlow) {
 				window.location.href = '/dashboard';
 			} else if (isLoggedIn && window.location.pathname === '/') {
 				window.location.href = '/dashboard';
@@ -112,7 +113,7 @@ const isGroups = pathname === '/dashboard' || pathname === '/';
 		<slot />
 
 		{ !hideNav && (
-		<nav class="fixed bottom-0 left-0 w-full bg-canvas border-t border-hairline pb-safe z-50">
+		<nav transition:persist="bottom-nav" id="bottomNav" class="fixed bottom-0 left-0 w-full bg-canvas border-t border-hairline pb-safe z-50">
 			<div class="flex items-center justify-around h-16 max-w-md mx-auto">
 				<a href="/dashboard" class={`flex flex-col items-center justify-center w-16 h-full transition-colors ${isGroups ? 'text-brand' : 'text-mute hover:text-ink'}`}>
 					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-1"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
@@ -145,10 +146,13 @@ const isGroups = pathname === '/dashboard' || pathname === '/';
 				const userAvatar = localStorage.getItem('splitbug_userAvatar');
 				const userName = localStorage.getItem('splitbug_userName') || 'User';
 				const userThemeColor = localStorage.getItem('splitbug_userThemeColor') || 'special-art-1';
+				const userGradientTheme = localStorage.getItem('splitbug_userGradientTheme') || '-1';
 				const isAccountPath = window.location.pathname === '/account';
 				
-				if (userAvatar) {
-					navAccountIcon.innerHTML = `<img src="${userAvatar}" class="w-6 h-6 rounded-full object-cover ring-2 ${isAccountPath ? 'ring-brand' : 'ring-transparent group-hover:ring-brand/30'} transition-all" />`;
+				if (userGradientTheme !== '-1' && userGradientTheme.startsWith('special-art-')) {
+					navAccountIcon.innerHTML = `<div class="w-6 h-6 rounded-full overflow-hidden ring-2 ${isAccountPath ? 'ring-brand' : 'ring-transparent group-hover:ring-brand/30'} transition-all">${renderAbstractArt(userGradientTheme)}</div>`;
+				} else if (userAvatar) {
+					navAccountIcon.innerHTML = `<img src="${userAvatar}" loading="lazy" decoding="async" class="w-6 h-6 rounded-full object-cover ring-2 ${isAccountPath ? 'ring-brand' : 'ring-transparent group-hover:ring-brand/30'} transition-all" />`;
 				} else if (userThemeColor.startsWith('special-art-')) {
 					navAccountIcon.innerHTML = `<div class="w-6 h-6 rounded-full overflow-hidden ring-2 ${isAccountPath ? 'ring-brand' : 'ring-transparent group-hover:ring-brand/30'} transition-all">${renderAbstractArt(userThemeColor)}</div>`;
 				} else {
@@ -161,11 +165,24 @@ const isGroups = pathname === '/dashboard' || pathname === '/';
 					navAccountIcon.innerHTML = `<div class="w-6 h-6 rounded-full ${userThemeColor} text-white flex items-center justify-center text-[10px] font-bold ring-2 ${isAccountPath ? 'ring-brand' : 'ring-transparent group-hover:ring-brand/30'} transition-all">${initials}</div>`;
 				}
 			}
+
+			// Prevent full reload when clicking the bottom nav link of the current page
+			document.querySelector('nav')?.addEventListener('click', (e) => {
+				const link = (e.target as Element).closest('a');
+				if (link) {
+					const href = link.getAttribute('href');
+					if (href === window.location.pathname) {
+						e.preventDefault();
+					}
+				}
+			});
 		</script>
 		<script>
 			import { auth, db } from '../firebase';
 			import { onAuthStateChanged } from 'firebase/auth';
-			import { doc, getDoc } from 'firebase/firestore';
+			import { doc, getDoc, updateDoc } from 'firebase/firestore';
+
+			let heartbeatInterval: number | null = null;
 
 			onAuthStateChanged(auth, async (user) => {
 				const isAuthPage = window.location.pathname === '/login' || window.location.pathname === '/signup';
@@ -173,26 +190,77 @@ const isGroups = pathname === '/dashboard' || pathname === '/';
 					localStorage.setItem('splitbug_loggedIn', 'true');
 					localStorage.setItem('splitbug_userEmail', user.email || '');
 					
-					// Fetch user doc to get name and theme if not already set correctly
-					if (!localStorage.getItem('splitbug_userName')) {
-						try {
-							const userDoc = await getDoc(doc(db, 'users', user.uid));
-							if (userDoc.exists()) {
-								const data = userDoc.data();
-								localStorage.setItem('splitbug_userName', data.name || user.email?.split('@')[0] || 'User');
-								if (data.themeColor) localStorage.setItem('splitbug_userThemeColor', data.themeColor);
-								window.dispatchEvent(new Event('storage'));
+					let userDocExists = false;
+					try {
+						const userDoc = await getDoc(doc(db, 'users', user.uid));
+						userDocExists = userDoc.exists();
+						if (userDocExists) {
+							const data = userDoc.data();
+							localStorage.setItem('splitbug_userName', data.name || user.email?.split('@')[0] || 'User');
+							if (data.themeColor) localStorage.setItem('splitbug_userThemeColor', data.themeColor);
+							localStorage.setItem('splitbug_userGradientTheme', data.gradientTheme || '-1');
+							let ava = data.avatar || data.dp;
+							if (ava) {
+								if (ava.includes('=s96-c')) ava = ava.replace('=s96-c', '=s960-c');
+								localStorage.setItem('splitbug_userAvatar', ava);
 							}
-						} catch(e) {}
-					}
+							// Sync app theme from Firestore (cross-device support)
+							if (data.appTheme) {
+								const storedTheme = localStorage.getItem('splitbug_theme');
+								if (data.appTheme !== storedTheme) {
+									localStorage.setItem('splitbug_theme', data.appTheme);
+									if (typeof (window as any).applyTheme === 'function') {
+										(window as any).applyTheme(data.appTheme);
+									}
+								}
+							}
+							window.dispatchEvent(new Event('storage'));
+						}
+
+						// Live Users tracking based on interactions
+						if (!(window as any).activityTrackerInitialized) {
+							(window as any).activityTrackerInitialized = true;
+							let lastActivityUpdate = 0;
+							
+							const updateActivity = () => {
+								const now = Date.now();
+								// Throttle to 1 write every 30 seconds max
+								if (now - lastActivityUpdate > 30000 && auth.currentUser) {
+									lastActivityUpdate = now;
+									updateDoc(doc(db, 'users', auth.currentUser.uid), { lastActiveAt: now }).catch(() => {});
+								}
+							};
+
+							// Track various interactions
+							window.addEventListener('click', updateActivity, { passive: true });
+							window.addEventListener('scroll', updateActivity, { passive: true });
+							window.addEventListener('keydown', updateActivity, { passive: true });
+							window.addEventListener('touchstart', updateActivity, { passive: true });
+							
+							// Trigger initial update on load
+							updateActivity();
+						}
+					} catch(e) {}
 					
-					if (isAuthPage || window.location.pathname === '/') {
-						window.location.href = '/dashboard';
+					if (userDocExists) {
+						if (isAuthPage || window.location.pathname === '/') {
+							window.location.href = '/dashboard';
+						}
+					} else {
+						// User authenticated via Google but hasn't completed signup
+						if (window.location.pathname !== '/signup') {
+							window.location.href = '/signup?google=true';
+						}
 					}
 				} else {
 					localStorage.removeItem('splitbug_loggedIn');
 					localStorage.removeItem('splitbug_userEmail');
 					localStorage.removeItem('splitbug_userName');
+					
+					if (heartbeatInterval) {
+						clearInterval(heartbeatInterval);
+						heartbeatInterval = null;
+					}
 					
 					if (!isAuthPage) {
 						window.location.href = '/login';

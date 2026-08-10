@@ -629,7 +629,7 @@ import Layout from '../layouts/Layout.astro';
 
   <script>
     import { db, auth } from '../firebase';
-    import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, deleteField, setDoc, addDoc, collection, onSnapshot, query, where } from 'firebase/firestore';
+    import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, deleteField, setDoc, addDoc, collection, onSnapshot, query, where, getDocs } from 'firebase/firestore';
 
     const currentUserEmail = localStorage.getItem('splitbug_userEmail') || 'user@example.com';
     (window as any).MY_DISPLAY_NAME = localStorage.getItem('splitbug_userName') || 'You';
@@ -1336,15 +1336,16 @@ import Layout from '../layouts/Layout.astro';
 
     function renderFeed() {
       if (!activityFeed || !groupData) return;
-      activityFeed.innerHTML = '';
       const exps = groupData.expenses || [];
       if (exps.length === 0) {
-        activityFeed.innerHTML = `<div class="p-8 text-center text-mute text-sm">No expenses yet. Add one above!</div>`;
+        const emptyHTML = `<div class="p-8 text-center text-mute text-sm">No expenses yet. Add one above!</div>`;
+        if (activityFeed.innerHTML !== emptyHTML) {
+          activityFeed.innerHTML = emptyHTML;
+        }
         return;
       }
 
-
-
+      let newHTML = '';
       // Render items
       exps.forEach((exp: any) => {
         const letter = exp.description.charAt(0).toUpperCase();
@@ -1413,8 +1414,13 @@ import Layout from '../layouts/Layout.astro';
             ${detailsHTML}
           </details>
         `;
-        activityFeed.insertAdjacentHTML('afterbegin', newItemHTML);
+        // Since original used insertAdjacentHTML('afterbegin'), prepend to newHTML
+        newHTML = newItemHTML + newHTML;
       });
+      
+      if (activityFeed.innerHTML !== newHTML) {
+        activityFeed.innerHTML = newHTML;
+      }
     }
 
     function renderBalances() {
@@ -1543,6 +1549,34 @@ import Layout from '../layouts/Layout.astro';
         `;
       });
     }
+
+    async function syncUsers() {
+      try {
+        const snap = await getDocs(collection(db, 'users'));
+        const usersMap: Record<string, any> = {};
+        snap.forEach(d => {
+          const data = d.data();
+          if (data.email) {
+            usersMap[data.email.toLowerCase()] = {
+              name: data.name,
+              avatar: data.hq_avatar || data.avatar || data.dp || '',
+              themeColor: data.themeColor || 'special-art-1',
+              gradientTheme: data.gradientTheme || '-1'
+            };
+          }
+        });
+        localStorage.setItem('splitbug_users', JSON.stringify(usersMap));
+        // Force a UI refresh once the data lands
+        if (isGroupLoaded && groupData) {
+          initGroupData();
+        }
+      } catch (e) {
+        console.error("Error syncing users:", e);
+      }
+    }
+
+    // Run user profiles synchronization on page load
+    syncUsers();
 
     if (groupId) {
       groupDocRef = doc(db, 'groups', groupId);
@@ -2849,13 +2883,25 @@ import Layout from '../layouts/Layout.astro';
       const usersStr = localStorage.getItem('splitbug_users');
       const allUsers = usersStr ? JSON.parse(usersStr) : {};
       const user = allUsers[email] || {};
-      const avatar = user.avatar;
+      
+      let avatar = user.avatar;
+      if (email === currentUserEmail) {
+        avatar = localStorage.getItem('splitbug_userAvatar') || avatar;
+      }
+      
       const themeColor = user.themeColor || (email === currentUserEmail ? (localStorage.getItem('splitbug_userThemeColor') || 'special-art-1') : 'special-art-1');
+      const gradientTheme = user.gradientTheme || (email === currentUserEmail ? (localStorage.getItem('splitbug_userGradientTheme') || '-1') : '-1');
       
       node.className = `${sizeClass} rounded-full shrink-0 overflow-hidden ring-1 ring-hairline/50`;
       
-      if (avatar) {
-        node.innerHTML = `<img src="${avatar}" alt="${displayName}" class="w-full h-full object-cover" />`;
+      if (avatar && avatar.includes('=s96-c')) {
+        avatar = avatar.replace('=s96-c', '=s960-c');
+      }
+
+      if (gradientTheme !== '-1' && gradientTheme.startsWith('special-art-')) {
+        node.innerHTML = renderAbstractArt(gradientTheme);
+      } else if (avatar) {
+        node.innerHTML = `<img src="${avatar}" alt="${displayName}" referrerpolicy="no-referrer" class="w-full h-full object-cover" />`;
       } else if (themeColor.startsWith('special-art-')) {
         node.innerHTML = renderAbstractArt(themeColor);
       } else {
