@@ -1,5 +1,18 @@
 {
   "projects": {
     "default": "splitbugs-web"
-  }
+  },
+  "targets": {
+    "splitbugs-web": {
+      "hosting": {
+        "app": [
+          "splitsbug-app"
+        ],
+        "admin": [
+          "splitsbug-admin-app"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

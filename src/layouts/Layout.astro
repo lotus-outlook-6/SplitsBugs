@@ -21,6 +21,12 @@ const isGroups = pathname === '/dashboard' || pathname === '/';
 		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 		<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+		<link rel="manifest" href="/manifest.json">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="default">
+		<meta name="apple-mobile-web-app-title" content="SplitsBug">
+		<link rel="apple-touch-icon" href="/favicon.png">
+		<meta name="theme-color" content="#5b21b6">
 		<title>SplitBugs</title>
 		<script src="/js/categories.js" is:inline></script>
 		<script is:inline>
@@ -180,9 +186,23 @@ const isGroups = pathname === '/dashboard' || pathname === '/';
 		<script>
 			import { auth, db } from '../firebase';
 			import { onAuthStateChanged } from 'firebase/auth';
-			import { doc, getDoc, updateDoc } from 'firebase/firestore';
+			import { doc, getDoc, updateDoc, collection, query, where, onSnapshot } from 'firebase/firestore';
+
+			// Register Service Worker for PWA
+			if ('serviceWorker' in navigator) {
+				window.addEventListener('load', () => {
+					navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed: ', err));
+				});
+			}
+
+			// Request Notification Permission
+			if ('Notification' in window && Notification.permission === 'default') {
+				Notification.requestPermission();
+			}
 
 			let heartbeatInterval: number | null = null;
+			let notificationsUnsubscribe: any = null;
+			let initialNotifLoad = true;
 
 			onAuthStateChanged(auth, async (user) => {
 				const isAuthPage = window.location.pathname === '/login' || window.location.pathname === '/signup';
@@ -240,6 +260,26 @@ const isGroups = pathname === '/dashboard' || pathname === '/';
 							// Trigger initial update on load
 							updateActivity();
 						}
+
+						// Listen for new notifications to show browser alerts
+						if (!notificationsUnsubscribe && user.email && 'Notification' in window && Notification.permission === 'granted') {
+							const q = query(collection(db, 'users', user.email, 'notifications'), where('read', '==', false));
+							notificationsUnsubscribe = onSnapshot(q, (snapshot) => {
+								if (initialNotifLoad) {
+									initialNotifLoad = false;
+									return;
+								}
+								snapshot.docChanges().forEach((change) => {
+									if (change.type === 'added') {
+										const notif = change.doc.data();
+										new Notification('SplitsBug', {
+											body: notif.text || 'You have a new notification',
+											icon: '/favicon.png'
+										});
+									}
+								});
+							});
+						}
 					} catch(e) {}
 					
 					if (userDocExists) {
@@ -260,6 +300,11 @@ const isGroups = pathname === '/dashboard' || pathname === '/';
 					if (heartbeatInterval) {
 						clearInterval(heartbeatInterval);
 						heartbeatInterval = null;
+					}
+					if (notificationsUnsubscribe) {
+						notificationsUnsubscribe();
+						notificationsUnsubscribe = null;
+						initialNotifLoad = true;
 					}
 					
 					if (!isAuthPage) {
