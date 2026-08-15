@@ -64,7 +64,14 @@ import Layout from '../layouts/Layout.astro';
 
   <script>
     import { auth, googleProvider } from '../firebase';
-    import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+    import { signInWithEmailAndPassword, signInWithPopup, onAuthStateChanged } from 'firebase/auth';
+
+    // Auto-redirect if already logged in (e.g. after a silent page reload)
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        window.location.href = '/dashboard';
+      }
+    });
 
     const form = document.getElementById('loginForm');
     const emailInput = document.getElementById('emailInput') as HTMLInputElement;
@@ -118,8 +125,9 @@ import Layout from '../layouts/Layout.astro';
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         
         // Trigger New Device Login Email
-        import('../utils/email').then(({ sendEmail }) => {
-          sendEmail({
+        try {
+          const { sendEmail } = await import('../utils/email');
+          await sendEmail({
             to: email,
             subject: 'New login to your SplitsBug account',
             templateId: 'new-device',
@@ -129,7 +137,9 @@ import Layout from '../layouts/Layout.astro';
               time: new Date().toLocaleString()
             }
           });
-        });
+        } catch (e) {
+          console.error('Failed to send login email:', e);
+        }
 
         window.location.href = '/dashboard';
       } catch (error: any) {
@@ -147,17 +157,29 @@ import Layout from '../layouts/Layout.astro';
         const result = await signInWithPopup(auth, googleProvider);
         const user = result.user;
         
-        // Check if user exists in Firestore
+        // Check if user exists in Firestore, with retry for 'closing/hidden' error
         const userDocRef = doc(db, "users", user.uid);
-        const userDoc = await getDoc(userDocRef);
+        let userDoc;
+        try {
+          userDoc = await getDoc(userDocRef);
+        } catch (dbError: any) {
+          if (dbError.message && (dbError.message.includes('closing') || dbError.message.includes('hidden'))) {
+            console.warn('Firestore throttled during popup, retrying...');
+            await new Promise(r => setTimeout(r, 1500));
+            userDoc = await getDoc(userDocRef);
+          } else {
+            throw dbError;
+          }
+        }
         
         if (!userDoc.exists()) {
           // If user does not exist, redirect to signup page to complete registration
           window.location.href = '/signup?google=true';
         } else {
           // Returning user - Trigger New Device Login Email
-          import('../utils/email').then(({ sendEmail }) => {
-            sendEmail({
+          try {
+            const { sendEmail } = await import('../utils/email');
+            await sendEmail({
               to: user.email || '',
               subject: 'New login to your SplitsBug account',
               templateId: 'new-device',
@@ -167,7 +189,9 @@ import Layout from '../layouts/Layout.astro';
                 time: new Date().toLocaleString()
               }
             });
-          });
+          } catch (e) {
+            console.error('Failed to send login email:', e);
+          }
           
           window.location.href = '/dashboard';
         }

@@ -513,8 +513,9 @@ import Layout from '../layouts/Layout.astro';
         });
 
         // Trigger the Welcome Email
-        import('../utils/email').then(({ sendEmail }) => {
-          sendEmail({
+        try {
+          const { sendEmail } = await import('../utils/email');
+          await sendEmail({
             to: email,
             subject: 'Welcome to SplitsBug!',
             templateId: 'welcome',
@@ -522,7 +523,9 @@ import Layout from '../layouts/Layout.astro';
               userName: nameInput.value.trim().split(' ')[0] // First name
             }
           });
-        });
+        } catch (e) {
+          console.error('Failed to send welcome email:', e);
+        }
 
         window.location.href = isGoogleFlow ? '/dashboard' : '/login?registered=true';
       } catch (error: any) {
@@ -544,7 +547,18 @@ import Layout from '../layouts/Layout.astro';
         const user = result.user;
         
         const userDocRef = doc(db, "users", user.uid);
-        const userDoc = await getDoc(userDocRef);
+        let userDoc;
+        try {
+          userDoc = await getDoc(userDocRef);
+        } catch (dbError: any) {
+          if (dbError.message && (dbError.message.includes('closing') || dbError.message.includes('hidden'))) {
+            console.warn('Firestore throttled during popup, retrying...');
+            await new Promise(r => setTimeout(r, 1500));
+            userDoc = await getDoc(userDocRef);
+          } else {
+            throw dbError;
+          }
+        }
         
         if (!userDoc.exists()) {
           // New user, populate form
@@ -553,6 +567,7 @@ import Layout from '../layouts/Layout.astro';
           emailInput.disabled = true;
           nameInput.value = user.displayName || '';
           loadingOverlay.classList.add('hidden');
+          loadingOverlay.classList.remove('hidden');
           errorBox.textContent = 'Please complete your profile details and set a password.';
           errorBox.className = 'bg-brand/10 border border-brand/20 text-brand p-3 rounded-md text-sm font-medium';
           errorBox.classList.remove('hidden');
@@ -570,7 +585,6 @@ import Layout from '../layouts/Layout.astro';
           errorBox.textContent = error.message || 'Google signup failed.';
           console.error("Google Auth Error:", error);
         }
-        loadingOverlay.classList.add('hidden');
         errorBox.className = 'bg-danger/10 border border-danger/20 text-danger p-3 rounded-md text-sm font-medium';
         errorBox.classList.remove('hidden');
       }
@@ -581,7 +595,17 @@ import Layout from '../layouts/Layout.astro';
       const isGoogleFlow = new URLSearchParams(window.location.search).get('google') === 'true';
       if (isGoogleFlow && user) {
         const userDocRef = doc(db, "users", user.uid);
-        const userDoc = await getDoc(userDocRef);
+        let userDoc;
+        try {
+          userDoc = await getDoc(userDocRef);
+        } catch (dbError: any) {
+          if (dbError.message && (dbError.message.includes('closing') || dbError.message.includes('hidden'))) {
+            await new Promise(r => setTimeout(r, 1500));
+            userDoc = await getDoc(userDocRef);
+          } else {
+            throw dbError;
+          }
+        }
         
         if (!userDoc.exists()) {
           emailInput.value = user.email || '';
