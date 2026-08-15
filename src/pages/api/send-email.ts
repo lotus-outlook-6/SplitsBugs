@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 import {
   getWelcomeEmailTemplate,
   getNewDeviceLoginAlertTemplate,
@@ -7,8 +7,16 @@ import {
   getAccountDeletionWarningTemplate
 } from '../../utils/emailTemplates';
 
-// Vercel handles injecting the environment variable from its settings
-const resend = new Resend(process.env.RESEND_API_KEY || import.meta.env.RESEND_API_KEY);
+// Setup Nodemailer transporter
+const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true, // true for 465, false for other ports
+  auth: {
+    user: process.env.SMTP_EMAIL || import.meta.env.SMTP_EMAIL,
+    pass: process.env.SMTP_PASSWORD || import.meta.env.SMTP_PASSWORD,
+  }
+});
 
 export const prerender = false; // Forces this route to run on the server
 
@@ -37,25 +45,16 @@ export const POST: APIRoute = async ({ request }) => {
       return new Response(JSON.stringify({ error: 'Invalid template ID' }), { status: 400 });
     }
 
-    // Default "from" address for testing (Resend allows onboarding@resend.dev for verified accounts)
-    const from = process.env.RESEND_FROM_EMAIL || import.meta.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+    const from = process.env.SMTP_EMAIL || import.meta.env.SMTP_EMAIL;
 
-    const resendResponse = await resend.emails.send({
-      from,
+    const info = await transporter.sendMail({
+      from: `"SplitsBug" <${from}>`,
       to,
       subject,
       html
     });
 
-    if (resendResponse.error) {
-      console.error('Resend Error:', resendResponse.error);
-      return new Response(JSON.stringify({ error: resendResponse.error }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
-    }
-
-    return new Response(JSON.stringify({ success: true, data: resendResponse.data }), {
+    return new Response(JSON.stringify({ success: true, messageId: info.messageId }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
