@@ -115,7 +115,22 @@ import Layout from '../layouts/Layout.astro';
       const password = passwordInput.value;
 
       try {
-        await signInWithEmailAndPassword(auth, email, password);
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        
+        // Trigger New Device Login Email
+        import('../utils/email').then(({ sendEmail }) => {
+          sendEmail({
+            to: email,
+            subject: 'New login to your SplitsBug account',
+            templateId: 'new-device',
+            templateData: {
+              userName: userCredential.user.displayName || email.split('@')[0],
+              deviceInfo: navigator.userAgent,
+              time: new Date().toLocaleString()
+            }
+          });
+        });
+
         window.location.href = '/dashboard';
       } catch (error: any) {
         if (submitBtn) submitBtn.disabled = false;
@@ -140,19 +155,32 @@ import Layout from '../layouts/Layout.astro';
           // If user does not exist, redirect to signup page to complete registration
           window.location.href = '/signup?google=true';
         } else {
-          // Returning user
+          // Returning user - Trigger New Device Login Email
+          import('../utils/email').then(({ sendEmail }) => {
+            sendEmail({
+              to: user.email || '',
+              subject: 'New login to your SplitsBug account',
+              templateId: 'new-device',
+              templateData: {
+                userName: user.displayName || 'User',
+                deviceInfo: navigator.userAgent,
+                time: new Date().toLocaleString()
+              }
+            });
+          });
+          
           window.location.href = '/dashboard';
         }
       } catch (error: any) {
+        loadingOverlay.classList.add('hidden');
         if (error.code === 'auth/popup-closed-by-user') {
-          errorBox.textContent = 'Google signup popup closed';
-        } else if (error.message && (error.message.includes('closing') || error.message.includes('hidden'))) {
-          errorBox.textContent = 'Refreshing connection...';
-          setTimeout(() => window.location.reload(), 1000);
+          errorBox.textContent = 'Google login popup closed.';
+        } else if (error.code === 'auth/unauthorized-domain') {
+          errorBox.textContent = 'This domain is not authorized for Google Sign-In.';
         } else {
           errorBox.textContent = error.message || 'Google login failed.';
+          console.error("Google Auth Error:", error);
         }
-        loadingOverlay.classList.add('hidden');
         errorBox.className = 'bg-danger/10 border border-danger/20 text-danger p-3 rounded-md text-sm font-medium mb-4';
         errorBox.classList.remove('hidden');
       }

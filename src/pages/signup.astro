@@ -561,13 +561,14 @@ import Layout from '../layouts/Layout.astro';
           window.location.href = '/dashboard';
         }
       } catch (error: any) {
+        loadingOverlay.classList.add('hidden');
         if (error.code === 'auth/popup-closed-by-user') {
-          errorBox.textContent = 'Google signup popup closed';
-        } else if (error.message && (error.message.includes('closing') || error.message.includes('hidden'))) {
-          errorBox.textContent = 'Refreshing connection...';
-          setTimeout(() => window.location.reload(), 1000);
+          errorBox.textContent = 'Google signup popup closed.';
+        } else if (error.code === 'auth/unauthorized-domain') {
+          errorBox.textContent = 'This domain is not authorized for Google Sign-In.';
         } else {
           errorBox.textContent = error.message || 'Google signup failed.';
+          console.error("Google Auth Error:", error);
         }
         loadingOverlay.classList.add('hidden');
         errorBox.className = 'bg-danger/10 border border-danger/20 text-danger p-3 rounded-md text-sm font-medium';
