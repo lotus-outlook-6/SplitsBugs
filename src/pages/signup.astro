@@ -501,6 +501,18 @@ import Layout from '../layouts/Layout.astro';
           createdAt: new Date().toISOString()
         });
 
+        // Trigger the Welcome Email
+        import('../utils/email').then(({ sendEmail }) => {
+          sendEmail({
+            to: email,
+            subject: 'Welcome to SplitsBug!',
+            templateId: 'welcome',
+            templateData: {
+              userName: nameInput.value.trim().split(' ')[0] // First name
+            }
+          });
+        });
+
         window.location.href = isGoogleFlow ? '/dashboard' : '/login?registered=true';
       } catch (error: any) {
         if (submitBtn) {
