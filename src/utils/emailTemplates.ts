@@ -12,8 +12,8 @@ export function getWelcomeEmailTemplate(userName: string): string {
     <td align="center">
       <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="background-color:#ffffff; border-radius:12px; overflow:hidden; max-width:600px; width:100%;">
         <tr>
-          <td align="center" style="background-color:#5b21b6; padding:32px 24px;">
-            <img src="https://splitsbug-app.web.app/SplitBugs-Brand/logos/logo-wordmark.png" width="150" alt="SplitsBug" style="display:block; width:150px; max-width:150px; height:auto; border:0;">
+          <td align="center" style="background-color:#ffffff; padding:32px 24px;">
+            <img src="https://splits-bugs.vercel.app/SplitBugs-Brand/logos/logo-wordmark.png" width="150" alt="SplitsBug" style="display:block; width:150px; max-width:150px; height:auto; border:0;">
           </td>
         </tr>
         <tr>
@@ -34,7 +34,7 @@ export function getWelcomeEmailTemplate(userName: string): string {
                   <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                     <tr>
                       <td align="center" style="border-radius:8px; background-color:#5b21b6;">
-                        <a href="https://splitsbug-app.web.app/dashboard" target="_blank" style="display:inline-block; padding:14px 32px; font-family:Helvetica, Arial, sans-serif; font-size:16px; font-weight:bold; color:#ffffff; text-decoration:none; border-radius:8px;">
+                        <a href="https://splits-bugs.vercel.app/dashboard" target="_blank" style="display:inline-block; padding:14px 32px; font-family:Helvetica, Arial, sans-serif; font-size:16px; font-weight:bold; color:#ffffff; text-decoration:none; border-radius:8px;">
                           Create Your First Group
                         </a>
                       </td>
@@ -83,8 +83,8 @@ export function getNewDeviceLoginAlertTemplate(userName: string, deviceInfo: str
     <td align="center">
       <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="background-color:#ffffff; border-radius:12px; overflow:hidden; max-width:600px; width:100%;">
         <tr>
-          <td align="center" style="background-color:#5b21b6; padding:32px 24px;">
-            <img src="https://splitsbug-app.web.app/SplitBugs-Brand/logos/logo-wordmark.png" width="150" alt="SplitsBug" style="display:block; width:150px; max-width:150px; height:auto; border:0;">
+          <td align="center" style="background-color:#ffffff; padding:32px 24px;">
+            <img src="https://splits-bugs.vercel.app/SplitBugs-Brand/logos/logo-wordmark.png" width="150" alt="SplitsBug" style="display:block; width:150px; max-width:150px; height:auto; border:0;">
           </td>
         </tr>
         <tr>
@@ -116,7 +116,7 @@ export function getNewDeviceLoginAlertTemplate(userName: string, deviceInfo: str
                   <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                     <tr>
                       <td align="center" style="border-radius:8px; background-color:#5b21b6;">
-                        <a href="https://splitsbug-app.web.app/security" target="_blank" style="display:inline-block; padding:14px 32px; font-family:Helvetica, Arial, sans-serif; font-size:16px; font-weight:bold; color:#ffffff; text-decoration:none; border-radius:8px;">
+                        <a href="https://splits-bugs.vercel.app/security" target="_blank" style="display:inline-block; padding:14px 32px; font-family:Helvetica, Arial, sans-serif; font-size:16px; font-weight:bold; color:#ffffff; text-decoration:none; border-radius:8px;">
                           Secure Account
                         </a>
                       </td>
@@ -165,8 +165,8 @@ export function getGroupInviteNotificationTemplate(userName: string, inviterName
     <td align="center">
       <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="background-color:#ffffff; border-radius:12px; overflow:hidden; max-width:600px; width:100%;">
         <tr>
-          <td align="center" style="background-color:#5b21b6; padding:32px 24px;">
-            <img src="https://splitsbug-app.web.app/SplitBugs-Brand/logos/logo-wordmark.png" width="150" alt="SplitsBug" style="display:block; width:150px; max-width:150px; height:auto; border:0;">
+          <td align="center" style="background-color:#ffffff; padding:32px 24px;">
+            <img src="https://splits-bugs.vercel.app/SplitBugs-Brand/logos/logo-wordmark.png" width="150" alt="SplitsBug" style="display:block; width:150px; max-width:150px; height:auto; border:0;">
           </td>
         </tr>
         <tr>
@@ -203,7 +203,7 @@ export function getGroupInviteNotificationTemplate(userName: string, inviterName
                   <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                     <tr>
                       <td align="center" style="border-radius:8px; background-color:#5b21b6;">
-                        <a href="https://splitsbug-app.web.app/dashboard" target="_blank" style="display:inline-block; padding:14px 32px; font-family:Helvetica, Arial, sans-serif; font-size:16px; font-weight:bold; color:#ffffff; text-decoration:none; border-radius:8px;">
+                        <a href="https://splits-bugs.vercel.app/dashboard" target="_blank" style="display:inline-block; padding:14px 32px; font-family:Helvetica, Arial, sans-serif; font-size:16px; font-weight:bold; color:#ffffff; text-decoration:none; border-radius:8px;">
                           View Invitation
                         </a>
                       </td>
@@ -252,8 +252,8 @@ export function getAccountDeletionWarningTemplate(userName: string): string {
     <td align="center">
       <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="background-color:#ffffff; border-radius:12px; overflow:hidden; max-width:600px; width:100%;">
         <tr>
-          <td align="center" style="background-color:#5b21b6; padding:32px 24px;">
-            <img src="https://splitsbug-app.web.app/SplitBugs-Brand/logos/logo-wordmark.png" width="150" alt="SplitsBug" style="display:block; width:150px; max-width:150px; height:auto; border:0;">
+          <td align="center" style="background-color:#ffffff; padding:32px 24px;">
+            <img src="https://splits-bugs.vercel.app/SplitBugs-Brand/logos/logo-wordmark.png" width="150" alt="SplitsBug" style="display:block; width:150px; max-width:150px; height:auto; border:0;">
           </td>
         </tr>
         <tr>
