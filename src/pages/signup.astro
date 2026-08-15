@@ -3,7 +3,17 @@ import Layout from '../layouts/Layout.astro';
 ---
 <Layout hideNav={true}>
   <div class="min-h-screen w-full flex flex-col justify-center items-center p-0 sm:p-6 bg-canvas sm:bg-canvas-soft overflow-y-auto">
-    <div class="w-full max-w-xl bg-canvas p-4 sm:p-8 sm:rounded-2xl sm:shadow-lg sm:border sm:border-hairline relative">
+    <div class="w-full max-w-xl bg-canvas p-4 sm:p-8 sm:rounded-2xl sm:shadow-lg sm:border sm:border-hairline relative overflow-hidden">
+      
+      <!-- Loading Overlay -->
+      <div id="loadingOverlay" class="hidden absolute inset-0 z-50 bg-canvas/80 backdrop-blur-sm flex flex-col items-center justify-center">
+        <svg class="animate-spin h-8 w-8 text-brand mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <p class="text-ink font-medium animate-pulse">Processing...</p>
+      </div>
+
       <div class="text-center mb-6">
         <h1 class="text-2xl font-bold text-ink mb-1">Create an account</h1>
         <p class="text-mute text-sm">Join SplitBugs to track expenses</p>
@@ -175,6 +185,7 @@ import Layout from '../layouts/Layout.astro';
     const dobInput = document.getElementById('dobInput') as HTMLInputElement;
     const phoneInput = document.getElementById('phoneInput') as HTMLInputElement;
     const errorBox = document.getElementById('errorBox') as HTMLDivElement;
+    const loadingOverlay = document.getElementById('loadingOverlay') as HTMLDivElement;
     
     dobInput.addEventListener('input', (e) => {
       const target = e.target as HTMLInputElement;
@@ -458,8 +469,8 @@ import Layout from '../layouts/Layout.astro';
       const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
       if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.textContent = 'Creating account...';
       }
+      loadingOverlay.classList.remove('hidden');
 
       // Format phone
       const phone = `${countryCodeLabel.textContent} ${phoneInput.value}`;
@@ -517,8 +528,8 @@ import Layout from '../layouts/Layout.astro';
       } catch (error: any) {
         if (submitBtn) {
           submitBtn.disabled = false;
-          submitBtn.textContent = 'Sign up';
         }
+        loadingOverlay.classList.add('hidden');
         errorBox.textContent = error.message || "An error occurred during signup.";
         errorBox.classList.remove('hidden');
       }
@@ -527,6 +538,7 @@ import Layout from '../layouts/Layout.astro';
     const googleSignupBtn = document.getElementById('googleSignupBtn');
     googleSignupBtn?.addEventListener('click', async () => {
       errorBox.classList.add('hidden');
+      loadingOverlay.classList.remove('hidden');
       try {
         const result = await signInWithPopup(auth, googleProvider);
         const user = result.user;
@@ -540,6 +552,7 @@ import Layout from '../layouts/Layout.astro';
           emailInput.value = user.email || '';
           emailInput.disabled = true;
           nameInput.value = user.displayName || '';
+          loadingOverlay.classList.add('hidden');
           errorBox.textContent = 'Please complete your profile details and set a password.';
           errorBox.className = 'bg-brand/10 border border-brand/20 text-brand p-3 rounded-md text-sm font-medium';
           errorBox.classList.remove('hidden');
@@ -556,6 +569,7 @@ import Layout from '../layouts/Layout.astro';
         } else {
           errorBox.textContent = error.message || 'Google signup failed.';
         }
+        loadingOverlay.classList.add('hidden');
         errorBox.className = 'bg-danger/10 border border-danger/20 text-danger p-3 rounded-md text-sm font-medium';
         errorBox.classList.remove('hidden');
       }

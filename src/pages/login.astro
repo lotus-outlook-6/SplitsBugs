@@ -3,7 +3,17 @@ import Layout from '../layouts/Layout.astro';
 ---
 <Layout hideNav={true}>
   <div class="min-h-screen flex flex-col justify-center items-center p-6 bg-canvas-soft">
-    <div class="w-full max-w-sm bg-canvas p-8 rounded-xl shadow-sm border border-hairline">
+    <div class="w-full max-w-sm bg-canvas p-8 rounded-2xl shadow-lg border border-hairline relative overflow-hidden">
+      
+      <!-- Loading Overlay -->
+      <div id="loadingOverlay" class="hidden absolute inset-0 z-50 bg-canvas/80 backdrop-blur-sm flex flex-col items-center justify-center">
+        <svg class="animate-spin h-8 w-8 text-brand mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <p class="text-ink font-medium animate-pulse">Authenticating...</p>
+      </div>
+
       <div class="text-center mb-8">
         <h1 class="text-2xl font-bold text-ink mb-2">Welcome Back</h1>
         <p class="text-mute text-sm">Log in to your SplitBugs account</p>
@@ -29,7 +39,7 @@ import Layout from '../layouts/Layout.astro';
           </div>
         </div>
         
-        <button type="submit" class="w-full py-3 mt-4 bg-brand text-white rounded-md font-bold hover:bg-brand-deep transition-colors shadow-sm">
+        <button type="submit" id="submitBtn" class="w-full py-3 mt-4 bg-brand text-white rounded-md font-bold hover:bg-brand-deep transition-colors shadow-sm">
           Log in
         </button>
 
@@ -62,6 +72,7 @@ import Layout from '../layouts/Layout.astro';
     const errorBox = document.getElementById('errorBox') as HTMLDivElement;
     const successBox = document.getElementById('successBox') as HTMLDivElement;
     const googleBtn = document.getElementById('googleLoginBtn');
+    const loadingOverlay = document.getElementById('loadingOverlay') as HTMLDivElement;
 
     // Password Toggle
     const togglePasswordBtn = document.getElementById('togglePasswordBtn');
@@ -95,6 +106,10 @@ import Layout from '../layouts/Layout.astro';
       
       errorBox.classList.add('hidden');
       successBox.classList.add('hidden');
+      loadingOverlay.classList.remove('hidden');
+
+      const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+      if (submitBtn) submitBtn.disabled = true;
 
       const email = emailInput.value.trim();
       const password = passwordInput.value;
@@ -103,6 +118,8 @@ import Layout from '../layouts/Layout.astro';
         await signInWithEmailAndPassword(auth, email, password);
         window.location.href = '/dashboard';
       } catch (error: any) {
+        if (submitBtn) submitBtn.disabled = false;
+        loadingOverlay.classList.add('hidden');
         errorBox.textContent = "Email and password doesn't match";
         errorBox.classList.remove('hidden');
       }
@@ -110,6 +127,7 @@ import Layout from '../layouts/Layout.astro';
 
     googleBtn?.addEventListener('click', async () => {
       errorBox.classList.add('hidden');
+      loadingOverlay.classList.remove('hidden');
       try {
         const result = await signInWithPopup(auth, googleProvider);
         const user = result.user;
@@ -134,6 +152,8 @@ import Layout from '../layouts/Layout.astro';
         } else {
           errorBox.textContent = error.message || 'Google login failed.';
         }
+        loadingOverlay.classList.add('hidden');
+        errorBox.className = 'bg-danger/10 border border-danger/20 text-danger p-3 rounded-md text-sm font-medium mb-4';
         errorBox.classList.remove('hidden');
       }
     });
