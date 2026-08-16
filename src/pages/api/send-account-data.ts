@@ -8,16 +8,7 @@ const getEnvVar = (key: string) => {
   return undefined;
 };
 
-// Setup Nodemailer transporter
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
-  auth: {
-    user: getEnvVar('SMTP_EMAIL'),
-    pass: getEnvVar('SMTP_PASSWORD'),
-  }
-});
+
 
 export const prerender = false;
 
@@ -145,6 +136,17 @@ export const POST: APIRoute = async ({ request }) => {
     `;
 
     const from = getEnvVar('SMTP_EMAIL');
+
+    // Setup Nodemailer transporter inside handler to catch any init errors
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
+      auth: {
+        user: smtpEmail,
+        pass: smtpPass,
+      }
+    });
 
     const info = await transporter.sendMail({
       from: `"SplitsBug Data Archive" <${from}>`,
