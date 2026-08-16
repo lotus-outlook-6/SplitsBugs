@@ -501,6 +501,25 @@ import Layout from '../layouts/Layout.astro';
         
         await updatePassword(user, newPassword.value);
         
+        try {
+          await fetch('/api/send-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              to: user.email,
+              subject: 'Your SplitsBug Password Was Changed',
+              templateId: 'general',
+              templateData: {
+                title: 'Password Updated 🔐',
+                message: 'Your SplitsBug account password was successfully changed. If you did not make this change, please contact support and secure your account immediately.',
+                actionUrl: window.location.origin + '/security'
+              }
+            })
+          });
+        } catch (e) {
+          console.error('Failed to send password update email', e);
+        }
+        
         successBox.classList.remove('hidden');
         form.reset();
         
