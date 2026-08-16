@@ -6,7 +6,7 @@ import Layout from '../layouts/Layout.astro';
   <div class="min-h-screen flex flex-col bg-canvas-soft pb-32">
     <!-- Header -->
     <header class="h-16 px-4 lg:px-6 flex items-center gap-4 border-b border-hairline bg-canvas sticky top-0 z-40">
-      <a href="/account" class="w-10 h-10 flex items-center justify-center rounded-full bg-canvas-soft hover:bg-hairline transition-colors text-ink">
+      <a href="/security" class="w-10 h-10 flex items-center justify-center rounded-full bg-canvas-soft hover:bg-hairline transition-colors text-ink">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
       </a>
       <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-ink">Export Account Data</h1>
@@ -21,10 +21,6 @@ import Layout from '../layouts/Layout.astro';
         <div class="absolute -top-24 -right-24 w-48 h-48 bg-brand/20 blur-[80px] rounded-full group-hover:bg-brand/30 transition-all duration-700"></div>
 
         <div class="relative z-10">
-          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-brand/20 to-brand/5 border border-brand/20 text-brand flex items-center justify-center mb-6 shadow-sm">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          </div>
-          
           <h2 class="text-2xl sm:text-3xl font-bold text-ink mb-3 tracking-tight">Your Personal Data Archive</h2>
           <p class="text-mute mb-8 max-w-xl text-sm leading-relaxed">SplitsBug allows you to download all information associated with your account from the moment you joined. Your data is compiled into a structured Excel archive for your records.</p>
           
@@ -74,7 +70,7 @@ import Layout from '../layouts/Layout.astro';
         </div>
 
         <!-- Request Button -->
-        <button type="button" id="requestDataBtn" disabled class="w-full py-3 bg-brand text-white font-bold rounded-xl transition-all shadow-sm text-sm disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer hover:bg-brand-deep flex items-center justify-center gap-2">
+        <button type="button" id="requestDataBtn" class="w-full py-3 bg-brand text-white font-bold rounded-xl transition-all shadow-sm text-sm opacity-40 cursor-not-allowed flex items-center justify-center gap-2">
           Request Data Over Email
         </button>
       </div>
@@ -107,6 +103,13 @@ import Layout from '../layouts/Layout.astro';
     </div>
   </dialog>
 
+  <!-- Custom Toast Notification -->
+  <div id="toastNotification" class="fixed bottom-20 left-1/2 -translate-x-1/2 bg-ink text-canvas px-4 py-3 rounded-md shadow-lg text-sm font-medium transition-all duration-300 translate-y-20 opacity-0 pointer-events-none z-40 flex items-center gap-2">
+    <svg id="toastIconSuccess" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400 hidden"><path d="M20 6L9 17l-5-5"/></svg>
+    <svg id="toastIconError" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-400 hidden"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <span id="toastMessage">Success</span>
+  </div>
+
   <script>
     import { auth, db } from '../firebase';
     import { doc, getDoc, collection, getDocs, query, where } from 'firebase/firestore';
@@ -116,6 +119,27 @@ import Layout from '../layouts/Layout.astro';
     const emailSentModal = document.getElementById('emailSentModal') as HTMLDialogElement;
     const closeModalBtn = document.getElementById('closeModalBtn');
 
+    function showToast(message: string, isError = false) {
+      const toast = document.getElementById('toastNotification');
+      const toastMsg = document.getElementById('toastMessage');
+      const iconSuccess = document.getElementById('toastIconSuccess');
+      const iconError = document.getElementById('toastIconError');
+      if (toast && toastMsg && iconSuccess && iconError) {
+        toastMsg.textContent = message;
+        if (isError) {
+          iconError.classList.remove('hidden');
+          iconSuccess.classList.add('hidden');
+        } else {
+          iconSuccess.classList.remove('hidden');
+          iconError.classList.add('hidden');
+        }
+        toast.classList.remove('translate-y-20', 'opacity-0');
+        setTimeout(() => {
+          toast.classList.add('translate-y-20', 'opacity-0');
+        }, 3000);
+      }
+    }
+
     // 24 Hour Lock Logic
     const LAST_EXPORT_KEY = 'splitbugs_last_export_time';
     const checkExportLock = () => {
@@ -123,29 +147,44 @@ import Layout from '../layouts/Layout.astro';
       if (lastExport) {
         const timeDiff = Date.now() - parseInt(lastExport, 10);
         if (timeDiff < 24 * 60 * 60 * 1000) {
-          if (consentCheckbox) {
-            consentCheckbox.checked = false;
-            consentCheckbox.disabled = true;
-          }
-          if (requestDataBtn) {
-            requestDataBtn.disabled = true;
-            requestDataBtn.innerHTML = 'Requested (Available again in 24h)';
-          }
           return true;
         }
       }
       return false;
     };
-    checkExportLock();
+
+    const updateButtonVisuals = () => {
+      const isLocked = checkExportLock();
+      if (isLocked) {
+        requestDataBtn.innerHTML = 'Requested (Available again in 24h)';
+        requestDataBtn.classList.add('opacity-40', 'cursor-not-allowed');
+        requestDataBtn.classList.remove('hover:bg-brand-deep', 'cursor-pointer');
+      } else if (!consentCheckbox.checked) {
+        requestDataBtn.innerHTML = 'Request Data Over Email';
+        requestDataBtn.classList.add('opacity-40', 'cursor-not-allowed');
+        requestDataBtn.classList.remove('hover:bg-brand-deep', 'cursor-pointer');
+      } else {
+        requestDataBtn.innerHTML = 'Request Data Over Email';
+        requestDataBtn.classList.remove('opacity-40', 'cursor-not-allowed');
+        requestDataBtn.classList.add('hover:bg-brand-deep', 'cursor-pointer');
+      }
+    };
+
+    updateButtonVisuals();
 
     consentCheckbox?.addEventListener('change', () => {
-      if (!checkExportLock()) {
-        requestDataBtn.disabled = !consentCheckbox.checked;
-      }
+      updateButtonVisuals();
     });
 
     requestDataBtn?.addEventListener('click', async () => {
-      if (checkExportLock()) return;
+      if (checkExportLock()) {
+        showToast('Data already requested. Available again in 24h.', true);
+        return;
+      }
+      if (!consentCheckbox.checked) {
+        showToast('Please confirm your request using the checkbox above.', true);
+        return;
+      }
 
       const user = auth.currentUser;
       const userEmail = user?.email || localStorage.getItem('splitbug_userEmail');
@@ -228,18 +267,15 @@ import Layout from '../layouts/Layout.astro';
 
       } catch (err: any) {
         console.error('Export Error:', err);
-        alert(err.message || 'Failed to send data export email. Please try again.');
+        showToast(err.message || 'Failed to send data export email. Please try again.', true);
       } finally {
-        if (!checkExportLock()) {
-          requestDataBtn.disabled = false;
-          requestDataBtn.innerHTML = 'Request Data Over Email';
-        }
+        updateButtonVisuals();
       }
     });
 
     closeModalBtn?.addEventListener('click', () => {
       emailSentModal?.close();
-      checkExportLock(); // Make sure the button is greyed out after closing
+      updateButtonVisuals(); // Make sure the button is greyed out after closing
     });
   </script>
 </Layout>

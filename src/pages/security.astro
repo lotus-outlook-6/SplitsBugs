@@ -95,6 +95,16 @@ import Layout from '../layouts/Layout.astro';
         </div>
       </div>
 
+      <!-- Data & Export -->
+      <div class="bg-canvas p-6 sm:p-8 rounded-2xl shadow-sm border border-hairline">
+        <h2 class="text-lg font-bold text-ink mb-2">Export Account Data</h2>
+        <p class="text-xs sm:text-sm text-mute mb-5">Download a complete Excel archive of your personal profile, group memberships, and expense history.</p>
+        <a href="/export-data" class="bg-canvas-soft border border-hairline hover:bg-hairline text-ink font-bold px-5 py-2.5 rounded-xl text-sm transition-colors cursor-pointer flex items-center justify-center gap-2 w-full sm:w-max">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Go to Data Export
+        </a>
+      </div>
+
       <!-- Danger Zone: Permanent Delete Account -->
       <div class="bg-red-500/5 border border-red-500/20 p-6 sm:p-8 rounded-2xl">
         <h2 class="text-lg font-bold text-red-600 dark:text-red-400 mb-2">Danger Zone</h2>
