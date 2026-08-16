@@ -172,6 +172,47 @@ else initialIndex = -1;
 			</div>
 		</nav>
 		)}
+
+		<!-- Global App Lock Overlay -->
+		<div id="globalAppLockOverlay" class="fixed inset-0 z-[99999] bg-canvas/98 backdrop-blur-2xl flex items-center justify-center p-4 hidden">
+			<!-- PIN View -->
+			<div id="appLockPinView" class="w-full max-w-sm bg-canvas border border-hairline rounded-3xl p-6 sm:p-8 shadow-2xl flex flex-col items-center text-center animate-in zoom-in-95 duration-200">
+				<div class="w-16 h-16 rounded-full bg-brand/10 text-brand flex items-center justify-center mb-4">
+					<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+				</div>
+				<h2 class="text-xl font-bold text-ink mb-1">App Locked</h2>
+				<p id="appLockSubtext" class="text-xs text-mute mb-6">Enter your 4-digit passcode to unlock</p>
+
+				<!-- 4 Square Digit Box UI -->
+				<div id="pinDigitContainer" class="flex gap-3 justify-center mb-6">
+					<input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="app-lock-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" autofocus />
+					<input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="app-lock-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" />
+					<input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="app-lock-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" />
+					<input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="app-lock-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" />
+				</div>
+
+				<p id="appLockError" class="text-xs font-semibold text-danger hidden mb-2"></p>
+			</div>
+
+			<!-- Account Password Recovery View (Triggered after 5 failed attempts) -->
+			<div id="appLockRecoveryView" class="w-full max-w-sm bg-canvas border border-hairline rounded-3xl p-6 sm:p-8 shadow-2xl flex flex-col items-center text-center hidden animate-in zoom-in-95 duration-200">
+				<div class="w-16 h-16 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center mb-4">
+					<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+				</div>
+				<h2 class="text-xl font-bold text-ink mb-1">Too Many Failed Attempts</h2>
+				<p class="text-xs text-mute mb-6">Enter your SplitsBug account password to verify your identity and unlock the app.</p>
+
+				<div class="w-full mb-4">
+					<input type="password" id="appLockAccountPassInput" class="w-full p-3.5 rounded-xl border border-hairline bg-canvas-soft text-ink focus:border-brand focus:outline-none text-sm" placeholder="Account Password" />
+				</div>
+
+				<p id="appLockRecoveryError" class="text-xs font-semibold text-danger hidden mb-4"></p>
+
+				<button id="appLockRecoveryBtn" class="w-full py-3 bg-brand text-white rounded-xl font-bold hover:bg-brand-deep transition-colors shadow-md text-sm cursor-pointer">
+					Unlock with Account Password
+				</button>
+			</div>
+		</div>
 		
 		<script is:inline>
 			function updateBottomNav() {
@@ -193,8 +234,8 @@ else initialIndex = -1;
 					activeIndex = 2;
 				}
 				
-				items.forEach((item, idx) => {
-					if (idx === activeIndex) {
+				items.forEach((item, index) => {
+					if (index === activeIndex) {
 						item.classList.add('active', 'text-purple-600', 'dark:text-purple-400');
 						item.classList.remove('text-mute', 'hover:text-ink');
 					} else {
@@ -271,7 +312,6 @@ else initialIndex = -1;
 					if (href === window.location.pathname) {
 						e.preventDefault();
 					} else {
-						// Delay navigation to let the slide animation play
 						e.preventDefault();
 						setTimeout(() => {
 							window.location.href = href;
@@ -412,6 +452,206 @@ else initialIndex = -1;
 						window.location.href = '/login';
 					}
 				}
+			});
+		</script>
+
+		<script>
+			import { auth } from '../firebase';
+			import { EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
+
+			let failedPinAttempts = 0;
+
+			function checkAppLockState() {
+				const isPinEnabled = localStorage.getItem('splitsbug_pin_enabled') === 'true';
+				const savedPin = localStorage.getItem('splitsbug_pin_val');
+				const isAuthPage = window.location.pathname === '/login' || window.location.pathname === '/signup';
+
+				if (!isPinEnabled || !savedPin || isAuthPage) {
+					return;
+				}
+
+				const isExplicitlyLocked = localStorage.getItem('splitsbug_app_locked') === 'true';
+				const intervalMins = parseInt(localStorage.getItem('splitsbug_autolock_interval') || '0', 10);
+				const unlockedAt = parseInt(localStorage.getItem('splitsbug_unlocked_at') || '0', 10);
+				
+				// Detect if this is a fresh page reload/refresh or fresh session
+				const navEntries = performance.getEntriesByType('navigation');
+				const isReload = navEntries.length > 0 && (navEntries[0] as PerformanceNavigationTiming).type === 'reload';
+				const isFreshSession = !sessionStorage.getItem('splitsbug_session_unlocked');
+
+				let shouldLock = isExplicitlyLocked;
+
+				if (!shouldLock) {
+					if (intervalMins === 0) {
+						// Immediately mode: locks ONLY on page reload or fresh tab session, NOT on menu navigation
+						if (isReload || isFreshSession) {
+							shouldLock = true;
+						}
+					} else if (unlockedAt > 0 && (isReload || isFreshSession)) {
+						// Timer mode: check elapsed time since unlock ONLY on page reload / fresh session
+						const elapsedMins = (Date.now() - unlockedAt) / (1000 * 60);
+						if (elapsedMins >= intervalMins) {
+							shouldLock = true;
+						}
+					}
+				}
+
+				if (shouldLock) {
+					localStorage.setItem('splitsbug_app_locked', 'true');
+					showAppLockOverlay();
+				}
+			}
+
+			function showAppLockOverlay() {
+				const overlay = document.getElementById('globalAppLockOverlay');
+				if (overlay) {
+					overlay.classList.remove('hidden');
+					document.body.style.overflow = 'hidden';
+					const firstDigit = overlay.querySelector('.app-lock-digit') as HTMLInputElement;
+					if (firstDigit) firstDigit.focus();
+				}
+			}
+
+			function unlockApp() {
+				failedPinAttempts = 0;
+				localStorage.setItem('splitsbug_app_locked', 'false');
+				localStorage.setItem('splitsbug_unlocked_at', Date.now().toString());
+				sessionStorage.setItem('splitsbug_session_unlocked', 'true');
+
+				const overlay = document.getElementById('globalAppLockOverlay');
+				if (overlay) {
+					overlay.classList.add('hidden');
+					document.body.style.overflow = '';
+				}
+				const digits = Array.from(document.querySelectorAll('.app-lock-digit')) as HTMLInputElement[];
+				digits.forEach(d => {
+					d.value = '';
+					d.classList.remove('border-danger', 'text-danger', 'bg-danger/10', 'ring-2', 'ring-danger/30');
+				});
+				
+				const pinBoxContainer = document.getElementById('pinDigitContainer');
+				if (pinBoxContainer) pinBoxContainer.classList.remove('animate-shake');
+
+				const errorEl = document.getElementById('appLockError');
+				if (errorEl) errorEl.classList.add('hidden');
+			}
+
+			(window as any).lockAppManually = function() {
+				localStorage.setItem('splitsbug_app_locked', 'true');
+				sessionStorage.removeItem('splitsbug_session_unlocked');
+				showAppLockOverlay();
+			};
+
+			document.addEventListener('DOMContentLoaded', () => {
+				checkAppLockState();
+
+				const digits = Array.from(document.querySelectorAll('.app-lock-digit')) as HTMLInputElement[];
+				const errorEl = document.getElementById('appLockError');
+				const pinBoxContainer = document.getElementById('pinDigitContainer');
+
+				digits.forEach((digit, idx) => {
+					digit.addEventListener('input', () => {
+						// Remove red error state and shake animation as soon as user types
+						digits.forEach(d => d.classList.remove('border-danger', 'text-danger', 'bg-danger/10', 'ring-2', 'ring-danger/30'));
+						if (pinBoxContainer) pinBoxContainer.classList.remove('animate-shake');
+						if (errorEl) errorEl.classList.add('hidden');
+
+						const val = digit.value.replace(/[^0-9]/g, '');
+						digit.value = val ? val.slice(-1) : '';
+						
+						if (digit.value && idx < digits.length - 1) {
+							digits[idx + 1].focus();
+						}
+						
+						if (digits.every(d => d.value.length === 1)) {
+							verifyPin();
+						}
+					});
+
+					digit.addEventListener('keydown', (e) => {
+						if (e.key === 'Backspace' && !digit.value && idx > 0) {
+							digits[idx - 1].focus();
+						} else if (e.key === 'Enter') {
+							verifyPin();
+						}
+					});
+				});
+
+				async function verifyPin() {
+					const enteredPin = digits.map(d => d.value).join('');
+					const savedPin = localStorage.getItem('splitsbug_pin_val');
+
+					if (enteredPin === savedPin) {
+						unlockApp();
+					} else {
+						failedPinAttempts++;
+						
+						// Highlight boxes red and shake
+						digits.forEach(d => {
+							d.value = '';
+							d.classList.add('border-danger', 'text-danger', 'bg-danger/10', 'ring-2', 'ring-danger/30');
+						});
+
+						if (pinBoxContainer) {
+							pinBoxContainer.classList.remove('animate-shake');
+							void pinBoxContainer.offsetWidth; // Trigger reflow to restart animation
+							pinBoxContainer.classList.add('animate-shake');
+						}
+
+						digits[0]?.focus();
+
+						if (failedPinAttempts >= 5) {
+							document.getElementById('appLockPinView')?.classList.add('hidden');
+							document.getElementById('appLockRecoveryView')?.classList.remove('hidden');
+						} else if (errorEl) {
+							errorEl.textContent = `Incorrect passcode. ${5 - failedPinAttempts} attempt(s) remaining.`;
+							errorEl.classList.remove('hidden');
+						}
+					}
+				}
+
+				// Account Password Recovery unlock
+				const recoveryBtn = document.getElementById('appLockRecoveryBtn');
+				const recoveryInput = document.getElementById('appLockAccountPassInput') as HTMLInputElement;
+				const recoveryError = document.getElementById('appLockRecoveryError');
+
+				const handleRecoverySubmit = async () => {
+					if (!recoveryInput || !recoveryInput.value) return;
+					if (recoveryBtn) {
+						(recoveryBtn as HTMLButtonElement).disabled = true;
+						recoveryBtn.textContent = 'Verifying...';
+					}
+
+					try {
+						const user = auth.currentUser;
+						if (user && user.email) {
+							const cred = EmailAuthProvider.credential(user.email, recoveryInput.value);
+							await reauthenticateWithCredential(user, cred);
+							
+							document.getElementById('appLockRecoveryView')?.classList.add('hidden');
+							document.getElementById('appLockPinView')?.classList.remove('hidden');
+							recoveryInput.value = '';
+							unlockApp();
+						} else {
+							throw new Error('User session not found.');
+						}
+					} catch (err: any) {
+						if (recoveryError) {
+							recoveryError.textContent = "Incorrect account password. Please try again.";
+							recoveryError.classList.remove('hidden');
+						}
+					} finally {
+						if (recoveryBtn) {
+							(recoveryBtn as HTMLButtonElement).disabled = false;
+							recoveryBtn.textContent = 'Unlock with Account Password';
+						}
+					}
+				};
+
+				recoveryBtn?.addEventListener('click', handleRecoverySubmit);
+				recoveryInput?.addEventListener('keydown', (e) => {
+					if (e.key === 'Enter') handleRecoverySubmit();
+				});
 			});
 		</script>
 	</body>

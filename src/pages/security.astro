@@ -48,7 +48,7 @@ import Layout from '../layouts/Layout.astro';
       </div>
 
       <!-- App Lock / PIN Security -->
-      <div class="bg-canvas p-6 sm:p-8 rounded-2xl shadow-sm border border-hairline">
+      <div class="bg-canvas p-6 sm:p-8 rounded-2xl shadow-sm border border-hairline space-y-6">
         <div class="flex items-center justify-between gap-4">
           <div>
             <h2 class="text-lg font-bold text-ink">App PIN / Passcode Lock</h2>
@@ -58,6 +58,40 @@ import Layout from '../layouts/Layout.astro';
             <input type="checkbox" id="pinToggle" class="sr-only peer">
             <div class="w-11 h-6 bg-canvas-soft peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand"></div>
           </label>
+        </div>
+
+        <div id="autoLockContainer" class="hidden border-t border-hairline pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <label class="block text-sm font-medium text-ink">Auto-Lock Timer</label>
+            <p class="text-xs text-mute">Choose when SplitsBug automatically locks after inactivity</p>
+          </div>
+          
+          <!-- Custom Web Dropdown (No native system dropdown) -->
+          <div class="relative shrink-0" id="customAutoLockDropdown">
+            <button type="button" id="autoLockDropdownBtn" class="flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl border border-hairline bg-canvas-soft text-ink text-sm font-medium hover:bg-hairline transition-colors shrink-0 cursor-pointer min-w-[230px]">
+              <span id="autoLockSelectedLabel">Immediately (On refresh / load)</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-mute transition-transform duration-200" id="autoLockArrow"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+
+            <div id="autoLockMenu" class="absolute right-0 mt-2 w-64 bg-canvas border border-hairline rounded-2xl shadow-xl p-1.5 z-50 hidden animate-in fade-in zoom-in-95 duration-150">
+              <button type="button" data-val="0" class="autolock-opt w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-ink hover:bg-canvas-soft transition-colors cursor-pointer">
+                <span>Immediately (On refresh / load)</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-brand opt-check hidden"><polyline points="20 6 9 17 4 12"/></svg>
+              </button>
+              <button type="button" data-val="5" class="autolock-opt w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-ink hover:bg-canvas-soft transition-colors cursor-pointer">
+                <span>After 5 minutes</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-brand opt-check hidden"><polyline points="20 6 9 17 4 12"/></svg>
+              </button>
+              <button type="button" data-val="10" class="autolock-opt w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-ink hover:bg-canvas-soft transition-colors cursor-pointer">
+                <span>After 10 minutes</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-brand opt-check hidden"><polyline points="20 6 9 17 4 12"/></svg>
+              </button>
+              <button type="button" data-val="30" class="autolock-opt w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-ink hover:bg-canvas-soft transition-colors cursor-pointer">
+                <span>After 30 minutes</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-brand opt-check hidden"><polyline points="20 6 9 17 4 12"/></svg>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -97,17 +131,56 @@ import Layout from '../layouts/Layout.astro';
     </div>
   </dialog>
 
-  <!-- PIN Setup Modal -->
-  <dialog id="pinModal" class="backdrop:bg-black/60 text-ink fixed inset-0 z-50 m-auto w-[90vw] max-w-xs p-6 bg-canvas border border-hairline rounded-2xl shadow-2xl">
+  <!-- PIN Setup Modal (4 Square Digit Boxes) -->
+  <dialog id="pinModal" class="backdrop:bg-black/60 text-ink fixed inset-0 z-50 m-auto w-[90vw] max-w-sm p-6 bg-canvas border border-hairline rounded-3xl shadow-2xl">
     <div class="flex flex-col items-center gap-4 text-center">
-      <div class="w-12 h-12 rounded-full bg-brand/10 text-brand flex items-center justify-center">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <div class="w-14 h-14 rounded-full bg-brand/10 text-brand flex items-center justify-center">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
       </div>
-      <h3 class="text-lg font-bold text-ink">Set 4-Digit Passcode</h3>
-      <input type="password" id="pinInput" maxlength="4" pattern="[0-9]*" inputmode="numeric" class="w-32 text-center text-2xl font-mono tracking-[0.5em] p-2.5 border border-hairline rounded-xl bg-canvas-soft focus:outline-none focus:border-brand" placeholder="••••" />
-      <div class="flex gap-2 w-full mt-2">
-        <button type="button" id="cancelPinBtn" class="flex-1 py-2 rounded-lg border border-hairline text-xs font-medium hover:bg-canvas-soft">Cancel</button>
-        <button type="button" id="savePinBtn" class="flex-1 py-2 rounded-lg bg-brand text-white text-xs font-bold hover:bg-brand-deep">Save PIN</button>
+      <div>
+        <h3 class="text-lg font-bold text-ink">Set 4-Digit Passcode</h3>
+        <p class="text-xs text-mute mt-1">Create a passcode to secure SplitsBug</p>
+      </div>
+
+      <!-- 4 Square Digit Boxes -->
+      <div id="setPinBoxContainer" class="flex gap-3 justify-center my-2">
+        <input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="set-pin-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" autofocus />
+        <input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="set-pin-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" />
+        <input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="set-pin-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" />
+        <input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="set-pin-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" />
+      </div>
+
+      <div class="flex gap-3 w-full mt-2">
+        <button type="button" id="cancelPinBtn" class="flex-1 py-2.5 rounded-xl border border-hairline text-xs font-semibold hover:bg-canvas-soft cursor-pointer">Cancel</button>
+        <button type="button" id="savePinBtn" class="flex-1 py-2.5 rounded-xl bg-brand text-white text-xs font-bold hover:bg-brand-deep cursor-pointer">Save Passcode</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Turn Off PIN Verification Modal -->
+  <dialog id="disablePinModal" class="backdrop:bg-black/60 text-ink fixed inset-0 z-50 m-auto w-[90vw] max-w-sm p-6 bg-canvas border border-hairline rounded-3xl shadow-2xl">
+    <div class="flex flex-col items-center gap-4 text-center">
+      <div class="w-14 h-14 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+      <div>
+        <h3 class="text-lg font-bold text-ink">Turn Off Passcode Lock</h3>
+        <p class="text-xs text-mute mt-1">Enter your current 4-digit passcode to disable lock</p>
+      </div>
+
+      <!-- 4 Square Digit Boxes -->
+      <div id="disablePinBoxContainer" class="flex gap-3 justify-center my-2">
+        <input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="disable-pin-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" autofocus />
+        <input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="disable-pin-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" />
+        <input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="disable-pin-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" />
+        <input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="disable-pin-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" />
+      </div>
+
+      <p id="disablePinError" class="text-xs text-danger font-semibold hidden"></p>
+
+      <div class="flex gap-3 w-full mt-2">
+        <button type="button" id="cancelDisablePinBtn" class="flex-1 py-2.5 rounded-xl border border-hairline text-xs font-semibold hover:bg-canvas-soft cursor-pointer">Cancel</button>
+        <button type="button" id="confirmDisablePinBtn" class="flex-1 py-2.5 rounded-xl bg-danger text-white text-xs font-bold hover:opacity-90 cursor-pointer">Turn Off</button>
       </div>
     </div>
   </dialog>
@@ -125,24 +198,164 @@ import Layout from '../layouts/Layout.astro';
     const successBox = document.getElementById('successBox') as HTMLDivElement;
     const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
 
-    // PIN Lock setup logic
+    // PIN Lock & Custom Web Dropdown logic
     const pinToggle = document.getElementById('pinToggle') as HTMLInputElement;
+    const autoLockContainer = document.getElementById('autoLockContainer');
+    
+    const autoLockDropdownBtn = document.getElementById('autoLockDropdownBtn');
+    const autoLockMenu = document.getElementById('autoLockMenu');
+    const autoLockSelectedLabel = document.getElementById('autoLockSelectedLabel');
+    const autoLockArrow = document.getElementById('autoLockArrow');
+    const autoLockOptions = Array.from(document.querySelectorAll('.autolock-opt'));
+
     const pinModal = document.getElementById('pinModal') as HTMLDialogElement;
-    const pinInput = document.getElementById('pinInput') as HTMLInputElement;
+    const setPinDigits = Array.from(document.querySelectorAll('.set-pin-digit')) as HTMLInputElement[];
     const cancelPinBtn = document.getElementById('cancelPinBtn');
     const savePinBtn = document.getElementById('savePinBtn');
 
+    const disablePinModal = document.getElementById('disablePinModal') as HTMLDialogElement;
+    const disablePinDigits = Array.from(document.querySelectorAll('.disable-pin-digit')) as HTMLInputElement[];
+    const disablePinError = document.getElementById('disablePinError');
+    const cancelDisablePinBtn = document.getElementById('cancelDisablePinBtn');
+    const confirmDisablePinBtn = document.getElementById('confirmDisablePinBtn');
+
+    // Labels map
+    const labelsMap: Record<string, string> = {
+      '0': 'Immediately (On refresh / load)',
+      '5': 'After 5 minutes',
+      '10': 'After 10 minutes',
+      '30': 'After 30 minutes'
+    };
+
+    function updateDropdownUI(val: string) {
+      if (autoLockSelectedLabel) {
+        autoLockSelectedLabel.textContent = labelsMap[val] || labelsMap['0'];
+      }
+      autoLockOptions.forEach(opt => {
+        const optVal = opt.getAttribute('data-val');
+        const check = opt.querySelector('.opt-check');
+        if (optVal === val) {
+          opt.classList.add('bg-brand/10', 'text-brand');
+          check?.classList.remove('hidden');
+        } else {
+          opt.classList.remove('bg-brand/10', 'text-brand');
+          check?.classList.add('hidden');
+        }
+      });
+    }
+
+    const currentInterval = localStorage.getItem('splitsbug_autolock_interval') || '0';
+    updateDropdownUI(currentInterval);
+
+    // Custom Web Dropdown toggle
+    autoLockDropdownBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = !autoLockMenu?.classList.contains('hidden');
+      if (isOpen) {
+        autoLockMenu?.classList.add('hidden');
+        autoLockArrow?.classList.remove('rotate-180');
+      } else {
+        autoLockMenu?.classList.remove('hidden');
+        autoLockArrow?.classList.add('rotate-180');
+      }
+    });
+
+    autoLockOptions.forEach(opt => {
+      opt.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const val = opt.getAttribute('data-val') || '0';
+        localStorage.setItem('splitsbug_autolock_interval', val);
+        updateDropdownUI(val);
+        autoLockMenu?.classList.add('hidden');
+        autoLockArrow?.classList.remove('rotate-180');
+      });
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!document.getElementById('customAutoLockDropdown')?.contains(e.target as Node)) {
+        autoLockMenu?.classList.add('hidden');
+        autoLockArrow?.classList.remove('rotate-180');
+      }
+    });
+
+    // Init PIN state
     if (localStorage.getItem('splitsbug_pin_enabled') === 'true') {
       pinToggle.checked = true;
+      autoLockContainer?.classList.remove('hidden');
     }
+
+    const triggerSavePin = () => {
+      const pinVal = setPinDigits.map(d => d.value).join('');
+      if (pinVal.length === 4) {
+        localStorage.setItem('splitsbug_pin_enabled', 'true');
+        localStorage.setItem('splitsbug_pin_val', pinVal);
+        pinToggle.checked = true;
+        autoLockContainer?.classList.remove('hidden');
+        pinModal.close();
+      } else {
+        alert('Please enter all 4 digits.');
+      }
+    };
+
+    const triggerDisablePin = () => {
+      const enteredPin = disablePinDigits.map(d => d.value).join('');
+      const savedPin = localStorage.getItem('splitsbug_pin_val');
+
+      if (enteredPin === savedPin) {
+        localStorage.removeItem('splitsbug_pin_enabled');
+        localStorage.removeItem('splitsbug_pin_val');
+        localStorage.removeItem('splitsbug_app_locked');
+        pinToggle.checked = false;
+        autoLockContainer?.classList.add('hidden');
+        disablePinModal.close();
+      } else if (disablePinError) {
+        disablePinError.textContent = "Incorrect passcode. Please try again.";
+        disablePinError.classList.remove('hidden');
+        disablePinDigits.forEach(d => d.value = '');
+        disablePinDigits[0]?.focus();
+      }
+    };
+
+    // Handle 4 square digit box input navigation and Enter key submit
+    function setupDigitInputNav(digits: HTMLInputElement[], onSubmit: () => void) {
+      digits.forEach((digit, idx) => {
+        digit.addEventListener('input', () => {
+          const val = digit.value.replace(/[^0-9]/g, '');
+          digit.value = val ? val.slice(-1) : '';
+          
+          if (digit.value && idx < digits.length - 1) {
+            digits[idx + 1].focus();
+          }
+
+          if (digits.every(d => d.value.length === 1)) {
+            onSubmit();
+          }
+        });
+
+        digit.addEventListener('keydown', (e) => {
+          if (e.key === 'Backspace' && !digit.value && idx > 0) {
+            digits[idx - 1].focus();
+          } else if (e.key === 'Enter') {
+            onSubmit();
+          }
+        });
+      });
+    }
+
+    setupDigitInputNav(setPinDigits, triggerSavePin);
+    setupDigitInputNav(disablePinDigits, triggerDisablePin);
 
     pinToggle?.addEventListener('change', () => {
       if (pinToggle.checked) {
-        pinInput.value = '';
+        setPinDigits.forEach(d => d.value = '');
         pinModal.showModal();
+        setTimeout(() => setPinDigits[0]?.focus(), 100);
       } else {
-        localStorage.removeItem('splitsbug_pin_enabled');
-        localStorage.removeItem('splitsbug_pin_val');
+        pinToggle.checked = true;
+        disablePinDigits.forEach(d => d.value = '');
+        if (disablePinError) disablePinError.classList.add('hidden');
+        disablePinModal.showModal();
+        setTimeout(() => disablePinDigits[0]?.focus(), 100);
       }
     });
 
@@ -151,15 +364,13 @@ import Layout from '../layouts/Layout.astro';
       pinToggle.checked = localStorage.getItem('splitsbug_pin_enabled') === 'true';
     });
 
-    savePinBtn?.addEventListener('click', () => {
-      if (pinInput.value.length === 4) {
-        localStorage.setItem('splitsbug_pin_enabled', 'true');
-        localStorage.setItem('splitsbug_pin_val', pinInput.value);
-        pinModal.close();
-      } else {
-        alert('Passcode must be exactly 4 digits.');
-      }
+    savePinBtn?.addEventListener('click', triggerSavePin);
+
+    cancelDisablePinBtn?.addEventListener('click', () => {
+      disablePinModal.close();
     });
+
+    confirmDisablePinBtn?.addEventListener('click', triggerDisablePin);
 
     // Delete Account Logic
     const openDeleteModalBtn = document.getElementById('openDeleteModalBtn');

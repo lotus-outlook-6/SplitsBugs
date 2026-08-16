@@ -49,6 +49,11 @@ import Layout from '../layouts/Layout.astro';
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
         </button>
 
+        <!-- Manual Lock Button -->
+        <button id="manualLockBtn" class="hidden bg-canvas-soft text-ink hover:bg-hairline p-2 rounded-full transition-colors cursor-pointer flex items-center justify-center border border-hairline shrink-0 relative" title="Lock App">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+        </button>
+
         <!-- Notification Bell -->
         <button id="notificationBtn" class="bg-canvas-soft text-ink hover:bg-hairline p-2 rounded-full transition-colors cursor-pointer flex items-center justify-center border border-hairline shrink-0 relative" title="Notifications">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
@@ -1462,79 +1467,97 @@ import Layout from '../layouts/Layout.astro';
       try {
         const { updateDoc, deleteDoc, doc, getDoc, addDoc, collection } = await import('firebase/firestore');
         
+        const inviteRef = doc(db, "invites", inviteId);
+        const inviteSnap = await getDoc(inviteRef);
+        
+        if (!inviteSnap.exists()) {
+          showToast("Invite no longer exists.", true);
+          return;
+        }
+
+        const invite = inviteSnap.data();
+
         if (newStatus === 'rejected') {
-          await deleteDoc(doc(db, "invites", inviteId));
-        } else {
-          await updateDoc(doc(db, "invites", inviteId), { status: newStatus });
+          await deleteDoc(inviteRef);
+          showToast("Invitation declined.");
+        } else if (newStatus === 'accepted') {
+          const groupRef = doc(db, "groups", invite.groupId);
+          const groupSnap = await getDoc(groupRef);
           
-          if (newStatus === 'accepted') {
-            const inviteDoc = await getDoc(doc(db, "invites", inviteId));
-            if (inviteDoc.exists()) {
-              const invite = inviteDoc.data();
-              const groupRef = doc(db, "groups", invite.groupId);
-              const groupSnap = await getDoc(groupRef);
+          if (groupSnap.exists()) {
+            const group = groupSnap.data();
+            const oldId = invite.memberId;
+            const newId = currentUserEmail;
+            
+            let updatedMembers = [...(group.members || [])];
+            let updatedRoles = { ...(group.roles || {}) };
+            
+            if (oldId && updatedMembers.includes(oldId)) {
+              const idx = updatedMembers.indexOf(oldId);
+              updatedMembers[idx] = newId;
               
-              if (groupSnap.exists()) {
-                const group = groupSnap.data();
-                const oldId = invite.memberId;
-                const newId = currentUserEmail;
-                
-                let updatedMembers = [...group.members];
-                let updatedRoles = { ...group.roles };
-                
-                if (oldId && updatedMembers.includes(oldId)) {
-                  const idx = updatedMembers.indexOf(oldId);
-                  updatedMembers[idx] = newId;
-                  
-                  if (updatedRoles[oldId]) {
-                    updatedRoles[newId] = invite.role || updatedRoles[oldId];
-                    delete updatedRoles[oldId];
-                  } else {
-                    updatedRoles[newId] = invite.role || 'viewer';
-                  }
-                  
-                  let updatedExpenses = [...(group.expenses || [])];
-                  updatedExpenses.forEach((exp: any) => {
-                    if (exp.paidBy === oldId) exp.paidBy = newId;
-                    if (exp.participants) {
-                      const pIdx = exp.participants.indexOf(oldId);
-                      if (pIdx > -1) exp.participants[pIdx] = newId;
-                    }
-                  });
-                  
-                  await updateDoc(groupRef, {
-                    members: updatedMembers,
-                    roles: updatedRoles,
-                    expenses: updatedExpenses
-                  });
-                } else {
-                  if (!updatedMembers.includes(newId)) {
-                    updatedMembers.push(newId);
-                  }
-                  updatedRoles[newId] = invite.role || 'viewer';
-                  
-                  await updateDoc(groupRef, {
-                    members: updatedMembers,
-                    roles: updatedRoles
-                  });
-                }
-                
-                showToast(`Joined ${invite.groupName}!`);
-                
-                await addDoc(collection(db, "users", currentUserEmail, "notifications"), {
-                  groupId: group.id,
-                  message: `You joined the group "${group.name}".`,
-                  timestamp: Date.now(),
-                  read: false
-                });
+              if (updatedRoles[oldId]) {
+                updatedRoles[newId] = invite.role || updatedRoles[oldId];
+                delete updatedRoles[oldId];
+              } else {
+                updatedRoles[newId] = invite.role || 'editor';
               }
+              
+              let updatedExpenses = [...(group.expenses || [])];
+              updatedExpenses.forEach((exp: any) => {
+                if (exp.paidBy === oldId) exp.paidBy = newId;
+                if (exp.participants) {
+                  const pIdx = exp.participants.indexOf(oldId);
+                  if (pIdx > -1) exp.participants[pIdx] = newId;
+                }
+              });
+              
+              await updateDoc(groupRef, {
+                members: updatedMembers,
+                roles: updatedRoles,
+                expenses: updatedExpenses
+              });
+            } else {
+              if (!updatedMembers.includes(newId)) {
+                updatedMembers.push(newId);
+              }
+              updatedRoles[newId] = invite.role || 'editor';
+              
+              await updateDoc(groupRef, {
+                members: updatedMembers,
+                roles: updatedRoles
+              });
             }
+            
+            // Delete accepted invite document
+            await deleteDoc(inviteRef).catch(e => console.warn(e));
+            
+            showToast(`Joined ${invite.groupName || 'group'}!`);
+            
+            await addDoc(collection(db, "users", currentUserEmail, "notifications"), {
+              groupId: invite.groupId,
+              message: `You joined the group "${invite.groupName || 'group'}".`,
+              timestamp: Date.now(),
+              read: false
+            }).catch(e => console.warn(e));
+          } else {
+            showToast("Group not found.", true);
           }
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error updating invite: ", error);
-        showToast("Action failed.", true);
+        showToast(error.message || "Action failed.", true);
       }
+    }
+
+    const manualLockBtn = document.getElementById('manualLockBtn');
+    if (localStorage.getItem('splitsbug_pin_enabled') === 'true' && manualLockBtn) {
+      manualLockBtn.classList.remove('hidden');
+      manualLockBtn.addEventListener('click', () => {
+        if ((window as any).lockAppManually) {
+          (window as any).lockAppManually();
+        }
+      });
     }
 
     if (notificationBtn && notificationsModal) {
