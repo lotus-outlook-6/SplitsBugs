@@ -12,6 +12,13 @@ import Layout from '../layouts/Layout.astro';
     </header>
 
     <script is:inline>
+      window.renderAbstractArt = function(type) {
+        if (type === 'special-art-1') return '<div class="w-full h-full" style="background: conic-gradient(from 45deg, #FF6B6B, #4ECDC4, #45B7D1, #FF6B6B);"></div>';
+        if (type === 'special-art-2') return '<div class="w-full h-full" style="background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 99%, #FECFEF 100%);"><div class="w-1/2 h-1/2 bg-white/30 rounded-br-full backdrop-blur-md"></div></div>';
+        if (type === 'special-art-3') return '<div class="w-full h-full flex"><div class="w-1/2 h-full bg-indigo-500"></div><div class="w-1/2 h-full bg-rose-400 rounded-tl-full"></div></div>';
+        return '';
+      }
+
       document.addEventListener('DOMContentLoaded', () => {
         const email = localStorage.getItem('splitbug_userEmail');
         const name = localStorage.getItem('splitbug_userName');
@@ -33,7 +40,7 @@ import Layout from '../layouts/Layout.astro';
             avatarEl.innerHTML = `<img src="${avatar}" loading="lazy" decoding="async" class="w-full h-full object-cover" />`;
             avatarEl.className = "w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-transparent text-white flex items-center justify-center text-4xl sm:text-5xl font-bold overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all";
           } else if (theme.startsWith('special-art-')) {
-            avatarEl.innerHTML = window.renderAbstractArt ? window.renderAbstractArt(theme) : '';
+            avatarEl.innerHTML = window.renderAbstractArt(theme);
             avatarEl.className = "w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-transparent text-white overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all";
           } else if (name) {
             const parts = name.trim().split(' ').filter(Boolean);
@@ -235,12 +242,7 @@ import Layout from '../layouts/Layout.astro';
       }
     });
 
-    function renderAbstractArt(type: string) {
-      if (type === 'special-art-1') return '<div class="w-full h-full" style="background: conic-gradient(from 45deg, #FF6B6B, #4ECDC4, #45B7D1, #FF6B6B);"></div>';
-      if (type === 'special-art-2') return '<div class="w-full h-full" style="background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 99%, #FECFEF 100%);"><div class="w-1/2 h-1/2 bg-white/30 rounded-br-full backdrop-blur-md"></div></div>';
-      if (type === 'special-art-3') return '<div class="w-full h-full flex"><div class="w-1/2 h-full bg-indigo-500"></div><div class="w-1/2 h-full bg-rose-400 rounded-tl-full"></div></div>';
-      return '';
-    }
+
 
     function getInitials(name: string) {
       const parts = name.trim().split(' ').filter(Boolean);
@@ -256,7 +258,7 @@ import Layout from '../layouts/Layout.astro';
         removePhotoBtn.classList.remove('hidden');
         refreshColorBtn.classList.add('hidden');
       } else if (currentThemeColor.startsWith('special-art-')) {
-        profileAvatar.innerHTML = renderAbstractArt(currentThemeColor);
+        profileAvatar.innerHTML = window.renderAbstractArt(currentThemeColor);
         profileAvatar.className = "w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all bg-transparent";
         removePhotoBtn.classList.add('hidden');
         refreshColorBtn.classList.remove('hidden');
@@ -489,7 +491,7 @@ import Layout from '../layouts/Layout.astro';
       localStorage.setItem('splitbug_userName', name);
       localStorage.setItem('splitbug_userThemeColor', currentThemeColor);
       localStorage.setItem('splitbug_userGradientTheme', finalGradientTheme);
-      if (currentAvatarBase64) {
+      if (currentAvatarBase64 && currentAvatarBase64 !== 'undefined' && currentAvatarBase64 !== 'null') {
         localStorage.setItem('splitbug_userAvatar', currentAvatarBase64);
       } else {
         localStorage.removeItem('splitbug_userAvatar');

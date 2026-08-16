@@ -34,29 +34,41 @@ import Layout from '../layouts/Layout.astro';
       <div id="activityFeedContainer" class="flex flex-col">
         <!-- Skeleton activity items -->
         <div id="activitySkeleton">
-          <div class="flex gap-4 p-4 border-b border-hairline bg-canvas">
-            <div class="skeleton-circle w-10 h-10 shrink-0"></div>
-            <div class="flex-1"><div class="skeleton h-4 w-3/4 mb-2"></div><div class="skeleton h-3 w-1/2"></div></div>
+          <div class="flex items-start gap-4 p-4 lg:p-5 border-b border-hairline bg-canvas">
+            <div class="relative shrink-0 mt-1"><div class="skeleton w-12 h-12 rounded-lg"></div></div>
+            <div class="flex-1"><div class="skeleton h-4 w-3/4 mb-3 mt-1"></div><div class="skeleton h-3 w-1/2 mb-3"></div><div class="skeleton h-2 w-1/4"></div></div>
           </div>
-          <div class="flex gap-4 p-4 border-b border-hairline bg-canvas">
-            <div class="skeleton-circle w-10 h-10 shrink-0"></div>
-            <div class="flex-1"><div class="skeleton h-4 w-2/3 mb-2"></div><div class="skeleton h-3 w-1/3"></div></div>
+          <div class="flex items-start gap-4 p-4 lg:p-5 border-b border-hairline bg-canvas">
+            <div class="relative shrink-0 mt-1"><div class="skeleton w-12 h-12 rounded-lg"></div></div>
+            <div class="flex-1"><div class="skeleton h-4 w-2/3 mb-3 mt-1"></div><div class="skeleton h-3 w-1/3 mb-3"></div><div class="skeleton h-2 w-1/5"></div></div>
           </div>
-          <div class="flex gap-4 p-4 border-b border-hairline bg-canvas">
-            <div class="skeleton-circle w-10 h-10 shrink-0"></div>
-            <div class="flex-1"><div class="skeleton h-4 w-4/5 mb-2"></div><div class="skeleton h-3 w-2/5"></div></div>
+          <div class="flex items-start gap-4 p-4 lg:p-5 border-b border-hairline bg-canvas">
+            <div class="relative shrink-0 mt-1"><div class="skeleton w-12 h-12 rounded-lg"></div></div>
+            <div class="flex-1"><div class="skeleton h-4 w-4/5 mb-3 mt-1"></div><div class="skeleton h-3 w-2/5 mb-3"></div><div class="skeleton h-2 w-1/4"></div></div>
           </div>
-          <div class="flex gap-4 p-4 border-b border-hairline bg-canvas">
-            <div class="skeleton-circle w-10 h-10 shrink-0"></div>
-            <div class="flex-1"><div class="skeleton h-4 w-1/2 mb-2"></div><div class="skeleton h-3 w-1/4"></div></div>
+          <div class="flex items-start gap-4 p-4 lg:p-5 border-b border-hairline bg-canvas">
+            <div class="relative shrink-0 mt-1"><div class="skeleton w-12 h-12 rounded-lg"></div></div>
+            <div class="flex-1"><div class="skeleton h-4 w-1/2 mb-3 mt-1"></div><div class="skeleton h-3 w-1/4 mb-3"></div><div class="skeleton h-2 w-1/6"></div></div>
           </div>
         </div>
       </div>
     </main>
 
-
-
   </div>
+  
+  <style is:inline>
+    .activity-item {
+      transition: opacity 0.5s ease-out, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease;
+    }
+    .reveal-hidden {
+      opacity: 0;
+      transform: translateY(30px) scale(0.95);
+    }
+    .reveal-visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  </style>
 
   <script>
     import { auth, db } from '../firebase';
@@ -189,9 +201,14 @@ import Layout from '../layouts/Layout.astro';
 
         // Check if group is deleted based on realtime listener
         const isGroupDeleted = !groupsData[act.groupId];
+        
+        const itemTag = isGroupDeleted ? 'div' : 'a';
+        const linkAttr = isGroupDeleted ? '' : `href="/group?id=${act.groupId}"`;
+        const actionClasses = isGroupDeleted ? '' : 'hover:bg-canvas-soft cursor-pointer';
+        const opacityClass = isGroupDeleted ? 'opacity-80' : '';
 
         const itemHTML = `
-          <a ${isGroupDeleted ? 'data-deleted="true"' : `href="/group?id=${act.groupId}"`} class="activity-item flex items-start gap-4 p-4 lg:p-5 border-b border-hairline hover:bg-canvas-soft transition-colors block cursor-pointer">
+          <${itemTag} ${linkAttr} class="activity-item flex items-start gap-4 p-4 lg:p-5 border-b border-hairline block ${actionClasses} ${opacityClass} reveal-hidden">
             <div class="relative shrink-0 mt-1">
               <div class="w-12 h-12 rounded-lg bg-[#b2dfdb] border border-hairline flex items-center justify-center font-bold text-2xl text-ink">
                 ${avatarLetter}
@@ -203,17 +220,36 @@ import Layout from '../layouts/Layout.astro';
               ${subTextHTML}
               <p class="text-xs text-mute mt-1">${dateStr}</p>
             </div>
-          </a>
+          </${itemTag}>
         `;
         feedContainer.insertAdjacentHTML('beforeend', itemHTML);
       });
 
-      // Add listeners for deleted groups
-      document.querySelectorAll('.activity-item[data-deleted="true"]').forEach(el => {
-        el.addEventListener('click', (e) => {
-          e.preventDefault();
-          alert('This group no longer exists and was deleted by the admin.');
+      // Setup scroll reveal animation
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('reveal-visible');
+            entry.target.classList.remove('reveal-hidden');
+          } else {
+            entry.target.classList.remove('reveal-visible');
+            entry.target.classList.add('reveal-hidden');
+          }
         });
+      }, {
+        threshold: 0.15,
+        rootMargin: "0px"
+      });
+
+      document.querySelectorAll('.activity-item').forEach((el, index) => {
+        // Stagger first few items for initial load
+        if (index < 15) {
+           (el as HTMLElement).style.transitionDelay = `${index * 30}ms`;
+           setTimeout(() => {
+              (el as HTMLElement).style.transitionDelay = '0ms';
+           }, 1000);
+        }
+        observer.observe(el);
       });
     }
 

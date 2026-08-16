@@ -4,6 +4,13 @@ import Layout from '../layouts/Layout.astro';
 
 <Layout>
   <script is:inline>
+    window.renderAbstractArt = function(type) {
+      if (type === 'special-art-1') return '<div class="w-full h-full" style="background: conic-gradient(from 45deg, #FF6B6B, #4ECDC4, #45B7D1, #FF6B6B);"></div>';
+      if (type === 'special-art-2') return '<div class="w-full h-full" style="background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 99%, #FECFEF 100%);"><div class="w-1/2 h-1/2 bg-white/30 rounded-br-full backdrop-blur-md"></div></div>';
+      if (type === 'special-art-3') return '<div class="w-full h-full flex"><div class="w-1/2 h-full bg-indigo-500"></div><div class="w-1/2 h-full bg-rose-400 rounded-tl-full"></div></div>';
+      return '';
+    }
+
     // Synchronously load cached user data to prevent blank flashes
     document.addEventListener('DOMContentLoaded', () => {
       const email = localStorage.getItem('splitbug_userEmail');
@@ -40,11 +47,11 @@ import Layout from '../layouts/Layout.astro';
       const avatarEl = document.getElementById('profileAvatar');
       const avatarSkeleton = document.getElementById('avatarSkeleton');
       if (avatarEl) {
-        if (avatar) {
+        if (avatar && avatar !== 'undefined' && avatar !== 'null') {
           avatarEl.innerHTML = `<img src="${avatar}" loading="lazy" decoding="async" class="w-full h-full object-cover fade-in" />`;
           avatarEl.className = "w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-transparent text-white flex items-center justify-center text-4xl sm:text-5xl font-bold mb-4 overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all";
         } else if (theme.startsWith('special-art-')) {
-          avatarEl.innerHTML = window.renderAbstractArt ? window.renderAbstractArt(theme) : '';
+          avatarEl.innerHTML = window.renderAbstractArt(theme);
           avatarEl.className = "w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-transparent text-white mb-4 overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all";
         } else if (name) {
           const parts = name.trim().split(' ').filter(Boolean);
@@ -180,12 +187,7 @@ import Layout from '../layouts/Layout.astro';
     import { doc, getDoc } from 'firebase/firestore';
     import { onAuthStateChanged, signOut } from 'firebase/auth';
 
-    function renderAbstractArt(type: string) {
-      if (type === 'special-art-1') return '<div class="w-full h-full" style="background: conic-gradient(from 45deg, #FF6B6B, #4ECDC4, #45B7D1, #FF6B6B);"></div>';
-      if (type === 'special-art-2') return '<div class="w-full h-full" style="background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 99%, #FECFEF 100%);"><div class="w-1/2 h-1/2 bg-white/30 rounded-br-full backdrop-blur-md"></div></div>';
-      if (type === 'special-art-3') return '<div class="w-full h-full flex"><div class="w-1/2 h-full bg-indigo-500"></div><div class="w-1/2 h-full bg-rose-400 rounded-tl-full"></div></div>';
-      return '';
-    }
+
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
@@ -214,11 +216,11 @@ import Layout from '../layouts/Layout.astro';
             
             if (userAvatar !== cachedAvatar || userThemeColor !== (localStorage.getItem('splitbug_userThemeColor') || 'special-art-1')) {
               const avatarEl = document.getElementById('profileAvatar');
-              if (userAvatar) {
+              if (userAvatar && userAvatar !== 'undefined' && userAvatar !== 'null') {
                 avatarEl!.innerHTML = `<img src="${userAvatar}" loading="lazy" decoding="async" class="w-full h-full object-cover fade-in" />`;
                 avatarEl!.className = "w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-transparent text-white flex items-center justify-center text-4xl sm:text-5xl font-bold mb-4 overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all";
               } else if (userThemeColor.startsWith('special-art-')) {
-                avatarEl!.innerHTML = renderAbstractArt(userThemeColor);
+                avatarEl!.innerHTML = window.renderAbstractArt(userThemeColor);
                 avatarEl!.className = "w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-transparent text-white mb-4 overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all";
               } else {
                 const parts = userName.trim().split(' ').filter(Boolean);

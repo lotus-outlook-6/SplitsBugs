@@ -58,7 +58,7 @@ import Layout from '../layouts/Layout.astro';
         </div>
         
         <!-- Group Title -->
-        <div id="groupTitleSkeleton" class="skeleton h-10 w-64 mb-4"></div>
+        <div id="groupTitleSkeleton" class="skeleton h-10 lg:h-12 w-64 mb-4"></div>
         <h1 id="groupTitle" class="text-4xl lg:text-5xl font-bold tracking-tight mb-4 hidden"></h1>
         
         <!-- Info Pills -->
@@ -98,7 +98,41 @@ import Layout from '../layouts/Layout.astro';
             </div>
             
             <div id="activityFeed" class="divide-y divide-hairline">
-              <!-- Activities will be added here via JS -->
+              <!-- Skeletons -->
+              <div class="p-6 flex items-center justify-between border-b border-hairline">
+                <div class="flex items-center gap-3 sm:gap-4 w-full">
+                  <div class="flex flex-col items-center justify-center w-8 shrink-0 gap-1.5">
+                    <div class="skeleton h-2 w-5"></div>
+                    <div class="skeleton h-4 w-6"></div>
+                  </div>
+                  <div class="skeleton w-10 h-10 rounded-sm shrink-0"></div>
+                  <div class="flex flex-col gap-2 flex-1">
+                    <div class="skeleton h-4 w-32"></div>
+                    <div class="skeleton h-3 w-24"></div>
+                  </div>
+                </div>
+                <div class="flex flex-col items-end gap-2 ml-4">
+                  <div class="skeleton h-3 w-20"></div>
+                  <div class="skeleton h-3 w-4 mt-1"></div>
+                </div>
+              </div>
+              <div class="p-6 flex items-center justify-between border-b border-hairline">
+                <div class="flex items-center gap-3 sm:gap-4 w-full">
+                  <div class="flex flex-col items-center justify-center w-8 shrink-0 gap-1.5">
+                    <div class="skeleton h-2 w-5"></div>
+                    <div class="skeleton h-4 w-6"></div>
+                  </div>
+                  <div class="skeleton w-10 h-10 rounded-sm shrink-0"></div>
+                  <div class="flex flex-col gap-2 flex-1">
+                    <div class="skeleton h-4 w-40"></div>
+                    <div class="skeleton h-3 w-28"></div>
+                  </div>
+                </div>
+                <div class="flex flex-col items-end gap-2 ml-4">
+                  <div class="skeleton h-3 w-24"></div>
+                  <div class="skeleton h-3 w-4 mt-1"></div>
+                </div>
+              </div>
             </div>
           </section>
         </div>
@@ -111,7 +145,15 @@ import Layout from '../layouts/Layout.astro';
             </div>
             
             <div id="balancesContainer" class="space-y-4">
-              <!-- Balances will be added here via JS -->
+              <!-- Skeletons -->
+              <div class="flex items-center gap-3 py-1">
+                <div class="w-8 h-8 rounded-full skeleton shrink-0"></div>
+                <div class="skeleton h-4 w-48"></div>
+              </div>
+              <div class="flex items-center gap-3 py-1">
+                <div class="w-8 h-8 rounded-full skeleton shrink-0"></div>
+                <div class="skeleton h-4 w-32"></div>
+              </div>
             </div>
           </section>
 
@@ -134,6 +176,27 @@ import Layout from '../layouts/Layout.astro';
               </div>
             </form>
           </section>
+          
+          <script is:inline>
+            document.addEventListener('DOMContentLoaded', () => {
+              const commentAvatar = document.getElementById('commentAvatar');
+              if (commentAvatar) {
+                const avatar = localStorage.getItem('splitbug_userAvatar');
+                const theme = localStorage.getItem('splitbug_userThemeColor');
+                
+                if (avatar && avatar !== 'undefined' && avatar !== 'null') {
+                  commentAvatar.innerHTML = '<img src="' + avatar + '" loading="lazy" decoding="async" class="w-8 h-8 rounded-full object-cover ring-2 ring-transparent transition-all" />';
+                  commentAvatar.className = "w-7 h-7 rounded-full bg-transparent flex items-center justify-center shrink-0 ml-0.5";
+                } else if (theme && theme.startsWith('special-art-') && window.renderAbstractArt) {
+                  commentAvatar.innerHTML = `<div class="w-full h-full rounded-full overflow-hidden">${window.renderAbstractArt(theme)}</div>`;
+                  commentAvatar.className = "w-7 h-7 rounded-full bg-transparent flex items-center justify-center shrink-0 ml-0.5";
+                } else {
+                  commentAvatar.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
+                  commentAvatar.className = "w-7 h-7 rounded-full bg-canvas-soft text-mute flex items-center justify-center shrink-0 ml-0.5";
+                }
+              }
+            });
+          </script>
         </div>
       </div>
     </main>
