@@ -1,0 +1,85 @@
+<!DOCTYPE html><html lang="en" data-astro-cid-ju4pidww><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"><link rel="icon" type="image/svg+xml" href="/SplitBugs-Brand/favicon/favicon.svg?v=3"><meta name="generator" content="Astro v7.1.6"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="SplitsBug"><link rel="apple-touch-icon" href="/favicon.png"><meta name="theme-color" content="#5b21b6"><title>SplitBugs</title><script src="/js/categories.js"></script><script>
+			// Apply Theme
+			const savedTheme = localStorage.getItem('splitbug_theme') || 'dark-grey';
+			window.applyTheme = (theme) => {
+				document.documentElement.className = '';
+				if (theme === 'system') {
+					if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+						document.documentElement.classList.add('theme-dark-grey');
+					} else {
+						document.documentElement.classList.add('theme-light-white');
+					}
+				} else if (theme === 'splitsbug') {
+					const hour = new Date().getHours();
+					let activeTheme = 'light-white';
+					if (hour >= 5 && hour < 7) activeTheme = 'light-cream';
+					else if (hour >= 7 && hour < 17) activeTheme = 'light-white';
+					else if (hour >= 17 && hour < 18) activeTheme = 'light-cream';
+					else if (hour >= 18 && hour < 21) activeTheme = 'dark-grey';
+					else activeTheme = 'dark-amoled';
+					document.documentElement.classList.add(`theme-${activeTheme}`);
+				} else {
+					document.documentElement.classList.add(`theme-${theme}`);
+				}
+				window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: document.documentElement.className } }));
+			};
+			window.applyTheme(savedTheme);
+
+			// Automatically re-apply theme if system preference changes or if splitsbug theme is active
+			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+				if (localStorage.getItem('splitbug_theme') === 'system') {
+					window.applyTheme('system');
+				}
+			});
+
+			setInterval(() => {
+				if (localStorage.getItem('splitbug_theme') === 'splitsbug') {
+					window.applyTheme('splitsbug');
+				}
+			}, 60000);
+
+			// Global Name Definition
+			window.MY_NAME = localStorage.getItem('splitbug_userName') || 'Name';
+			window.MY_DISPLAY_NAME = `${window.MY_NAME} (You)`;
+
+			// Auth Check
+			const isLoggedIn = localStorage.getItem('splitbug_loggedIn') === 'true';
+			const isAuthPage = window.location.pathname === '/login' || window.location.pathname === '/signup';
+			const isGoogleFlow = window.location.search.includes('google=true');
+			if (!isLoggedIn && !isAuthPage) {
+				window.location.href = '/login';
+			} else if (isLoggedIn && isAuthPage && !isGoogleFlow) {
+				window.location.href = '/dashboard';
+			} else if (isLoggedIn && window.location.pathname === '/') {
+				window.location.href = '/dashboard';
+			}
+
+			// Native Push Notifications Listener (Cross-tab)
+			window.addEventListener('storage', (e) => {
+				if (e.key === 'splitsbug_notifications') {
+					const userEmail = localStorage.getItem('splitbug_userEmail');
+					if (!userEmail) return;
+					
+					try {
+						const oldData = e.oldValue ? JSON.parse(e.oldValue) : {};
+						const newData = e.newValue ? JSON.parse(e.newValue) : {};
+						
+						const oldUserNotifs = oldData[userEmail] || [];
+						const newUserNotifs = newData[userEmail] || [];
+						
+						if (newUserNotifs.length > oldUserNotifs.length) {
+							const addedNotifs = newUserNotifs.filter((n) => !oldUserNotifs.some((old) => old.id === n.id));
+							
+							if (Notification.permission === 'granted') {
+								addedNotifs.forEach((notif) => {
+									new Notification("SplitsBug", {
+										body: notif.message,
+										icon: '/SplitBugs-Brand/favicon/favicon.svg'
+									});
+								});
+							}
+						}
+					} catch(err) {}
+				}
+			});
+		</script><link rel="stylesheet" href="/_astro/Layout.Bj4GbB-k.css"></head><body class="pb-28" data-astro-cid-ju4pidww><div class="min-h-screen flex flex-col bg-canvas-soft pb-32"><!-- Header --><header class="h-16 px-4 lg:px-6 flex items-center gap-4 border-b border-hairline bg-canvas sticky top-0 z-40"><a href="/account" class="w-10 h-10 flex items-center justify-center rounded-full bg-canvas-soft hover:bg-hairline transition-colors text-ink"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></a><h1 class="text-xl sm:text-2xl font-bold tracking-tight text-ink">Privacy Policy</h1></header><main class="flex-1 w-full max-w-4xl mx-auto p-4 sm:p-6 lg:p-8"><div class="bg-canvas border border-hairline rounded-xl p-6 sm:p-10 shadow-sm prose prose-sm sm:prose-base dark:prose-invert max-w-none"><p class="text-sm text-mute mb-8">Last Updated: August 7, 2026</p><h2 class="text-2xl font-bold text-ink mt-8 mb-4">1. Introduction</h2><p class="text-ink mb-4">Welcome to SplitBugs. We respect your privacy and are committed to protecting your personal data. This privacy policy will inform you as to how we look after your personal data when you visit our website (regardless of where you visit it from) and tell you about your privacy rights and how the law protects you.</p><h2 class="text-2xl font-bold text-ink mt-8 mb-4">2. The Data We Collect About You</h2><p class="text-ink mb-4">Personal data, or personal information, means any information about an individual from which that person can be identified. We may collect, use, store and transfer different kinds of personal data about you which we have grouped together as follows:</p><ul class="list-disc pl-6 text-ink mb-4 space-y-2"><li><strong>Identity Data:</strong> includes first name, last name, username or similar identifier, and date of birth.</li><li><strong>Contact Data:</strong> includes email address and telephone numbers.</li><li><strong>Financial Data:</strong> includes bank account and payment card details (handled securely by our payment partners).</li><li><strong>Transaction Data:</strong> includes details about payments to and from you, and other details of expenses you have shared using our app.</li><li><strong>Technical Data:</strong> includes internet protocol (IP) address, your login data, browser type and version, time zone setting and location.</li></ul><h2 class="text-2xl font-bold text-ink mt-8 mb-4">3. How We Use Your Personal Data</h2><p class="text-ink mb-4">We will only use your personal data when the law allows us to. Most commonly, we will use your personal data in the following circumstances:</p><ul class="list-disc pl-6 text-ink mb-4 space-y-2"><li>Where we need to perform the contract we are about to enter into or have entered into with you (e.g., managing your groups and splits).</li><li>Where it is necessary for our legitimate interests (or those of a third party) and your interests and fundamental rights do not override those interests.</li><li>Where we need to comply with a legal or regulatory obligation.</li></ul><h2 class="text-2xl font-bold text-ink mt-8 mb-4">4. Data Security</h2><p class="text-ink mb-4">We have put in place appropriate security measures to prevent your personal data from being accidentally lost, used or accessed in an unauthorised way, altered or disclosed. In addition, we limit access to your personal data to those employees, agents, contractors and other third parties who have a business need to know.</p><h2 class="text-2xl font-bold text-ink mt-8 mb-4">5. Your Legal Rights</h2><p class="text-ink mb-4">Under certain circumstances, you have rights under data protection laws in relation to your personal data, including the right to request access, correction, erasure, restriction, transfer, to object to processing, to portability of data and (where the lawful ground of processing is consent) to withdraw consent.</p><h2 class="text-2xl font-bold text-ink mt-8 mb-4">6. Contact Us</h2><p class="text-ink mb-4">If you have any questions about this privacy policy or our privacy practices, please contact us via the <a href="/contact-support" class="text-brand hover:underline">Contact Support</a> page or email us at <a href="mailto:privacy@splitbugs.app" class="text-brand hover:underline">privacy@splitbugs.app</a>.</p></div></main></div><nav data-astro-transition-persist="bottom-nav" id="bottomNav" class="fixed bottom-0 left-0 w-full bg-canvas border-t border-hairline pb-safe z-50" data-astro-cid-ju4pidww><div class="flex items-center justify-around h-16 max-w-md mx-auto" data-astro-cid-ju4pidww><a href="/dashboard" class="flex flex-col items-center justify-center w-16 h-full transition-colors text-mute hover:text-ink" data-astro-cid-ju4pidww><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-1" data-astro-cid-ju4pidww><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" data-astro-cid-ju4pidww></path><circle cx="9" cy="7" r="4" data-astro-cid-ju4pidww></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87" data-astro-cid-ju4pidww></path><path d="M16 3.13a4 4 0 0 1 0 7.75" data-astro-cid-ju4pidww></path></svg><span class="text-[10px] font-medium" data-astro-cid-ju4pidww>Groups</span></a><a href="/activity" class="flex flex-col items-center justify-center w-16 h-full transition-colors text-mute hover:text-ink" data-astro-cid-ju4pidww><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-1" data-astro-cid-ju4pidww><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" data-astro-cid-ju4pidww></polyline></svg><span class="text-[10px] font-medium" data-astro-cid-ju4pidww>Activity</span></a><a href="/account" class="flex flex-col items-center justify-center w-16 h-full transition-colors group text-mute hover:text-ink" data-astro-cid-ju4pidww><div id="navAccountIcon" class="flex flex-col items-center justify-center mb-1" data-astro-cid-ju4pidww><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-astro-cid-ju4pidww><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" data-astro-cid-ju4pidww></path><circle cx="12" cy="7" r="4" data-astro-cid-ju4pidww></circle></svg></div><span class="text-[10px] font-medium" data-astro-cid-ju4pidww>Account</span></a></div></nav><script type="module">function e(e){return e===`special-art-1`?`<div class="w-full h-full" style="background: conic-gradient(from 45deg, #FF6B6B, #4ECDC4, #45B7D1, #FF6B6B);"></div>`:e===`special-art-2`?`<div class="w-full h-full" style="background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 99%, #FECFEF 100%);"><div class="w-1/2 h-1/2 bg-white/30 rounded-br-full backdrop-blur-md"></div></div>`:e===`special-art-3`?`<div class="w-full h-full flex"><div class="w-1/2 h-full bg-indigo-500"></div><div class="w-1/2 h-full bg-rose-400 rounded-tl-full"></div></div>`:``}var t=document.getElementById(`navAccountIcon`);if(t&&localStorage.getItem(`splitbug_loggedIn`)){let n=localStorage.getItem(`splitbug_userAvatar`),r=localStorage.getItem(`splitbug_userName`)||`User`,i=localStorage.getItem(`splitbug_userThemeColor`)||`special-art-1`,a=localStorage.getItem(`splitbug_userGradientTheme`)||`-1`,o=window.location.pathname===`/account`;if(a!==`-1`&&a.startsWith(`special-art-`))t.innerHTML=`<div class="w-6 h-6 rounded-full overflow-hidden ring-2 ${o?`ring-brand`:`ring-transparent group-hover:ring-brand/30`} transition-all">${e(a)}</div>`;else if(n)t.innerHTML=`<img src="${n}" loading="lazy" decoding="async" class="w-6 h-6 rounded-full object-cover ring-2 ${o?`ring-brand`:`ring-transparent group-hover:ring-brand/30`} transition-all" />`;else if(i.startsWith(`special-art-`))t.innerHTML=`<div class="w-6 h-6 rounded-full overflow-hidden ring-2 ${o?`ring-brand`:`ring-transparent group-hover:ring-brand/30`} transition-all">${e(i)}</div>`;else{let e=r.trim().split(` `).filter(Boolean),n=`U`;e.length>0&&e[0]&&(n=e.length===1?e[0].charAt(0).toUpperCase():(e[0].charAt(0)+e[e.length-1].charAt(0)).toUpperCase()),t.innerHTML=`<div class="w-6 h-6 rounded-full ${i} text-white flex items-center justify-center text-[10px] font-bold ring-2 ${o?`ring-brand`:`ring-transparent group-hover:ring-brand/30`} transition-all">${n}</div>`}}document.querySelector(`nav`)?.addEventListener(`click`,e=>{let t=e.target.closest(`a`);t&&t.getAttribute(`href`)===window.location.pathname&&e.preventDefault()});</script><script type="module" src="/_astro/Layout.astro_astro_type_script_index_1_lang.D1AaOkNB.js"></script></body></html>

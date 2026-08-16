@@ -1,0 +1,85 @@
+<!DOCTYPE html><html lang="en" data-astro-cid-ju4pidww><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"><link rel="icon" type="image/svg+xml" href="/SplitBugs-Brand/favicon/favicon.svg?v=3"><meta name="generator" content="Astro v7.1.6"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="SplitsBug"><link rel="apple-touch-icon" href="/favicon.png"><meta name="theme-color" content="#5b21b6"><title>SplitBugs</title><script src="/js/categories.js"></script><script>
+			// Apply Theme
+			const savedTheme = localStorage.getItem('splitbug_theme') || 'dark-grey';
+			window.applyTheme = (theme) => {
+				document.documentElement.className = '';
+				if (theme === 'system') {
+					if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+						document.documentElement.classList.add('theme-dark-grey');
+					} else {
+						document.documentElement.classList.add('theme-light-white');
+					}
+				} else if (theme === 'splitsbug') {
+					const hour = new Date().getHours();
+					let activeTheme = 'light-white';
+					if (hour >= 5 && hour < 7) activeTheme = 'light-cream';
+					else if (hour >= 7 && hour < 17) activeTheme = 'light-white';
+					else if (hour >= 17 && hour < 18) activeTheme = 'light-cream';
+					else if (hour >= 18 && hour < 21) activeTheme = 'dark-grey';
+					else activeTheme = 'dark-amoled';
+					document.documentElement.classList.add(`theme-${activeTheme}`);
+				} else {
+					document.documentElement.classList.add(`theme-${theme}`);
+				}
+				window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: document.documentElement.className } }));
+			};
+			window.applyTheme(savedTheme);
+
+			// Automatically re-apply theme if system preference changes or if splitsbug theme is active
+			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+				if (localStorage.getItem('splitbug_theme') === 'system') {
+					window.applyTheme('system');
+				}
+			});
+
+			setInterval(() => {
+				if (localStorage.getItem('splitbug_theme') === 'splitsbug') {
+					window.applyTheme('splitsbug');
+				}
+			}, 60000);
+
+			// Global Name Definition
+			window.MY_NAME = localStorage.getItem('splitbug_userName') || 'Name';
+			window.MY_DISPLAY_NAME = `${window.MY_NAME} (You)`;
+
+			// Auth Check
+			const isLoggedIn = localStorage.getItem('splitbug_loggedIn') === 'true';
+			const isAuthPage = window.location.pathname === '/login' || window.location.pathname === '/signup';
+			const isGoogleFlow = window.location.search.includes('google=true');
+			if (!isLoggedIn && !isAuthPage) {
+				window.location.href = '/login';
+			} else if (isLoggedIn && isAuthPage && !isGoogleFlow) {
+				window.location.href = '/dashboard';
+			} else if (isLoggedIn && window.location.pathname === '/') {
+				window.location.href = '/dashboard';
+			}
+
+			// Native Push Notifications Listener (Cross-tab)
+			window.addEventListener('storage', (e) => {
+				if (e.key === 'splitsbug_notifications') {
+					const userEmail = localStorage.getItem('splitbug_userEmail');
+					if (!userEmail) return;
+					
+					try {
+						const oldData = e.oldValue ? JSON.parse(e.oldValue) : {};
+						const newData = e.newValue ? JSON.parse(e.newValue) : {};
+						
+						const oldUserNotifs = oldData[userEmail] || [];
+						const newUserNotifs = newData[userEmail] || [];
+						
+						if (newUserNotifs.length > oldUserNotifs.length) {
+							const addedNotifs = newUserNotifs.filter((n) => !oldUserNotifs.some((old) => old.id === n.id));
+							
+							if (Notification.permission === 'granted') {
+								addedNotifs.forEach((notif) => {
+									new Notification("SplitsBug", {
+										body: notif.message,
+										icon: '/SplitBugs-Brand/favicon/favicon.svg'
+									});
+								});
+							}
+						}
+					} catch(err) {}
+				}
+			});
+		</script><link rel="stylesheet" href="/_astro/Layout.Bj4GbB-k.css"></head><body class="pb-28" data-astro-cid-ju4pidww><div class="min-h-screen flex flex-col bg-canvas-soft pb-32"><!-- Header --><header class="h-16 px-4 lg:px-6 flex items-center justify-between border-b border-hairline bg-canvas sticky top-0 z-40 relative"><!-- Left: Title --><div class="flex items-center z-10"><h1 class="text-xl sm:text-2xl font-bold tracking-tight text-ink shrink-0">Activity</h1></div><!-- Center: Search Bar --><div id="searchContainer" class="absolute left-1/2 -translate-x-1/2 flex items-center w-full max-w-xl px-4 z-50 pointer-events-none hidden sm:flex"><div id="searchInner" class="flex items-center w-full pointer-events-auto shadow-sm rounded-full h-10"><input type="text" id="searchInput" placeholder="Search activity..." autocomplete="off" class="flex-1 h-full bg-canvas border border-hairline rounded-l-full py-2 pl-6 pr-4 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition-colors z-10"><button id="searchBtn" class="w-16 h-full flex items-center justify-center text-ink bg-canvas-soft border border-hairline border-l-0 rounded-r-full hover:bg-hairline transition-colors cursor-pointer shrink-0 z-0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg></button></div></div><!-- Right: Search Icon (Mobile) --><div class="flex items-center z-10 w-[36px] justify-end"><button id="mobileSearchBtn" class="sm:hidden bg-canvas-soft text-ink hover:bg-hairline p-2 rounded-full transition-colors cursor-pointer flex items-center justify-center border border-hairline shrink-0" title="Search"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg></button></div></header><!-- Activity Feed List --><main class="w-full max-w-[800px] mx-auto sm:my-8"><div id="activityFeedContainer" class="flex flex-col"><!-- Skeleton activity items --><div id="activitySkeleton"><div class="flex gap-4 p-4 border-b border-hairline bg-canvas"><div class="skeleton-circle w-10 h-10 shrink-0"></div><div class="flex-1"><div class="skeleton h-4 w-3/4 mb-2"></div><div class="skeleton h-3 w-1/2"></div></div></div><div class="flex gap-4 p-4 border-b border-hairline bg-canvas"><div class="skeleton-circle w-10 h-10 shrink-0"></div><div class="flex-1"><div class="skeleton h-4 w-2/3 mb-2"></div><div class="skeleton h-3 w-1/3"></div></div></div><div class="flex gap-4 p-4 border-b border-hairline bg-canvas"><div class="skeleton-circle w-10 h-10 shrink-0"></div><div class="flex-1"><div class="skeleton h-4 w-4/5 mb-2"></div><div class="skeleton h-3 w-2/5"></div></div></div><div class="flex gap-4 p-4 border-b border-hairline bg-canvas"><div class="skeleton-circle w-10 h-10 shrink-0"></div><div class="flex-1"><div class="skeleton h-4 w-1/2 mb-2"></div><div class="skeleton h-3 w-1/4"></div></div></div></div></div></main></div><script type="module" src="/_astro/activity.astro_astro_type_script_index_0_lang.ar9tmb87.js"></script><nav data-astro-transition-persist="bottom-nav" id="bottomNav" class="fixed bottom-0 left-0 w-full bg-canvas border-t border-hairline pb-safe z-50" data-astro-cid-ju4pidww><div class="flex items-center justify-around h-16 max-w-md mx-auto" data-astro-cid-ju4pidww><a href="/dashboard" class="flex flex-col items-center justify-center w-16 h-full transition-colors text-mute hover:text-ink" data-astro-cid-ju4pidww><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-1" data-astro-cid-ju4pidww><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" data-astro-cid-ju4pidww></path><circle cx="9" cy="7" r="4" data-astro-cid-ju4pidww></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87" data-astro-cid-ju4pidww></path><path d="M16 3.13a4 4 0 0 1 0 7.75" data-astro-cid-ju4pidww></path></svg><span class="text-[10px] font-medium" data-astro-cid-ju4pidww>Groups</span></a><a href="/activity" class="flex flex-col items-center justify-center w-16 h-full transition-colors text-mute hover:text-ink" data-astro-cid-ju4pidww><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-1" data-astro-cid-ju4pidww><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" data-astro-cid-ju4pidww></polyline></svg><span class="text-[10px] font-medium" data-astro-cid-ju4pidww>Activity</span></a><a href="/account" class="flex flex-col items-center justify-center w-16 h-full transition-colors group text-mute hover:text-ink" data-astro-cid-ju4pidww><div id="navAccountIcon" class="flex flex-col items-center justify-center mb-1" data-astro-cid-ju4pidww><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-astro-cid-ju4pidww><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" data-astro-cid-ju4pidww></path><circle cx="12" cy="7" r="4" data-astro-cid-ju4pidww></circle></svg></div><span class="text-[10px] font-medium" data-astro-cid-ju4pidww>Account</span></a></div></nav><script type="module">function e(e){return e===`special-art-1`?`<div class="w-full h-full" style="background: conic-gradient(from 45deg, #FF6B6B, #4ECDC4, #45B7D1, #FF6B6B);"></div>`:e===`special-art-2`?`<div class="w-full h-full" style="background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 99%, #FECFEF 100%);"><div class="w-1/2 h-1/2 bg-white/30 rounded-br-full backdrop-blur-md"></div></div>`:e===`special-art-3`?`<div class="w-full h-full flex"><div class="w-1/2 h-full bg-indigo-500"></div><div class="w-1/2 h-full bg-rose-400 rounded-tl-full"></div></div>`:``}var t=document.getElementById(`navAccountIcon`);if(t&&localStorage.getItem(`splitbug_loggedIn`)){let n=localStorage.getItem(`splitbug_userAvatar`),r=localStorage.getItem(`splitbug_userName`)||`User`,i=localStorage.getItem(`splitbug_userThemeColor`)||`special-art-1`,a=localStorage.getItem(`splitbug_userGradientTheme`)||`-1`,o=window.location.pathname===`/account`;if(a!==`-1`&&a.startsWith(`special-art-`))t.innerHTML=`<div class="w-6 h-6 rounded-full overflow-hidden ring-2 ${o?`ring-brand`:`ring-transparent group-hover:ring-brand/30`} transition-all">${e(a)}</div>`;else if(n)t.innerHTML=`<img src="${n}" loading="lazy" decoding="async" class="w-6 h-6 rounded-full object-cover ring-2 ${o?`ring-brand`:`ring-transparent group-hover:ring-brand/30`} transition-all" />`;else if(i.startsWith(`special-art-`))t.innerHTML=`<div class="w-6 h-6 rounded-full overflow-hidden ring-2 ${o?`ring-brand`:`ring-transparent group-hover:ring-brand/30`} transition-all">${e(i)}</div>`;else{let e=r.trim().split(` `).filter(Boolean),n=`U`;e.length>0&&e[0]&&(n=e.length===1?e[0].charAt(0).toUpperCase():(e[0].charAt(0)+e[e.length-1].charAt(0)).toUpperCase()),t.innerHTML=`<div class="w-6 h-6 rounded-full ${i} text-white flex items-center justify-center text-[10px] font-bold ring-2 ${o?`ring-brand`:`ring-transparent group-hover:ring-brand/30`} transition-all">${n}</div>`}}document.querySelector(`nav`)?.addEventListener(`click`,e=>{let t=e.target.closest(`a`);t&&t.getAttribute(`href`)===window.location.pathname&&e.preventDefault()});</script><script type="module" src="/_astro/Layout.astro_astro_type_script_index_1_lang.D1AaOkNB.js"></script></body></html>

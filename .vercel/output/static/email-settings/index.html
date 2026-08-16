@@ -1,0 +1,101 @@
+<!DOCTYPE html><html lang="en" data-astro-cid-ju4pidww><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"><link rel="icon" type="image/svg+xml" href="/SplitBugs-Brand/favicon/favicon.svg?v=3"><meta name="generator" content="Astro v7.1.6"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="SplitsBug"><link rel="apple-touch-icon" href="/favicon.png"><meta name="theme-color" content="#5b21b6"><title>SplitBugs</title><script src="/js/categories.js"></script><script>
+			// Apply Theme
+			const savedTheme = localStorage.getItem('splitbug_theme') || 'dark-grey';
+			window.applyTheme = (theme) => {
+				document.documentElement.className = '';
+				if (theme === 'system') {
+					if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+						document.documentElement.classList.add('theme-dark-grey');
+					} else {
+						document.documentElement.classList.add('theme-light-white');
+					}
+				} else if (theme === 'splitsbug') {
+					const hour = new Date().getHours();
+					let activeTheme = 'light-white';
+					if (hour >= 5 && hour < 7) activeTheme = 'light-cream';
+					else if (hour >= 7 && hour < 17) activeTheme = 'light-white';
+					else if (hour >= 17 && hour < 18) activeTheme = 'light-cream';
+					else if (hour >= 18 && hour < 21) activeTheme = 'dark-grey';
+					else activeTheme = 'dark-amoled';
+					document.documentElement.classList.add(`theme-${activeTheme}`);
+				} else {
+					document.documentElement.classList.add(`theme-${theme}`);
+				}
+				window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: document.documentElement.className } }));
+			};
+			window.applyTheme(savedTheme);
+
+			// Automatically re-apply theme if system preference changes or if splitsbug theme is active
+			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+				if (localStorage.getItem('splitbug_theme') === 'system') {
+					window.applyTheme('system');
+				}
+			});
+
+			setInterval(() => {
+				if (localStorage.getItem('splitbug_theme') === 'splitsbug') {
+					window.applyTheme('splitsbug');
+				}
+			}, 60000);
+
+			// Global Name Definition
+			window.MY_NAME = localStorage.getItem('splitbug_userName') || 'Name';
+			window.MY_DISPLAY_NAME = `${window.MY_NAME} (You)`;
+
+			// Auth Check
+			const isLoggedIn = localStorage.getItem('splitbug_loggedIn') === 'true';
+			const isAuthPage = window.location.pathname === '/login' || window.location.pathname === '/signup';
+			const isGoogleFlow = window.location.search.includes('google=true');
+			if (!isLoggedIn && !isAuthPage) {
+				window.location.href = '/login';
+			} else if (isLoggedIn && isAuthPage && !isGoogleFlow) {
+				window.location.href = '/dashboard';
+			} else if (isLoggedIn && window.location.pathname === '/') {
+				window.location.href = '/dashboard';
+			}
+
+			// Native Push Notifications Listener (Cross-tab)
+			window.addEventListener('storage', (e) => {
+				if (e.key === 'splitsbug_notifications') {
+					const userEmail = localStorage.getItem('splitbug_userEmail');
+					if (!userEmail) return;
+					
+					try {
+						const oldData = e.oldValue ? JSON.parse(e.oldValue) : {};
+						const newData = e.newValue ? JSON.parse(e.newValue) : {};
+						
+						const oldUserNotifs = oldData[userEmail] || [];
+						const newUserNotifs = newData[userEmail] || [];
+						
+						if (newUserNotifs.length > oldUserNotifs.length) {
+							const addedNotifs = newUserNotifs.filter((n) => !oldUserNotifs.some((old) => old.id === n.id));
+							
+							if (Notification.permission === 'granted') {
+								addedNotifs.forEach((notif) => {
+									new Notification("SplitsBug", {
+										body: notif.message,
+										icon: '/SplitBugs-Brand/favicon/favicon.svg'
+									});
+								});
+							}
+						}
+					} catch(err) {}
+				}
+			});
+		</script><link rel="stylesheet" href="/_astro/Layout.Bj4GbB-k.css"></head><body class="pb-28" data-astro-cid-ju4pidww><div class="min-h-screen flex flex-col bg-canvas-soft pb-32"><!-- Header --><header class="h-16 px-4 lg:px-6 flex items-center gap-4 border-b border-hairline bg-canvas sticky top-0 z-40"><a href="/account" class="w-10 h-10 flex items-center justify-center rounded-full bg-canvas-soft hover:bg-hairline transition-colors text-ink"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></a><h1 class="text-xl sm:text-2xl font-bold tracking-tight text-ink">Email Settings</h1></header><script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const email = localStorage.getItem('splitbug_userEmail');
+        if (email) {
+          const displayEl = document.getElementById('currentEmailDisplay');
+          const step1EmailStr = document.getElementById('step1EmailStr');
+          const emailSkel = document.getElementById('emailSkeleton');
+          
+          if (displayEl) {
+            displayEl.textContent = email;
+            displayEl.classList.remove('hidden');
+          }
+          if (step1EmailStr) step1EmailStr.textContent = email;
+          if (emailSkel) emailSkel.style.display = 'none';
+        }
+      });
+    </script><main class="flex-1 w-full max-w-3xl mx-auto p-4 sm:p-6 lg:p-8"><!-- Current Email --><div class="bg-canvas border border-hairline rounded-xl p-6 shadow-sm mb-6"><h2 class="text-sm font-bold text-mute uppercase tracking-wider mb-4">Current Email</h2><div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"><div><div id="emailSkeleton" class="skeleton h-6 w-56"></div><p id="currentEmailDisplay" class="text-lg font-medium text-ink hidden"></p><p class="text-sm text-mute mt-1">This email is used for login and notifications.</p></div><button id="changeEmailBtn" class="bg-canvas-soft hover:bg-hairline transition-colors text-ink font-medium px-4 py-2 rounded-full text-sm border border-hairline whitespace-nowrap">Change Email</button></div></div><!-- Preferences --><div class="bg-canvas border border-hairline rounded-xl p-6 shadow-sm"><h2 class="text-sm font-bold text-mute uppercase tracking-wider mb-4">Manage Preferences</h2><div class="flex items-center justify-between py-3 border-b border-hairline"><div><p class="font-medium text-ink">Email Notifications</p><p class="text-sm text-mute">Receive updates, security alerts, and group invites via email.</p></div><label class="relative inline-flex items-center cursor-pointer shrink-0"><input type="checkbox" id="emailNotifToggle" class="sr-only peer"><div class="w-11 h-6 bg-hairline-strong peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand"></div></label></div><div class="flex items-center justify-between py-3"><div><p class="font-medium text-ink">Browser Notifications</p><p class="text-sm text-mute">Get push notifications in your browser when someone invites you or adds an expense.</p></div><label class="relative inline-flex items-center cursor-pointer shrink-0"><input type="checkbox" id="browserNotifToggle" class="sr-only peer"><div class="w-11 h-6 bg-hairline-strong peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand"></div></label></div></div></main></div><dialog id="changeEmailModal" class="backdrop:bg-black/50 text-ink p-0 rounded-2xl shadow-2xl w-[92vw] sm:w-[450px] bg-canvas border border-hairline m-auto overflow-visible z-[9999]"><!-- Step 1: Verify Current Email --><div id="step1" class="p-6"><h3 class="text-xl font-bold mb-2">Verify Current Email</h3><p class="text-sm text-mute mb-6">Enter the 4-digit verification code sent to <span id="step1EmailStr" class="font-bold text-ink"></span></p><div class="flex gap-3 justify-center mb-6" id="otpGroup1"><input type="text" maxlength="1" autocomplete="off" class="w-14 h-16 text-center text-2xl rounded-xl border border-hairline bg-canvas focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-ink font-bold otp-input"><input type="text" maxlength="1" autocomplete="off" class="w-14 h-16 text-center text-2xl rounded-xl border border-hairline bg-canvas focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-ink font-bold otp-input"><input type="text" maxlength="1" autocomplete="off" class="w-14 h-16 text-center text-2xl rounded-xl border border-hairline bg-canvas focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-ink font-bold otp-input"><input type="text" maxlength="1" autocomplete="off" class="w-14 h-16 text-center text-2xl rounded-xl border border-hairline bg-canvas focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-ink font-bold otp-input"></div><div class="flex gap-3 justify-end"><button type="button" class="cancelBtn px-4 py-2 text-sm font-medium text-mute hover:text-ink transition-colors">Cancel</button><button type="button" id="step1VerifyBtn" class="px-6 py-2 text-sm font-medium text-white bg-brand rounded-full hover:bg-brand-deep transition-colors disabled:opacity-50 min-w-[100px]">Verify</button></div></div><!-- Step 2: Enter New Email & Confirm Password --><div id="step2" class="p-6 hidden"><h3 class="text-xl font-bold mb-2">New Email Address</h3><p class="text-sm text-mute mb-6">Enter your new email address and your current password to confirm the change.</p><div class="mb-4 relative"><label class="block text-sm font-medium text-ink mb-1">New Email</label><input type="email" id="newEmailInput" autocomplete="off" class="w-full p-3 rounded-xl border border-hairline bg-canvas focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-ink placeholder:text-mute" placeholder="new@example.com"><p id="emailErrorMsg" class="text-danger text-xs mt-2 hidden">Please enter a valid email address.</p><div id="emailSuggestions" class="absolute top-full left-0 right-0 mt-1 bg-canvas border border-hairline rounded-md shadow-lg overflow-hidden z-50 hidden"></div></div><div class="mb-6"><label class="block text-sm font-medium text-ink mb-1">Current Password</label><input type="password" id="currentPasswordConfirm" autocomplete="new-password" class="w-full p-3 rounded-xl border border-hairline bg-canvas focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-ink placeholder:text-mute" placeholder="••••••••"><p id="passwordErrorMsg" class="text-danger text-xs mt-2 hidden">Incorrect password.</p></div><div class="flex gap-3 justify-end"><button type="button" class="cancelBtn px-4 py-2 text-sm font-medium text-mute hover:text-ink transition-colors">Cancel</button><button type="button" id="step2NextBtn" class="px-6 py-2 text-sm font-medium text-white bg-brand rounded-full hover:bg-brand-deep transition-colors disabled:opacity-50 min-w-[100px]">Update Email</button></div></div></dialog><script type="module" src="/_astro/email-settings.astro_astro_type_script_index_0_lang.i0ZydQ6h.js"></script><nav data-astro-transition-persist="bottom-nav" id="bottomNav" class="fixed bottom-0 left-0 w-full bg-canvas border-t border-hairline pb-safe z-50" data-astro-cid-ju4pidww><div class="flex items-center justify-around h-16 max-w-md mx-auto" data-astro-cid-ju4pidww><a href="/dashboard" class="flex flex-col items-center justify-center w-16 h-full transition-colors text-mute hover:text-ink" data-astro-cid-ju4pidww><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-1" data-astro-cid-ju4pidww><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" data-astro-cid-ju4pidww></path><circle cx="9" cy="7" r="4" data-astro-cid-ju4pidww></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87" data-astro-cid-ju4pidww></path><path d="M16 3.13a4 4 0 0 1 0 7.75" data-astro-cid-ju4pidww></path></svg><span class="text-[10px] font-medium" data-astro-cid-ju4pidww>Groups</span></a><a href="/activity" class="flex flex-col items-center justify-center w-16 h-full transition-colors text-mute hover:text-ink" data-astro-cid-ju4pidww><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-1" data-astro-cid-ju4pidww><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" data-astro-cid-ju4pidww></polyline></svg><span class="text-[10px] font-medium" data-astro-cid-ju4pidww>Activity</span></a><a href="/account" class="flex flex-col items-center justify-center w-16 h-full transition-colors group text-mute hover:text-ink" data-astro-cid-ju4pidww><div id="navAccountIcon" class="flex flex-col items-center justify-center mb-1" data-astro-cid-ju4pidww><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-astro-cid-ju4pidww><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" data-astro-cid-ju4pidww></path><circle cx="12" cy="7" r="4" data-astro-cid-ju4pidww></circle></svg></div><span class="text-[10px] font-medium" data-astro-cid-ju4pidww>Account</span></a></div></nav><script type="module">function e(e){return e===`special-art-1`?`<div class="w-full h-full" style="background: conic-gradient(from 45deg, #FF6B6B, #4ECDC4, #45B7D1, #FF6B6B);"></div>`:e===`special-art-2`?`<div class="w-full h-full" style="background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 99%, #FECFEF 100%);"><div class="w-1/2 h-1/2 bg-white/30 rounded-br-full backdrop-blur-md"></div></div>`:e===`special-art-3`?`<div class="w-full h-full flex"><div class="w-1/2 h-full bg-indigo-500"></div><div class="w-1/2 h-full bg-rose-400 rounded-tl-full"></div></div>`:``}var t=document.getElementById(`navAccountIcon`);if(t&&localStorage.getItem(`splitbug_loggedIn`)){let n=localStorage.getItem(`splitbug_userAvatar`),r=localStorage.getItem(`splitbug_userName`)||`User`,i=localStorage.getItem(`splitbug_userThemeColor`)||`special-art-1`,a=localStorage.getItem(`splitbug_userGradientTheme`)||`-1`,o=window.location.pathname===`/account`;if(a!==`-1`&&a.startsWith(`special-art-`))t.innerHTML=`<div class="w-6 h-6 rounded-full overflow-hidden ring-2 ${o?`ring-brand`:`ring-transparent group-hover:ring-brand/30`} transition-all">${e(a)}</div>`;else if(n)t.innerHTML=`<img src="${n}" loading="lazy" decoding="async" class="w-6 h-6 rounded-full object-cover ring-2 ${o?`ring-brand`:`ring-transparent group-hover:ring-brand/30`} transition-all" />`;else if(i.startsWith(`special-art-`))t.innerHTML=`<div class="w-6 h-6 rounded-full overflow-hidden ring-2 ${o?`ring-brand`:`ring-transparent group-hover:ring-brand/30`} transition-all">${e(i)}</div>`;else{let e=r.trim().split(` `).filter(Boolean),n=`U`;e.length>0&&e[0]&&(n=e.length===1?e[0].charAt(0).toUpperCase():(e[0].charAt(0)+e[e.length-1].charAt(0)).toUpperCase()),t.innerHTML=`<div class="w-6 h-6 rounded-full ${i} text-white flex items-center justify-center text-[10px] font-bold ring-2 ${o?`ring-brand`:`ring-transparent group-hover:ring-brand/30`} transition-all">${n}</div>`}}document.querySelector(`nav`)?.addEventListener(`click`,e=>{let t=e.target.closest(`a`);t&&t.getAttribute(`href`)===window.location.pathname&&e.preventDefault()});</script><script type="module" src="/_astro/Layout.astro_astro_type_script_index_1_lang.D1AaOkNB.js"></script></body></html>

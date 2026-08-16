@@ -1,0 +1,86 @@
+<!DOCTYPE html><html lang="en" data-astro-cid-ju4pidww><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"><link rel="icon" type="image/svg+xml" href="/SplitBugs-Brand/favicon/favicon.svg?v=3"><meta name="generator" content="Astro v7.1.6"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet"><link rel="manifest" href="/manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="SplitsBug"><link rel="apple-touch-icon" href="/favicon.png"><meta name="theme-color" content="#5b21b6"><title>SplitBugs</title><script src="/js/categories.js"></script><script>
+			// Apply Theme
+			const savedTheme = localStorage.getItem('splitbug_theme') || 'dark-grey';
+			window.applyTheme = (theme) => {
+				document.documentElement.className = '';
+				if (theme === 'system') {
+					if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+						document.documentElement.classList.add('theme-dark-grey');
+					} else {
+						document.documentElement.classList.add('theme-light-white');
+					}
+				} else if (theme === 'splitsbug') {
+					const hour = new Date().getHours();
+					let activeTheme = 'light-white';
+					if (hour >= 5 && hour < 7) activeTheme = 'light-cream';
+					else if (hour >= 7 && hour < 17) activeTheme = 'light-white';
+					else if (hour >= 17 && hour < 18) activeTheme = 'light-cream';
+					else if (hour >= 18 && hour < 21) activeTheme = 'dark-grey';
+					else activeTheme = 'dark-amoled';
+					document.documentElement.classList.add(`theme-${activeTheme}`);
+				} else {
+					document.documentElement.classList.add(`theme-${theme}`);
+				}
+				window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: document.documentElement.className } }));
+			};
+			window.applyTheme(savedTheme);
+
+			// Automatically re-apply theme if system preference changes or if splitsbug theme is active
+			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+				if (localStorage.getItem('splitbug_theme') === 'system') {
+					window.applyTheme('system');
+				}
+			});
+
+			setInterval(() => {
+				if (localStorage.getItem('splitbug_theme') === 'splitsbug') {
+					window.applyTheme('splitsbug');
+				}
+			}, 60000);
+
+			// Global Name Definition
+			window.MY_NAME = localStorage.getItem('splitbug_userName') || 'Name';
+			window.MY_DISPLAY_NAME = `${window.MY_NAME} (You)`;
+
+			// Auth Check
+			const isLoggedIn = localStorage.getItem('splitbug_loggedIn') === 'true';
+			const isAuthPage = window.location.pathname === '/login' || window.location.pathname === '/signup';
+			const isGoogleFlow = window.location.search.includes('google=true');
+			if (!isLoggedIn && !isAuthPage) {
+				window.location.href = '/login';
+			} else if (isLoggedIn && isAuthPage && !isGoogleFlow) {
+				window.location.href = '/dashboard';
+			} else if (isLoggedIn && window.location.pathname === '/') {
+				window.location.href = '/dashboard';
+			}
+
+			// Native Push Notifications Listener (Cross-tab)
+			window.addEventListener('storage', (e) => {
+				if (e.key === 'splitsbug_notifications') {
+					const userEmail = localStorage.getItem('splitbug_userEmail');
+					if (!userEmail) return;
+					
+					try {
+						const oldData = e.oldValue ? JSON.parse(e.oldValue) : {};
+						const newData = e.newValue ? JSON.parse(e.newValue) : {};
+						
+						const oldUserNotifs = oldData[userEmail] || [];
+						const newUserNotifs = newData[userEmail] || [];
+						
+						if (newUserNotifs.length > oldUserNotifs.length) {
+							const addedNotifs = newUserNotifs.filter((n) => !oldUserNotifs.some((old) => old.id === n.id));
+							
+							if (Notification.permission === 'granted') {
+								addedNotifs.forEach((notif) => {
+									new Notification("SplitsBug", {
+										body: notif.message,
+										icon: '/SplitBugs-Brand/favicon/favicon.svg'
+									});
+								});
+							}
+						}
+					} catch(err) {}
+				}
+			});
+		</script><link rel="stylesheet" href="/_astro/Layout.Bj4GbB-k.css"><style>#background[data-astro-cid-jgnp2svd]{z-index:-1;filter:blur(100px);width:100%;height:100%;position:fixed;top:0;left:0}#container[data-astro-cid-jgnp2svd]{height:100%;font-family:Inter,Roboto,Helvetica Neue,Arial Nova,Nimbus Sans,Arial,sans-serif}main[data-astro-cid-jgnp2svd]{justify-content:center;height:100%;display:flex}#hero[data-astro-cid-jgnp2svd]{flex-direction:column;justify-content:center;align-items:start;padding:16px;display:flex}h1[data-astro-cid-jgnp2svd]{margin-top:.25em;font-size:22px}#links[data-astro-cid-jgnp2svd]{gap:16px;display:flex}#links[data-astro-cid-jgnp2svd] a[data-astro-cid-jgnp2svd]{color:#111827;align-items:center;padding:10px 12px;text-decoration:none;transition:color .2s;display:flex}#links[data-astro-cid-jgnp2svd] a[data-astro-cid-jgnp2svd]:hover{color:#4e5056}#links[data-astro-cid-jgnp2svd] a[data-astro-cid-jgnp2svd] svg[data-astro-cid-jgnp2svd]{height:1em;margin-left:8px}#links[data-astro-cid-jgnp2svd] a[data-astro-cid-jgnp2svd].button{color:#fff;background:linear-gradient(83.21deg,#3245ff 0%,#bc52ee 100%);border-radius:10px;box-shadow:inset 0 0 0 1px #ffffff1f,inset 0 -2px #0000003d}#links[data-astro-cid-jgnp2svd] a[data-astro-cid-jgnp2svd].button:hover{color:#e6e6e6;box-shadow:none}pre[data-astro-cid-jgnp2svd]{background:linear-gradient(14deg,#d83333 0%,#f041ff 100%);-webkit-text-fill-color:transparent;background-clip:text;margin:0;font-family:ui-monospace,Cascadia Code,Source Code Pro,Menlo,Consolas,DejaVu Sans Mono,monospace;font-weight:400}h2[data-astro-cid-jgnp2svd]{color:#111827;margin:0 0 1em;font-size:20px;font-weight:400}p[data-astro-cid-jgnp2svd]{color:#4b5563;letter-spacing:-.006em;margin:0;font-size:16px;line-height:24px}code[data-astro-cid-jgnp2svd]{background:linear-gradient(66.77deg,#f3cddd 0%,#f5cee7 100%) padding-box padding-box,linear-gradient(155deg,#d83333 0%,#f041ff 18%,#f5cee7 45%) border-box;border:1px solid #0000;border-radius:8px;padding:6px 8px;display:inline-block}.box[data-astro-cid-jgnp2svd]{background:#fff;border:1px solid #fff;border-radius:16px;padding:16px}#news[data-astro-cid-jgnp2svd]{backdrop-filter:blur(50px);max-width:300px;text-decoration:none;transition:background .2s;position:absolute;bottom:16px;right:16px}#news[data-astro-cid-jgnp2svd]:hover{background:#ffffff8c}@media screen and (height<=368px){#news[data-astro-cid-jgnp2svd]{display:none}}@media screen and (width<=768px){#container[data-astro-cid-jgnp2svd]{flex-direction:column;display:flex}#hero[data-astro-cid-jgnp2svd]{padding-top:10%;display:block}#links[data-astro-cid-jgnp2svd]{flex-wrap:wrap}#links[data-astro-cid-jgnp2svd] a[data-astro-cid-jgnp2svd].button{padding:14px 18px}#news[data-astro-cid-jgnp2svd]{max-width:100%;bottom:2.5rem;left:16px;right:16px}h1[data-astro-cid-jgnp2svd]{line-height:1.5}}
+</style></head><body class="pb-28" data-astro-cid-ju4pidww><div id="container" data-astro-cid-jgnp2svd><img id="background" src="/_astro/background.BPKAcmfN.svg" alt="" fetchpriority="high" data-astro-cid-jgnp2svd><main data-astro-cid-jgnp2svd><section id="hero" data-astro-cid-jgnp2svd><a href="https://astro.build" data-astro-cid-jgnp2svd><img src="/_astro/astro.Dm8K3lV8.svg" width="115" height="48" alt="Astro Homepage" data-astro-cid-jgnp2svd></a><h1 data-astro-cid-jgnp2svd>To get started, open the <code data-astro-cid-jgnp2svd><pre data-astro-cid-jgnp2svd>src/pages</pre></code> directory in your project.</h1><section id="links" data-astro-cid-jgnp2svd><a class="button" href="https://docs.astro.build" data-astro-cid-jgnp2svd>Read our docs</a><a href="https://astro.build/chat" data-astro-cid-jgnp2svd>Join our Discord <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 127.14 96.36" data-astro-cid-jgnp2svd><path fill="currentColor" d="M107.7 8.07A105.15 105.15 0 0 0 81.47 0a72.06 72.06 0 0 0-3.36 6.83 97.68 97.68 0 0 0-29.11 0A72.37 72.37 0 0 0 45.64 0a105.89 105.89 0 0 0-26.25 8.09C2.79 32.65-1.71 56.6.54 80.21a105.73 105.73 0 0 0 32.17 16.15 77.7 77.7 0 0 0 6.89-11.11 68.42 68.42 0 0 1-10.85-5.18c.91-.66 1.8-1.34 2.66-2a75.57 75.57 0 0 0 64.32 0c.87.71 1.76 1.39 2.66 2a68.68 68.68 0 0 1-10.87 5.19 77 77 0 0 0 6.89 11.1 105.25 105.25 0 0 0 32.19-16.14c2.64-27.38-4.51-51.11-18.9-72.15ZM42.45 65.69C36.18 65.69 31 60 31 53s5-12.74 11.43-12.74S54 46 53.89 53s-5.05 12.69-11.44 12.69Zm42.24 0C78.41 65.69 73.25 60 73.25 53s5-12.74 11.44-12.74S96.23 46 96.12 53s-5.04 12.69-11.43 12.69Z" data-astro-cid-jgnp2svd></path></svg></a></section></section></main><a href="https://astro.build/blog/astro-6-beta/" id="news" class="box" data-astro-cid-jgnp2svd><svg width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg" data-astro-cid-jgnp2svd><path d="M24.667 12c1.333 1.414 2 3.192 2 5.334 0 4.62-4.934 5.7-7.334 12C18.444 28.567 18 27.456 18 26c0-4.642 6.667-7.053 6.667-14Zm-5.334-5.333c1.6 1.65 2.4 3.43 2.4 5.333 0 6.602-8.06 7.59-6.4 17.334C13.111 27.787 12 25.564 12 22.666c0-4.434 7.333-8 7.333-16Zm-6-5.333C15.111 3.555 16 5.556 16 7.333c0 8.333-11.333 10.962-5.333 22-3.488-.774-6-4-6-8 0-8.667 8.666-10 8.666-20Z" fill="#111827" data-astro-cid-jgnp2svd></path></svg><h2 data-astro-cid-jgnp2svd>What's New in Astro 6.0?</h2><p data-astro-cid-jgnp2svd>Redesigned dev server, fonts, live collections, built-in CSP support, and more! Click to explore Astro 6.0's new features.</p></a></div><nav data-astro-transition-persist="bottom-nav" id="bottomNav" class="fixed bottom-0 left-0 w-full bg-canvas border-t border-hairline pb-safe z-50" data-astro-cid-ju4pidww><div class="flex items-center justify-around h-16 max-w-md mx-auto" data-astro-cid-ju4pidww><a href="/dashboard" class="flex flex-col items-center justify-center w-16 h-full transition-colors text-brand" data-astro-cid-ju4pidww><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-1" data-astro-cid-ju4pidww><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" data-astro-cid-ju4pidww></path><circle cx="9" cy="7" r="4" data-astro-cid-ju4pidww></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87" data-astro-cid-ju4pidww></path><path d="M16 3.13a4 4 0 0 1 0 7.75" data-astro-cid-ju4pidww></path></svg><span class="text-[10px] font-medium" data-astro-cid-ju4pidww>Groups</span></a><a href="/activity" class="flex flex-col items-center justify-center w-16 h-full transition-colors text-mute hover:text-ink" data-astro-cid-ju4pidww><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-1" data-astro-cid-ju4pidww><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" data-astro-cid-ju4pidww></polyline></svg><span class="text-[10px] font-medium" data-astro-cid-ju4pidww>Activity</span></a><a href="/account" class="flex flex-col items-center justify-center w-16 h-full transition-colors group text-mute hover:text-ink" data-astro-cid-ju4pidww><div id="navAccountIcon" class="flex flex-col items-center justify-center mb-1" data-astro-cid-ju4pidww><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-astro-cid-ju4pidww><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" data-astro-cid-ju4pidww></path><circle cx="12" cy="7" r="4" data-astro-cid-ju4pidww></circle></svg></div><span class="text-[10px] font-medium" data-astro-cid-ju4pidww>Account</span></a></div></nav><script type="module">function e(e){return e===`special-art-1`?`<div class="w-full h-full" style="background: conic-gradient(from 45deg, #FF6B6B, #4ECDC4, #45B7D1, #FF6B6B);"></div>`:e===`special-art-2`?`<div class="w-full h-full" style="background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 99%, #FECFEF 100%);"><div class="w-1/2 h-1/2 bg-white/30 rounded-br-full backdrop-blur-md"></div></div>`:e===`special-art-3`?`<div class="w-full h-full flex"><div class="w-1/2 h-full bg-indigo-500"></div><div class="w-1/2 h-full bg-rose-400 rounded-tl-full"></div></div>`:``}var t=document.getElementById(`navAccountIcon`);if(t&&localStorage.getItem(`splitbug_loggedIn`)){let n=localStorage.getItem(`splitbug_userAvatar`),r=localStorage.getItem(`splitbug_userName`)||`User`,i=localStorage.getItem(`splitbug_userThemeColor`)||`special-art-1`,a=localStorage.getItem(`splitbug_userGradientTheme`)||`-1`,o=window.location.pathname===`/account`;if(a!==`-1`&&a.startsWith(`special-art-`))t.innerHTML=`<div class="w-6 h-6 rounded-full overflow-hidden ring-2 ${o?`ring-brand`:`ring-transparent group-hover:ring-brand/30`} transition-all">${e(a)}</div>`;else if(n)t.innerHTML=`<img src="${n}" loading="lazy" decoding="async" class="w-6 h-6 rounded-full object-cover ring-2 ${o?`ring-brand`:`ring-transparent group-hover:ring-brand/30`} transition-all" />`;else if(i.startsWith(`special-art-`))t.innerHTML=`<div class="w-6 h-6 rounded-full overflow-hidden ring-2 ${o?`ring-brand`:`ring-transparent group-hover:ring-brand/30`} transition-all">${e(i)}</div>`;else{let e=r.trim().split(` `).filter(Boolean),n=`U`;e.length>0&&e[0]&&(n=e.length===1?e[0].charAt(0).toUpperCase():(e[0].charAt(0)+e[e.length-1].charAt(0)).toUpperCase()),t.innerHTML=`<div class="w-6 h-6 rounded-full ${i} text-white flex items-center justify-center text-[10px] font-bold ring-2 ${o?`ring-brand`:`ring-transparent group-hover:ring-brand/30`} transition-all">${n}</div>`}}document.querySelector(`nav`)?.addEventListener(`click`,e=>{let t=e.target.closest(`a`);t&&t.getAttribute(`href`)===window.location.pathname&&e.preventDefault()});</script><script type="module" src="/_astro/Layout.astro_astro_type_script_index_1_lang.D1AaOkNB.js"></script></body></html>
