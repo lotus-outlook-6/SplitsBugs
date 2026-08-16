@@ -82,7 +82,14 @@
 					} catch(err) {}
 				}
 			});
-		</script><link rel="stylesheet" href="/_astro/Layout.Bj4GbB-k.css"></head><body class="pb-28" data-astro-cid-ju4pidww><script>
+		</script><link rel="stylesheet" href="/_astro/Layout.B_Lglu63.css"></head><body class="pb-28" data-astro-cid-ju4pidww><script>
+    window.renderAbstractArt = function(type) {
+      if (type === 'special-art-1') return '<div class="w-full h-full" style="background: conic-gradient(from 45deg, #FF6B6B, #4ECDC4, #45B7D1, #FF6B6B);"></div>';
+      if (type === 'special-art-2') return '<div class="w-full h-full" style="background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 99%, #FECFEF 100%);"><div class="w-1/2 h-1/2 bg-white/30 rounded-br-full backdrop-blur-md"></div></div>';
+      if (type === 'special-art-3') return '<div class="w-full h-full flex"><div class="w-1/2 h-full bg-indigo-500"></div><div class="w-1/2 h-full bg-rose-400 rounded-tl-full"></div></div>';
+      return '';
+    }
+
     // Synchronously load cached user data to prevent blank flashes
     document.addEventListener('DOMContentLoaded', () => {
       const email = localStorage.getItem('splitbug_userEmail');
@@ -119,11 +126,11 @@
       const avatarEl = document.getElementById('profileAvatar');
       const avatarSkeleton = document.getElementById('avatarSkeleton');
       if (avatarEl) {
-        if (avatar) {
+        if (avatar && avatar !== 'undefined' && avatar !== 'null') {
           avatarEl.innerHTML = `<img src="${avatar}" loading="lazy" decoding="async" class="w-full h-full object-cover fade-in" />`;
           avatarEl.className = "w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-transparent text-white flex items-center justify-center text-4xl sm:text-5xl font-bold mb-4 overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all";
         } else if (theme.startsWith('special-art-')) {
-          avatarEl.innerHTML = window.renderAbstractArt ? window.renderAbstractArt(theme) : '';
+          avatarEl.innerHTML = window.renderAbstractArt(theme);
           avatarEl.className = "w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-transparent text-white mb-4 overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all";
         } else if (name) {
           const parts = name.trim().split(' ').filter(Boolean);
@@ -140,4 +147,133 @@
       // Expose showProfile globally for the async script
       window._showProfile = showProfile;
     });
-  </script><div class="min-h-screen flex flex-col bg-canvas-soft pb-32"><!-- Header --><header class="h-16 px-4 lg:px-6 flex items-center border-b border-hairline bg-canvas sticky top-0 z-40"><h1 class="text-xl sm:text-2xl font-bold tracking-tight text-ink">Account Settings</h1></header><main class="flex-1 w-full max-w-5xl mx-auto p-4 sm:p-6 lg:p-8"><div class="grid grid-cols-1 md:grid-cols-3 gap-8"><!-- Left Column: Profile --><div class="md:col-span-1 flex flex-col items-center md:items-start text-center md:text-left border-b border-hairline md:border-b-0 pb-8 md:pb-0"><div class="relative group cursor-pointer" id="avatarContainer"><div id="profileAvatar" class="w-24 h-24 sm:w-32 sm:h-32 rounded-full mb-4 overflow-hidden ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all"><!-- Skeleton circle --><div id="avatarSkeleton" class="w-full h-full skeleton-circle"></div></div></div><div id="profileNameWrap"><div id="nameSkeleton" class="skeleton h-7 w-40 mb-2"></div></div><h2 id="profileName" class="text-2xl font-bold text-ink leading-tight mb-1 hidden"></h2><div id="profileEmailWrap"><div id="emailSkeleton" class="skeleton h-4 w-52 mb-4"></div></div><p id="profileEmail" class="text-mute text-sm mb-4 hidden"></p><a href="/edit-profile" id="editProfileBtn" class="bg-canvas-soft hover:bg-hairline transition-colors text-ink font-medium px-4 py-2 rounded-full text-sm border border-hairline w-full md:w-auto inline-block text-center mt-2">Edit Profile</a></div><!-- Right Column: Settings Links --><div class="md:col-span-2 flex flex-col gap-8"><!-- Preferences --><div><h3 class="text-xs font-bold text-mute uppercase tracking-wider mb-3">Preferences</h3><div class="bg-canvas border border-hairline rounded-xl overflow-hidden shadow-sm"><a href="/email-settings" class="w-full flex items-center justify-between p-4 text-left hover:bg-canvas-soft transition-colors border-b border-hairline group"><div class="flex items-center gap-4"><div class="w-8 h-8 rounded-full bg-canvas-soft flex items-center justify-center text-mute group-hover:text-ink group-hover:bg-hairline transition-colors"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></div><span class="text-ink font-medium">Email settings</span></div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-mute"><polyline points="9 18 15 12 9 6"></polyline></svg></a><a href="/security" id="securityBtn" class="w-full flex items-center justify-between p-4 text-left hover:bg-canvas-soft transition-colors border-b border-hairline group"><div class="flex items-center gap-4"><div class="w-8 h-8 rounded-full bg-canvas-soft flex items-center justify-center text-mute group-hover:text-ink group-hover:bg-hairline transition-colors"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div><span class="text-ink font-medium">Security</span></div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-mute"><polyline points="9 18 15 12 9 6"></polyline></svg></a><a href="/appearance" class="w-full flex items-center justify-between p-4 text-left hover:bg-canvas-soft transition-colors group"><div class="flex items-center gap-4"><div class="w-8 h-8 rounded-full bg-canvas-soft flex items-center justify-center text-mute group-hover:text-ink group-hover:bg-hairline transition-colors"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5"></circle><circle cx="17.5" cy="10.5" r=".5"></circle><circle cx="8.5" cy="7.5" r=".5"></circle><circle cx="6.5" cy="12.5" r=".5"></circle><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path></svg></div><span class="text-ink font-medium">Appearance</span></div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-mute"><polyline points="9 18 15 12 9 6"></polyline></svg></a></div></div><!-- Feedback --><div><h3 class="text-xs font-bold text-mute uppercase tracking-wider mb-3">Feedback & Support</h3><div class="bg-canvas border border-hairline rounded-xl overflow-hidden shadow-sm"><a href="https://play.google.com/store/apps/details?id=com.splitbugs.app" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-between p-4 text-left hover:bg-canvas-soft transition-colors border-b border-hairline group"><div class="flex items-center gap-4"><div class="w-8 h-8 rounded-full bg-canvas-soft flex items-center justify-center text-mute group-hover:text-ink group-hover:bg-hairline transition-colors"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></div><span class="text-ink font-medium">Rate SplitBugs</span></div></a><a href="/contact-support" class="w-full flex items-center justify-between p-4 text-left hover:bg-canvas-soft transition-colors group"><div class="flex items-center gap-4"><div class="w-8 h-8 rounded-full bg-canvas-soft flex items-center justify-center text-mute group-hover:text-ink group-hover:bg-hairline transition-colors"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><span class="text-ink font-medium">Contact Support</span></div></a></div></div><!-- Log Out --><div><button id="logoutBtn" class="w-full bg-canvas border border-hairline rounded-xl p-4 text-center hover:bg-danger/5 transition-colors group"><span class="text-danger font-medium">Log out</span></button></div></div></div><!-- Footer Branding --><div class="mt-16 text-center flex flex-col items-center"><p class="text-sm text-mute mb-1">Made with ❤️ by Lotus Outlook 6</p><a href="/privacy-policy" class="text-xs font-medium text-brand hover:underline mt-2">Privacy Policy</a><p class="text-[10px] text-mute mt-4">v1.0.0</p></div></main></div><script type="module" src="/_astro/account.astro_astro_type_script_index_0_lang.CjP7KPhH.js"></script><nav data-astro-transition-persist="bottom-nav" id="bottomNav" class="fixed bottom-0 left-0 w-full bg-canvas border-t border-hairline pb-safe z-50" data-astro-cid-ju4pidww><div class="flex items-center justify-around h-16 max-w-md mx-auto" data-astro-cid-ju4pidww><a href="/dashboard" class="flex flex-col items-center justify-center w-16 h-full transition-colors text-mute hover:text-ink" data-astro-cid-ju4pidww><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-1" data-astro-cid-ju4pidww><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" data-astro-cid-ju4pidww></path><circle cx="9" cy="7" r="4" data-astro-cid-ju4pidww></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87" data-astro-cid-ju4pidww></path><path d="M16 3.13a4 4 0 0 1 0 7.75" data-astro-cid-ju4pidww></path></svg><span class="text-[10px] font-medium" data-astro-cid-ju4pidww>Groups</span></a><a href="/activity" class="flex flex-col items-center justify-center w-16 h-full transition-colors text-mute hover:text-ink" data-astro-cid-ju4pidww><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-1" data-astro-cid-ju4pidww><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" data-astro-cid-ju4pidww></polyline></svg><span class="text-[10px] font-medium" data-astro-cid-ju4pidww>Activity</span></a><a href="/account" class="flex flex-col items-center justify-center w-16 h-full transition-colors group text-mute hover:text-ink" data-astro-cid-ju4pidww><div id="navAccountIcon" class="flex flex-col items-center justify-center mb-1" data-astro-cid-ju4pidww><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-astro-cid-ju4pidww><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" data-astro-cid-ju4pidww></path><circle cx="12" cy="7" r="4" data-astro-cid-ju4pidww></circle></svg></div><span class="text-[10px] font-medium" data-astro-cid-ju4pidww>Account</span></a></div></nav><script type="module">function e(e){return e===`special-art-1`?`<div class="w-full h-full" style="background: conic-gradient(from 45deg, #FF6B6B, #4ECDC4, #45B7D1, #FF6B6B);"></div>`:e===`special-art-2`?`<div class="w-full h-full" style="background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 99%, #FECFEF 100%);"><div class="w-1/2 h-1/2 bg-white/30 rounded-br-full backdrop-blur-md"></div></div>`:e===`special-art-3`?`<div class="w-full h-full flex"><div class="w-1/2 h-full bg-indigo-500"></div><div class="w-1/2 h-full bg-rose-400 rounded-tl-full"></div></div>`:``}var t=document.getElementById(`navAccountIcon`);if(t&&localStorage.getItem(`splitbug_loggedIn`)){let n=localStorage.getItem(`splitbug_userAvatar`),r=localStorage.getItem(`splitbug_userName`)||`User`,i=localStorage.getItem(`splitbug_userThemeColor`)||`special-art-1`,a=localStorage.getItem(`splitbug_userGradientTheme`)||`-1`,o=window.location.pathname===`/account`;if(a!==`-1`&&a.startsWith(`special-art-`))t.innerHTML=`<div class="w-6 h-6 rounded-full overflow-hidden ring-2 ${o?`ring-brand`:`ring-transparent group-hover:ring-brand/30`} transition-all">${e(a)}</div>`;else if(n)t.innerHTML=`<img src="${n}" loading="lazy" decoding="async" class="w-6 h-6 rounded-full object-cover ring-2 ${o?`ring-brand`:`ring-transparent group-hover:ring-brand/30`} transition-all" />`;else if(i.startsWith(`special-art-`))t.innerHTML=`<div class="w-6 h-6 rounded-full overflow-hidden ring-2 ${o?`ring-brand`:`ring-transparent group-hover:ring-brand/30`} transition-all">${e(i)}</div>`;else{let e=r.trim().split(` `).filter(Boolean),n=`U`;e.length>0&&e[0]&&(n=e.length===1?e[0].charAt(0).toUpperCase():(e[0].charAt(0)+e[e.length-1].charAt(0)).toUpperCase()),t.innerHTML=`<div class="w-6 h-6 rounded-full ${i} text-white flex items-center justify-center text-[10px] font-bold ring-2 ${o?`ring-brand`:`ring-transparent group-hover:ring-brand/30`} transition-all">${n}</div>`}}document.querySelector(`nav`)?.addEventListener(`click`,e=>{let t=e.target.closest(`a`);t&&t.getAttribute(`href`)===window.location.pathname&&e.preventDefault()});</script><script type="module" src="/_astro/Layout.astro_astro_type_script_index_1_lang.D1AaOkNB.js"></script></body></html>
+  </script><div class="min-h-screen flex flex-col bg-canvas-soft pb-32"><!-- Header --><header class="h-16 px-4 lg:px-6 flex items-center border-b border-hairline bg-canvas sticky top-0 z-40"><h1 class="text-xl sm:text-2xl font-bold tracking-tight text-ink">Account Settings</h1></header><main class="flex-1 w-full max-w-5xl mx-auto p-4 sm:p-6 lg:p-8"><div class="grid grid-cols-1 md:grid-cols-3 gap-8"><!-- Left Column: Profile --><div class="md:col-span-1 flex flex-col items-center md:items-start text-center md:text-left border-b border-hairline md:border-b-0 pb-8 md:pb-0"><div class="relative group cursor-pointer" id="avatarContainer"><div id="profileAvatar" class="w-24 h-24 sm:w-32 sm:h-32 rounded-full mb-4 overflow-hidden ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all"><!-- Skeleton circle --><div id="avatarSkeleton" class="w-full h-full skeleton-circle"></div></div></div><div id="profileNameWrap"><div id="nameSkeleton" class="skeleton h-7 w-40 mb-2"></div></div><h2 id="profileName" class="text-2xl font-bold text-ink leading-tight mb-1 hidden"></h2><div id="profileEmailWrap"><div id="emailSkeleton" class="skeleton h-4 w-52 mb-4"></div></div><p id="profileEmail" class="text-mute text-sm mb-4 hidden"></p><a href="/edit-profile" id="editProfileBtn" class="bg-canvas-soft hover:bg-hairline transition-colors text-ink font-medium px-4 py-2 rounded-full text-sm border border-hairline w-full md:w-auto inline-block text-center mt-2">Edit Profile</a></div><!-- Right Column: Settings Links --><div class="md:col-span-2 flex flex-col gap-8"><!-- Preferences --><div><h3 class="text-xs font-bold text-mute uppercase tracking-wider mb-3">Preferences</h3><div class="bg-canvas border border-hairline rounded-xl overflow-hidden shadow-sm"><a href="/email-settings" class="w-full flex items-center justify-between p-4 text-left hover:bg-canvas-soft transition-colors border-b border-hairline group"><div class="flex items-center gap-4"><div class="w-8 h-8 rounded-full bg-canvas-soft flex items-center justify-center text-mute group-hover:text-ink group-hover:bg-hairline transition-colors"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></div><span class="text-ink font-medium">Email settings</span></div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-mute"><polyline points="9 18 15 12 9 6"></polyline></svg></a><a href="/security" id="securityBtn" class="w-full flex items-center justify-between p-4 text-left hover:bg-canvas-soft transition-colors border-b border-hairline group"><div class="flex items-center gap-4"><div class="w-8 h-8 rounded-full bg-canvas-soft flex items-center justify-center text-mute group-hover:text-ink group-hover:bg-hairline transition-colors"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div><span class="text-ink font-medium">Security</span></div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-mute"><polyline points="9 18 15 12 9 6"></polyline></svg></a><a href="/appearance" class="w-full flex items-center justify-between p-4 text-left hover:bg-canvas-soft transition-colors group"><div class="flex items-center gap-4"><div class="w-8 h-8 rounded-full bg-canvas-soft flex items-center justify-center text-mute group-hover:text-ink group-hover:bg-hairline transition-colors"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5"></circle><circle cx="17.5" cy="10.5" r=".5"></circle><circle cx="8.5" cy="7.5" r=".5"></circle><circle cx="6.5" cy="12.5" r=".5"></circle><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path></svg></div><span class="text-ink font-medium">Appearance</span></div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-mute"><polyline points="9 18 15 12 9 6"></polyline></svg></a></div></div><!-- Feedback --><div><h3 class="text-xs font-bold text-mute uppercase tracking-wider mb-3">Feedback & Support</h3><div class="bg-canvas border border-hairline rounded-xl overflow-hidden shadow-sm"><a href="https://play.google.com/store/apps/details?id=com.splitbugs.app" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-between p-4 text-left hover:bg-canvas-soft transition-colors border-b border-hairline group"><div class="flex items-center gap-4"><div class="w-8 h-8 rounded-full bg-canvas-soft flex items-center justify-center text-mute group-hover:text-ink group-hover:bg-hairline transition-colors"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></div><span class="text-ink font-medium">Rate SplitBugs</span></div></a><a href="/contact-support" class="w-full flex items-center justify-between p-4 text-left hover:bg-canvas-soft transition-colors group"><div class="flex items-center gap-4"><div class="w-8 h-8 rounded-full bg-canvas-soft flex items-center justify-center text-mute group-hover:text-ink group-hover:bg-hairline transition-colors"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><span class="text-ink font-medium">Contact Support</span></div></a></div></div><!-- Log Out --><div><button id="logoutBtn" class="w-full bg-canvas border border-hairline rounded-xl p-4 text-center hover:bg-danger/5 transition-colors group"><span class="text-danger font-medium">Log out</span></button></div></div></div><!-- Footer Branding --><div class="mt-16 text-center flex flex-col items-center"><p class="text-sm text-mute mb-1">Made with ❤️ by Lotus Outlook 6</p><a href="/privacy-policy" class="text-xs font-medium text-brand hover:underline mt-2">Privacy Policy</a><p class="text-[10px] text-mute mt-4">v1.0.0</p></div></main></div><script type="module" src="/_astro/account.astro_astro_type_script_index_0_lang.DrYaUiix.js"></script><nav data-astro-transition-persist="bottom-nav" id="bottomNav" class="fixed bottom-0 left-0 w-full bg-canvas border-t border-hairline pb-safe z-50" data-astro-cid-ju4pidww><div class="relative flex items-center justify-between h-16 max-w-md mx-auto px-1" data-astro-cid-ju4pidww><!-- Sleek Compact Light Purple Pill Indicator --><div id="navPill" style="transform: translateX(200%); opacity: 1;" class="absolute inset-y-0 left-0 w-1/3 flex justify-center items-center pointer-events-none transition-transform duration-250 ease-out z-0" data-astro-cid-ju4pidww><div class="w-4/5 h-12 bg-purple-100 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 rounded-full shadow-sm" data-astro-cid-ju4pidww></div></div><a href="/dashboard" data-index="0" data-path="/dashboard" class="relative z-10 flex flex-col items-center justify-center flex-1 h-full transition-colors nav-item text-mute hover:text-ink" data-astro-cid-ju4pidww><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-0.5" data-astro-cid-ju4pidww><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" data-astro-cid-ju4pidww></path><circle cx="9" cy="7" r="4" data-astro-cid-ju4pidww></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87" data-astro-cid-ju4pidww></path><path d="M16 3.13a4 4 0 0 1 0 7.75" data-astro-cid-ju4pidww></path></svg><span class="text-[10px] font-medium" data-astro-cid-ju4pidww>Groups</span></a><a href="/activity" data-index="1" data-path="/activity" class="relative z-10 flex flex-col items-center justify-center flex-1 h-full transition-colors nav-item text-mute hover:text-ink" data-astro-cid-ju4pidww><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-0.5" data-astro-cid-ju4pidww><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" data-astro-cid-ju4pidww></polyline></svg><span class="text-[10px] font-medium" data-astro-cid-ju4pidww>Activity</span></a><a href="/account" data-index="2" data-path="/account" class="relative z-10 flex flex-col items-center justify-center flex-1 h-full transition-colors group nav-item active text-purple-600 font-semibold" data-astro-cid-ju4pidww><div id="navAccountIcon" class="flex flex-col items-center justify-center mb-0.5 min-h-[22px]" data-astro-cid-ju4pidww><script>
+							(function() {
+								var icon = document.currentScript.parentElement;
+								var avatar = localStorage.getItem('splitbug_userAvatar');
+								var userName = localStorage.getItem('splitbug_userName');
+								var themeColor = localStorage.getItem('splitbug_userThemeColor');
+								var gradientTheme = localStorage.getItem('splitbug_userGradientTheme');
+								var isAccountPath = window.location.pathname === '/account' || window.location.pathname.startsWith('/edit-profile');
+
+								if (avatar && avatar !== 'undefined' && avatar !== 'null') {
+									icon.innerHTML = '<img src="' + avatar + '" loading="eager" decoding="sync" class="w-5 h-5 rounded-full object-cover ring-2 ' + (isAccountPath ? 'ring-purple-600' : 'ring-transparent') + '" />';
+								} else if (gradientTheme && gradientTheme !== '-1' && gradientTheme.startsWith('special-art-')) {
+									icon.innerHTML = '<div class="w-5 h-5 rounded-full overflow-hidden ring-2 ' + (isAccountPath ? 'ring-purple-600' : 'ring-transparent') + '">' + (window.renderAbstractArt ? window.renderAbstractArt(gradientTheme) : '') + '</div>';
+								} else if (themeColor && themeColor.startsWith('special-art-')) {
+									icon.innerHTML = '<div class="w-5 h-5 rounded-full overflow-hidden ring-2 ' + (isAccountPath ? 'ring-purple-600' : 'ring-transparent') + '">' + (window.renderAbstractArt ? window.renderAbstractArt(themeColor) : '') + '</div>';
+								} else if (userName) {
+									var parts = userName.trim().split(' ').filter(Boolean);
+									var initials = parts.length > 1 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : (parts[0] ? parts[0][0].toUpperCase() : 'U');
+									icon.innerHTML = '<div class="w-5 h-5 rounded-full bg-purple-600 text-white flex items-center justify-center text-[9px] font-bold ring-2 ' + (isAccountPath ? 'ring-purple-600' : 'ring-transparent') + '">' + initials + '</div>';
+								} else {
+									icon.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>';
+								}
+							})();
+						</script></div><span class="text-[10px] font-medium" data-astro-cid-ju4pidww>Account</span></a></div></nav><script>
+			function updateBottomNav() {
+				const nav = document.getElementById('bottomNav');
+				if (!nav) return;
+				
+				const path = window.location.pathname;
+				const items = Array.from(nav.querySelectorAll('.nav-item'));
+				const pill = document.getElementById('navPill');
+				
+				let normalizedPath = path.toLowerCase();
+				
+				let activeIndex = -1;
+				if (normalizedPath.includes('/dashboard') || normalizedPath === '/' || normalizedPath.includes('/index')) {
+					activeIndex = 0;
+				} else if (normalizedPath.includes('/activity')) {
+					activeIndex = 1;
+				} else if (normalizedPath.includes('/account') || normalizedPath.includes('/edit-profile') || normalizedPath.includes('/security') || normalizedPath.includes('/email-settings')) {
+					activeIndex = 2;
+				}
+				
+				items.forEach((item, idx) => {
+					if (idx === activeIndex) {
+						item.classList.add('active', 'text-purple-600', 'dark:text-purple-400');
+						item.classList.remove('text-mute', 'hover:text-ink');
+					} else {
+						item.classList.remove('active', 'text-purple-600', 'dark:text-purple-400');
+						item.classList.add('text-mute', 'hover:text-ink');
+					}
+				});
+				
+				if (pill) {
+					if (activeIndex >= 0) {
+						pill.style.opacity = '1';
+						pill.style.transform = `translateX(${activeIndex * 100}%)`;
+					} else {
+						pill.style.opacity = '0';
+					}
+				}
+			}
+
+			function renderAbstractArt(type) {
+				if (type === 'special-art-1') return '<div class="w-full h-full" style="background: conic-gradient(from 45deg, #FF6B6B, #4ECDC4, #45B7D1, #FF6B6B);"></div>';
+				if (type === 'special-art-2') return '<div class="w-full h-full" style="background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 99%, #FECFEF 100%);"><div class="w-1/2 h-1/2 bg-white/30 rounded-br-full backdrop-blur-md"></div></div>';
+				if (type === 'special-art-3') return '<div class="w-full h-full flex"><div class="w-1/2 h-full bg-indigo-500"></div><div class="w-1/2 h-full bg-rose-400 rounded-tl-full"></div></div>';
+				return '';
+			}
+
+			function loadNavAvatar() {
+				const navAccountIcon = document.getElementById('navAccountIcon');
+				if (!navAccountIcon) return;
+
+				const userAvatar = localStorage.getItem('splitbug_userAvatar');
+				const userName = localStorage.getItem('splitbug_userName');
+				const userThemeColor = localStorage.getItem('splitbug_userThemeColor');
+				const userGradientTheme = localStorage.getItem('splitbug_userGradientTheme');
+				const isAccountPath = window.location.pathname === '/account' || window.location.pathname.startsWith('/edit-profile');
+
+				if (userAvatar && userAvatar !== 'undefined' && userAvatar !== 'null') {
+					navAccountIcon.innerHTML = `<img src="${userAvatar}" loading="lazy" decoding="async" class="w-5 h-5 rounded-full object-cover ring-2 ${isAccountPath ? 'ring-purple-600' : 'ring-transparent'} transition-all" />`;
+				} else if (userGradientTheme && userGradientTheme !== '-1' && userGradientTheme.startsWith('special-art-')) {
+					navAccountIcon.innerHTML = `<div class="w-5 h-5 rounded-full overflow-hidden ring-2 ${isAccountPath ? 'ring-purple-600' : 'ring-transparent'} transition-all">${renderAbstractArt(userGradientTheme)}</div>`;
+				} else if (userThemeColor && userThemeColor.startsWith('special-art-')) {
+					navAccountIcon.innerHTML = `<div class="w-5 h-5 rounded-full overflow-hidden ring-2 ${isAccountPath ? 'ring-purple-600' : 'ring-transparent'} transition-all">${renderAbstractArt(userThemeColor)}</div>`;
+				} else if (userName) {
+					const parts = userName.trim().split(' ').filter(Boolean);
+					let initials = 'U';
+					if (parts.length > 0 && parts[0]) {
+						if (parts.length === 1) initials = parts[0].charAt(0).toUpperCase();
+						else initials = (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+					}
+					navAccountIcon.innerHTML = `<div class="w-5 h-5 rounded-full bg-purple-600 text-white flex items-center justify-center text-[9px] font-bold ring-2 ${isAccountPath ? 'ring-purple-600' : 'ring-transparent'} transition-all">${initials}</div>`;
+				}
+			}
+			
+			// Load immediately and on events
+			updateBottomNav();
+			loadNavAvatar();
+			document.addEventListener('DOMContentLoaded', () => { updateBottomNav(); loadNavAvatar(); });
+			document.addEventListener('astro:page-load', () => { updateBottomNav(); loadNavAvatar(); });
+			window.addEventListener('storage', loadNavAvatar);
+			window.loadNavAvatar = loadNavAvatar;
+			window.updateBottomNav = updateBottomNav;
+
+			// Prevent full reload and instantly animate pill when clicking the bottom nav link
+			document.querySelector('nav#bottomNav')?.addEventListener('click', (e) => {
+				const link = (e.target).closest('a');
+				if (link) {
+					const index = parseInt(link.getAttribute('data-index'), 10);
+					const pill = document.getElementById('navPill');
+					if (pill && !isNaN(index)) {
+						pill.style.opacity = '1';
+						pill.style.transform = `translateX(${index * 100}%)`;
+					}
+					
+					const href = link.getAttribute('href');
+					if (href === window.location.pathname) {
+						e.preventDefault();
+					} else {
+						// Delay navigation to let the slide animation play
+						e.preventDefault();
+						setTimeout(() => {
+							window.location.href = href;
+						}, 200);
+					}
+				}
+			});
+		</script><script type="module" src="/_astro/Layout.astro_astro_type_script_index_0_lang.DRTF-bKQ.js"></script></body></html>

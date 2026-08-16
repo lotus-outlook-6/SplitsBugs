@@ -10,6 +10,17 @@ import Layout from '../layouts/Layout.astro';
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+  .group-card {
+    transition: opacity 0.5s ease-out, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .reveal-hidden {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  .reveal-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 </style>
 
 <Layout>
@@ -959,7 +970,7 @@ import Layout from '../layouts/Layout.astro';
         const accentHex = colors.dark;
 
         newHTML += `
-          <a href="/group?id=${group.id}" style="background-color: ${accentHex}10;" class="group block p-6 border border-hairline rounded-md hover:border-brand transition-all shadow-sm hover:shadow-md flex flex-col justify-between">
+          <a href="/group?id=${group.id}" style="background-color: ${accentHex}10;" class="group group-card reveal-hidden block p-6 border border-hairline rounded-md hover:border-brand shadow-sm hover:shadow-md flex flex-col justify-between">
             <div class="flex justify-between items-start mb-4">
               <div class="flex items-center gap-4">
                 <div style="background-color: ${accentHex}20; color: ${accentHex};" class="w-12 h-12 shrink-0 rounded-lg border border-hairline/50 flex items-center justify-center text-xl font-bold bg-white/60">
@@ -985,6 +996,33 @@ import Layout from '../layouts/Layout.astro';
       if (groupsGrid.innerHTML !== newHTML) {
         groupsGrid.innerHTML = newHTML;
         groupsGrid.classList.add('fade-in');
+        
+        // Setup scroll reveal animation
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('reveal-visible');
+              entry.target.classList.remove('reveal-hidden');
+            } else {
+              entry.target.classList.remove('reveal-visible');
+              entry.target.classList.add('reveal-hidden');
+            }
+          });
+        }, {
+          threshold: 0.15,
+          rootMargin: "0px"
+        });
+
+        document.querySelectorAll('.group-card').forEach((el, index) => {
+          // Stagger first few items for initial load
+          if (index < 15) {
+             (el as HTMLElement).style.transitionDelay = `${index * 30}ms`;
+             setTimeout(() => {
+                (el as HTMLElement).style.transitionDelay = '0ms';
+             }, 1000);
+          }
+          observer.observe(el);
+        });
       }
     }
 
