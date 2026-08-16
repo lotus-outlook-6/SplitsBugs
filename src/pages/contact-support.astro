@@ -20,42 +20,127 @@ import Layout from '../layouts/Layout.astro';
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.05 5A5 5 0 0 1 19 8.95M15.05 1A9 9 0 0 1 23 8.94m-1 7.98v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
         </div>
         <h2 class="text-2xl font-bold text-ink mb-2">We're here to help</h2>
-        <p class="text-mute mb-8 max-w-md mx-auto">Get in touch with the SplitBugs support team. We generally reply within 24 hours.</p>
+        <p class="text-mute mb-8 max-w-md mx-auto">Click any card to copy contact details. Double-click to open your mail or phone app directly.</p>
         
-        <div class="flex flex-col gap-4 max-w-sm mx-auto">
-          <a href="mailto:splitsbug.app@gmail.com" class="flex items-center gap-4 p-4 border border-hairline rounded-xl hover:bg-canvas-soft transition-colors text-left group">
-            <svg class="text-mute group-hover:text-ink transition-colors" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-            <div>
-              <p class="font-medium text-ink">Email Us</p>
-              <p class="text-sm text-mute">splitsbug.app@gmail.com</p>
+        <div class="flex flex-col gap-4 max-w-md mx-auto">
+          <!-- Support Email Card -->
+          <div data-copy-value="splitsbug.app@gmail.com" data-action="mailto:splitsbug.app@gmail.com" class="contact-card flex items-center justify-between gap-4 p-4 border border-hairline rounded-xl hover:bg-canvas-soft transition-all text-left cursor-pointer group select-none relative overflow-hidden">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-full bg-brand/10 flex items-center justify-center text-brand shrink-0">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+              </div>
+              <div>
+                <p class="font-medium text-ink">Email Support</p>
+                <p class="text-sm text-mute">splitsbug.app@gmail.com</p>
+              </div>
             </div>
-          </a>
+            <span class="badge text-xs font-semibold text-brand bg-brand/10 px-2.5 py-1 rounded-full opacity-80 sm:opacity-0 group-hover:opacity-100 transition-all shrink-0">
+              Copy
+            </span>
+          </div>
           
-          <a href="tel:+18005550199" class="flex items-center gap-4 p-4 border border-hairline rounded-xl hover:bg-canvas-soft transition-colors text-left group">
-            <svg class="text-mute group-hover:text-ink transition-colors" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-            <div>
-              <p class="font-medium text-ink">Call Us</p>
-              <p class="text-sm text-mute">+1 (800) 555-0199</p>
+          <!-- Support Phone Card -->
+          <div data-copy-value="+18005550199" data-action="tel:+18005550199" class="contact-card flex items-center justify-between gap-4 p-4 border border-hairline rounded-xl hover:bg-canvas-soft transition-all text-left cursor-pointer group select-none relative overflow-hidden">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-full bg-brand/10 flex items-center justify-center text-brand shrink-0">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+              </div>
+              <div>
+                <p class="font-medium text-ink">Call Us</p>
+                <p class="text-sm text-mute">+1 (800) 555-0199</p>
+              </div>
             </div>
-          </a>
+            <span class="badge text-xs font-semibold text-brand bg-brand/10 px-2.5 py-1 rounded-full opacity-80 sm:opacity-0 group-hover:opacity-100 transition-all shrink-0">
+              Copy
+            </span>
+          </div>
         </div>
       </div>
 
-      <!-- User Contact Info (Dynamically Loaded) -->
+      <!-- Developer Contact Details Card Box -->
       <div class="bg-canvas border border-hairline rounded-xl p-6 shadow-sm">
-        <h3 class="text-sm font-bold text-mute uppercase tracking-wider mb-4">Developer's Contact Details</h3>
+        <h3 class="text-xs font-bold text-mute uppercase tracking-wider mb-4">Developer's Contact Details</h3>
         
-        <div class="space-y-4">
-          <div>
-            <p class="text-xs text-mute mb-1">Email ID</p>
-            <p class="font-medium text-ink">kunalrabidas6@proton.me</p>
+        <div data-copy-value="kunalrabidas6@proton.me" data-action="mailto:kunalrabidas6@proton.me" class="contact-card flex items-center justify-between gap-4 p-4 border border-hairline rounded-xl hover:bg-canvas-soft transition-all text-left cursor-pointer group select-none relative overflow-hidden">
+          <div class="flex items-center gap-4">
+            <img src="https://lh3.googleusercontent.com/a/ACg8ocKnauYC7QPWSywNYZLeEdGNk2yMuI9oKTGJ3Ci07ItAugXEeCeV3Q=s400-c" alt="Developer Avatar" class="w-10 h-10 rounded-full object-cover shrink-0 border border-purple-500/20 shadow-sm" />
+            <div>
+              <p class="font-medium text-ink">Developer Email</p>
+              <p class="text-sm text-mute">kunalrabidas6@proton.me</p>
+            </div>
           </div>
+          <span class="badge text-xs font-semibold text-purple-600 dark:text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-full opacity-80 sm:opacity-0 group-hover:opacity-100 transition-all shrink-0">
+            Copy
+          </span>
         </div>
         
-        <p class="text-xs text-mute mt-6">To contact the developer of this site, please use this email address.</p>
+        <p class="text-xs text-mute mt-4">Click to copy email address. Double-click to open your email client.</p>
       </div>
 
     </main>
   </div>
+
+  <!-- Copy Toast Notification -->
+  <div id="copyToast" class="fixed bottom-20 left-1/2 -translate-x-1/2 bg-ink text-canvas px-4 py-2.5 rounded-full shadow-lg text-xs font-medium transition-all duration-300 translate-y-10 opacity-0 pointer-events-none z-50 flex items-center gap-2">
+    <svg class="w-4 h-4 text-emerald-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    <span id="copyToastMsg">Copied to clipboard!</span>
+  </div>
+
+  <script>
+    const cards = document.querySelectorAll('.contact-card');
+    const toast = document.getElementById('copyToast');
+    const toastMsg = document.getElementById('copyToastMsg');
+    let toastTimeout: any = null;
+
+    function showToast(msg: string) {
+      if (!toast || !toastMsg) return;
+      toastMsg.textContent = msg;
+      toast.classList.remove('translate-y-10', 'opacity-0', 'pointer-events-none');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.add('translate-y-10', 'opacity-0', 'pointer-events-none');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 2500);
+    }
+
+    cards.forEach((card) => {
+      let clickTimer: any = null;
+      let clickCount = 0;
+
+      card.addEventListener('click', (e) => {
+        e.preventDefault();
+        clickCount++;
+        const copyVal = card.getAttribute('data-copy-value') || '';
+        const actionUrl = card.getAttribute('data-action') || '';
+        const badge = card.querySelector('.badge');
+
+        if (clickCount === 1) {
+          clickTimer = setTimeout(async () => {
+            clickCount = 0;
+            // Single click: copy to clipboard
+            try {
+              await navigator.clipboard.writeText(copyVal);
+              if (badge) {
+                const origText = badge.textContent;
+                badge.textContent = 'Copied!';
+                setTimeout(() => { badge.textContent = origText; }, 1800);
+              }
+              showToast(`Copied "${copyVal}" (Double-click to open app)`);
+            } catch (err) {
+              showToast(`Copied "${copyVal}"`);
+            }
+          }, 250);
+        } else if (clickCount >= 2) {
+          clearTimeout(clickTimer);
+          clickCount = 0;
+          // Double click: launch mailto / tel action
+          if (badge) badge.textContent = 'Opening...';
+          window.location.href = actionUrl;
+        }
+      });
+    });
+  </script>
 
 </Layout>

@@ -82,7 +82,7 @@
 					} catch(err) {}
 				}
 			});
-		</script><link rel="stylesheet" href="/_astro/Layout.B_Lglu63.css"></head><body class="pb-28" data-astro-cid-ju4pidww><script>
+		</script><link rel="stylesheet" href="/_astro/Layout.Bo1ENlkZ.css"></head><body class="pb-28" data-astro-cid-ju4pidww><script>
     window.renderAbstractArt = function(type) {
       if (type === 'special-art-1') return '<div class="w-full h-full" style="background: conic-gradient(from 45deg, #FF6B6B, #4ECDC4, #45B7D1, #FF6B6B);"></div>';
       if (type === 'special-art-2') return '<div class="w-full h-full" style="background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 99%, #FECFEF 100%);"><div class="w-1/2 h-1/2 bg-white/30 rounded-br-full backdrop-blur-md"></div></div>';
@@ -182,11 +182,11 @@
 				let normalizedPath = path.toLowerCase();
 				
 				let activeIndex = -1;
-				if (normalizedPath.includes('/dashboard') || normalizedPath === '/' || normalizedPath.includes('/index')) {
+				if (normalizedPath.includes('/dashboard') || normalizedPath.includes('/group') || normalizedPath === '/' || normalizedPath.includes('/index')) {
 					activeIndex = 0;
 				} else if (normalizedPath.includes('/activity')) {
 					activeIndex = 1;
-				} else if (normalizedPath.includes('/account') || normalizedPath.includes('/edit-profile') || normalizedPath.includes('/security') || normalizedPath.includes('/email-settings')) {
+				} else if (normalizedPath.includes('/account') || normalizedPath.includes('/edit-profile') || normalizedPath.includes('/security') || normalizedPath.includes('/email-settings') || normalizedPath.includes('/appearance') || normalizedPath.includes('/contact-support') || normalizedPath.includes('/notification-settings')) {
 					activeIndex = 2;
 				}
 				

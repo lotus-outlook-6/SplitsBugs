@@ -8,8 +8,8 @@ export interface Props {
 const { hideNav = false } = Astro.props;
 const pathname = Astro.url.pathname;
 const isActivity = pathname.includes('/activity');
-const isAccount = pathname.includes('/account') || pathname.includes('/edit-profile') || pathname.includes('/security') || pathname.includes('/email-settings');
-const isGroups = pathname.includes('/dashboard') || pathname === '/' || pathname === '' || pathname === '/index.html';
+const isAccount = pathname.includes('/account') || pathname.includes('/edit-profile') || pathname.includes('/security') || pathname.includes('/email-settings') || pathname.includes('/appearance') || pathname.includes('/contact-support') || pathname.includes('/notification-settings');
+const isGroups = pathname.includes('/dashboard') || pathname.includes('/group') || pathname === '/' || pathname === '' || pathname === '/index.html';
 
 let initialIndex = 0;
 if (isActivity) initialIndex = 1;
@@ -185,11 +185,11 @@ else initialIndex = -1;
 				let normalizedPath = path.toLowerCase();
 				
 				let activeIndex = -1;
-				if (normalizedPath.includes('/dashboard') || normalizedPath === '/' || normalizedPath.includes('/index')) {
+				if (normalizedPath.includes('/dashboard') || normalizedPath.includes('/group') || normalizedPath === '/' || normalizedPath.includes('/index')) {
 					activeIndex = 0;
 				} else if (normalizedPath.includes('/activity')) {
 					activeIndex = 1;
-				} else if (normalizedPath.includes('/account') || normalizedPath.includes('/edit-profile') || normalizedPath.includes('/security') || normalizedPath.includes('/email-settings')) {
+				} else if (normalizedPath.includes('/account') || normalizedPath.includes('/edit-profile') || normalizedPath.includes('/security') || normalizedPath.includes('/email-settings') || normalizedPath.includes('/appearance') || normalizedPath.includes('/contact-support') || normalizedPath.includes('/notification-settings')) {
 					activeIndex = 2;
 				}
 				
