@@ -25,10 +25,9 @@ service cloud.firestore {
     }
 
     match /groups/{groupId} {
-      // Allow read/update if user's email is in the members array
-      allow read, update: if isAuthenticated() && (request.auth.token.email in resource.data.members || isAdmin());
+      // Allow read/update/delete if user's email is in the members array
+      allow read, update, delete: if isAuthenticated() && (request.auth.token.email in resource.data.members || isAdmin());
       allow create: if isAuthenticated();
-      allow delete: if isAdmin(); // only admins should fully delete groups for now
     }
 
     match /invites/{inviteId} {
