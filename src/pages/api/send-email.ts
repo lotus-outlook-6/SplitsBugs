@@ -9,14 +9,21 @@ import {
   getGeneralNotificationEmailTemplate
 } from '../../utils/emailTemplates';
 
+// Helper to safely get env vars in Node/Vercel or Astro
+const getEnvVar = (key: string) => {
+  if (typeof process !== 'undefined' && process.env && process.env[key]) return process.env[key];
+  if (typeof import.meta !== 'undefined' && import.meta.env && (import.meta.env as any)[key]) return (import.meta.env as any)[key];
+  return undefined;
+};
+
 // Setup Nodemailer transporter
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
   port: 465,
   secure: true, // true for 465, false for other ports
   auth: {
-    user: process.env.SMTP_EMAIL || import.meta.env.SMTP_EMAIL,
-    pass: process.env.SMTP_PASSWORD || import.meta.env.SMTP_PASSWORD,
+    user: getEnvVar('SMTP_EMAIL'),
+    pass: getEnvVar('SMTP_PASSWORD'),
   }
 });
 
@@ -24,8 +31,8 @@ export const prerender = false; // Forces this route to run on the server
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const smtpEmail = process.env.SMTP_EMAIL || import.meta.env.SMTP_EMAIL;
-    const smtpPass = process.env.SMTP_PASSWORD || import.meta.env.SMTP_PASSWORD;
+    const smtpEmail = getEnvVar('SMTP_EMAIL');
+    const smtpPass = getEnvVar('SMTP_PASSWORD');
     
     // Graceful fallback for missing local credentials
     if (!smtpEmail || !smtpPass) {
@@ -63,7 +70,7 @@ export const POST: APIRoute = async ({ request }) => {
       return new Response(JSON.stringify({ error: 'Invalid template ID' }), { status: 400 });
     }
 
-    const from = process.env.SMTP_EMAIL || import.meta.env.SMTP_EMAIL;
+    const from = getEnvVar('SMTP_EMAIL');
 
     const info = await transporter.sendMail({
       from: `"SplitsBug" <${from}>`,

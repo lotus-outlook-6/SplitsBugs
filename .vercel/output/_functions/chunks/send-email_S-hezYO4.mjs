@@ -460,19 +460,47 @@ var send_email_exports = /* @__PURE__ */ __exportAll({
 	POST: () => POST,
 	prerender: () => false
 });
+var getEnvVar = (key) => {
+	if (typeof process !== "undefined" && process.env && process.env[key]) return process.env[key];
+	if (typeof import.meta !== "undefined" && Object.assign({
+		"ASSETS_PREFIX": void 0,
+		"BASE_URL": "/",
+		"DEV": false,
+		"MODE": "production",
+		"PROD": true,
+		"SITE": void 0,
+		"SSR": true
+	}, { _: "/Users/kunalrabidas/Documents/Antigravity/SplitsBug/node_modules/.bin/astro" }) && Object.assign({
+		"ASSETS_PREFIX": void 0,
+		"BASE_URL": "/",
+		"DEV": false,
+		"MODE": "production",
+		"PROD": true,
+		"SITE": void 0,
+		"SSR": true
+	}, { _: "/Users/kunalrabidas/Documents/Antigravity/SplitsBug/node_modules/.bin/astro" })[key]) return Object.assign({
+		"ASSETS_PREFIX": void 0,
+		"BASE_URL": "/",
+		"DEV": false,
+		"MODE": "production",
+		"PROD": true,
+		"SITE": void 0,
+		"SSR": true
+	}, { _: "/Users/kunalrabidas/Documents/Antigravity/SplitsBug/node_modules/.bin/astro" })[key];
+};
 var transporter = nodemailer.createTransport({
 	host: "smtp.gmail.com",
 	port: 465,
 	secure: true,
 	auth: {
-		user: process.env.SMTP_EMAIL || void 0,
-		pass: process.env.SMTP_PASSWORD || void 0
+		user: getEnvVar("SMTP_EMAIL"),
+		pass: getEnvVar("SMTP_PASSWORD")
 	}
 });
 var POST = async ({ request }) => {
 	try {
-		const smtpEmail = process.env.SMTP_EMAIL || void 0;
-		const smtpPass = process.env.SMTP_PASSWORD || void 0;
+		const smtpEmail = getEnvVar("SMTP_EMAIL");
+		const smtpPass = getEnvVar("SMTP_PASSWORD");
 		if (!smtpEmail || !smtpPass) {
 			console.warn("⚠️ SMTP credentials not found in environment variables. Email dispatch bypassed in development.");
 			return new Response(JSON.stringify({
@@ -496,7 +524,7 @@ var POST = async ({ request }) => {
 		else if (templateId === "otp") html = getOtpVerificationTemplate(templateData.code);
 		else if (templateId === "general") html = getGeneralNotificationEmailTemplate(templateData.title || subject, templateData.message || "", templateData.actionUrl);
 		else return new Response(JSON.stringify({ error: "Invalid template ID" }), { status: 400 });
-		const from = process.env.SMTP_EMAIL || void 0;
+		const from = getEnvVar("SMTP_EMAIL");
 		const info = await transporter.sendMail({
 			from: `"SplitsBug" <${from}>`,
 			to,
