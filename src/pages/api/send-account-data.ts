@@ -165,7 +165,7 @@ export const POST: APIRoute = async ({ request }) => {
             <p style="font-size: 13px; line-height: 1.6;">
               <strong>Full Name:</strong> ${userName}<br>
               <strong>Email Address:</strong> ${to}<br>
-              <strong>Profile Photo URL:</strong> <a href="${userAvatar}">${userAvatar}</a><br>
+              <strong>Profile Photo:</strong> ${userAvatar.startsWith('data:image') ? '<i>Included in attached Excel file</i>' : `<a href="${userAvatar}">View Photo</a>`}<br>
               <strong>Default Currency:</strong> ${defaultCurrency}<br>
               <strong>Account Created:</strong> ${createdAt}
             </p>

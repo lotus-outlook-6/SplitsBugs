@@ -16,46 +16,49 @@ import Layout from '../layouts/Layout.astro';
     <main class="flex-1 w-full max-w-3xl mx-auto p-4 sm:p-6 lg:p-8">
       
       <!-- Info Overview Banner -->
-      <div class="bg-canvas border border-hairline p-8 rounded-xl text-center shadow-sm mb-8">
-        <div class="w-16 h-16 mx-auto rounded-full bg-brand/10 text-brand flex items-center justify-center mb-4">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        </div>
-        
-        <h2 class="text-2xl font-bold text-ink mb-2">Your Personal Data Archive</h2>
-        <p class="text-mute mb-8 max-w-md mx-auto">SplitsBug allows you to download all information associated with your account from the moment you joined.</p>
+      <div class="relative overflow-hidden bg-gradient-to-br from-canvas to-canvas-soft border border-hairline p-6 sm:p-8 rounded-2xl shadow-xl mb-8 group">
+        <!-- Decorative background glow -->
+        <div class="absolute -top-24 -right-24 w-48 h-48 bg-brand/20 blur-[80px] rounded-full group-hover:bg-brand/30 transition-all duration-700"></div>
 
-        <div class="flex flex-col gap-4 max-w-md mx-auto">
+        <div class="relative z-10">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-brand/20 to-brand/5 border border-brand/20 text-brand flex items-center justify-center mb-6 shadow-sm">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </div>
           
-          <div class="flex items-center gap-4 p-4 border border-hairline rounded-xl text-left bg-canvas-soft">
-            <div class="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 shrink-0">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <h2 class="text-2xl sm:text-3xl font-bold text-ink mb-3 tracking-tight">Your Personal Data Archive</h2>
+          <p class="text-mute mb-8 max-w-xl text-sm leading-relaxed">SplitsBug allows you to download all information associated with your account from the moment you joined. Your data is compiled into a structured Excel archive for your records.</p>
+          
+          <div class="space-y-3">
+            <div class="flex items-center gap-4 p-4 border border-hairline rounded-xl text-left bg-canvas transition-colors hover:bg-canvas-soft">
+              <div class="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center shrink-0 text-blue-500">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+              <div>
+                <h4 class="font-bold text-ink text-sm">Personal Profile</h4>
+                <p class="text-xs text-mute mt-0.5">Name, Email, Profile Picture, Phone, DOB, and Settings.</p>
+              </div>
             </div>
-            <div>
-              <p class="font-medium text-ink">Personal Profile Data</p>
-              <p class="text-xs text-mute mt-0.5">Name, Email, Profile Picture Link, Phone Number, Date of Birth, App Theme, and Account Creation Date.</p>
+
+            <div class="flex items-center gap-4 p-4 border border-hairline rounded-xl text-left bg-canvas transition-colors hover:bg-canvas-soft">
+              <div class="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center shrink-0 text-purple-500">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </div>
+              <div>
+                <h4 class="font-bold text-ink text-sm">Groups & Memberships</h4>
+                <p class="text-xs text-mute mt-0.5">Group Names, Descriptions, Member Lists, Roles, and Currencies.</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-4 p-4 border border-hairline rounded-xl text-left bg-canvas transition-colors hover:bg-canvas-soft">
+              <div class="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0 text-emerald-500">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+              </div>
+              <div>
+                <h4 class="font-bold text-ink text-sm">Expenses & Settlements</h4>
+                <p class="text-xs text-mute mt-0.5">Exact Amounts, Paid By, Split Methods, and Timestamps.</p>
+              </div>
             </div>
           </div>
-
-          <div class="flex items-center gap-4 p-4 border border-hairline rounded-xl text-left bg-canvas-soft">
-            <div class="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-500 shrink-0">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            </div>
-            <div>
-              <p class="font-medium text-ink">Groups & Memberships</p>
-              <p class="text-xs text-mute mt-0.5">Group Names, Descriptions, Member Lists, Your Roles, Base Currencies, and Group Timestamps.</p>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-4 p-4 border border-hairline rounded-xl text-left bg-canvas-soft">
-            <div class="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 shrink-0">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            </div>
-            <div>
-              <p class="font-medium text-ink">Expenses & Settlements</p>
-              <p class="text-xs text-mute mt-0.5">Exact Amounts, Paid By, Split Methods, Participants, Transaction Categories, and Timestamps.</p>
-            </div>
-          </div>
-
         </div>
       </div>
 
@@ -72,7 +75,6 @@ import Layout from '../layouts/Layout.astro';
 
         <!-- Request Button -->
         <button type="button" id="requestDataBtn" disabled class="w-full py-3 bg-brand text-white font-bold rounded-xl transition-all shadow-sm text-sm disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer hover:bg-brand-deep flex items-center justify-center gap-2">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
           Request Data Over Email
         </button>
       </div>
@@ -84,22 +86,12 @@ import Layout from '../layouts/Layout.astro';
   <dialog id="emailSentModal" class="backdrop:bg-black/60 text-ink fixed inset-0 z-50 m-auto w-[90vw] max-w-sm p-6 sm:p-8 bg-canvas border border-hairline rounded-2xl shadow-2xl">
     <div class="flex flex-col items-center gap-4 text-center">
       
-      <!-- Speed Email Animation Container -->
-      <div class="relative w-24 h-24 flex items-center justify-center">
-        <div class="absolute inset-0 rounded-full bg-brand/10 animate-ping opacity-75"></div>
-        <div class="w-16 h-16 rounded-full bg-brand text-white flex items-center justify-center shadow-lg relative z-10 overflow-hidden">
-          
-          <!-- Moving envelope and speed lines -->
-          <div class="flex items-center gap-1 animate-[flyRight_1.2s_linear_infinite]">
-            <div class="flex flex-col gap-1 opacity-70 mt-1">
-              <div class="w-3 h-0.5 bg-white rounded"></div>
-              <div class="w-5 h-0.5 bg-white rounded -translate-x-1"></div>
-              <div class="w-2 h-0.5 bg-white rounded"></div>
-            </div>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-          </div>
-          
-        </div>
+      <!-- Slide-in Email Animation -->
+      <div class="w-16 h-16 rounded-full bg-brand/10 text-brand flex items-center justify-center mb-2 overflow-hidden">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="animate-[slideIn_0.6s_ease-out_forwards]">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+          <polyline points="22,6 12,13 2,6"/>
+        </svg>
       </div>
 
       <div>
@@ -109,7 +101,7 @@ import Layout from '../layouts/Layout.astro';
         </p>
       </div>
 
-      <button type="button" id="closeModalBtn" class="w-full py-3 bg-canvas-soft hover:bg-hairline text-ink font-semibold rounded-xl text-sm transition-colors border border-hairline cursor-pointer mt-2">
+      <button type="button" id="closeModalBtn" class="w-full py-3 bg-brand hover:bg-brand-deep text-white font-semibold rounded-xl text-sm transition-colors border border-transparent cursor-pointer mt-2 shadow-sm">
         Done
       </button>
     </div>
@@ -124,11 +116,37 @@ import Layout from '../layouts/Layout.astro';
     const emailSentModal = document.getElementById('emailSentModal') as HTMLDialogElement;
     const closeModalBtn = document.getElementById('closeModalBtn');
 
+    // 24 Hour Lock Logic
+    const LAST_EXPORT_KEY = 'splitbugs_last_export_time';
+    const checkExportLock = () => {
+      const lastExport = localStorage.getItem(LAST_EXPORT_KEY);
+      if (lastExport) {
+        const timeDiff = Date.now() - parseInt(lastExport, 10);
+        if (timeDiff < 24 * 60 * 60 * 1000) {
+          if (consentCheckbox) {
+            consentCheckbox.checked = false;
+            consentCheckbox.disabled = true;
+          }
+          if (requestDataBtn) {
+            requestDataBtn.disabled = true;
+            requestDataBtn.innerHTML = 'Requested (Available again in 24h)';
+          }
+          return true;
+        }
+      }
+      return false;
+    };
+    checkExportLock();
+
     consentCheckbox?.addEventListener('change', () => {
-      requestDataBtn.disabled = !consentCheckbox.checked;
+      if (!checkExportLock()) {
+        requestDataBtn.disabled = !consentCheckbox.checked;
+      }
     });
 
     requestDataBtn?.addEventListener('click', async () => {
+      if (checkExportLock()) return;
+
       const user = auth.currentUser;
       const userEmail = user?.email || localStorage.getItem('splitbug_userEmail');
 
@@ -137,26 +155,33 @@ import Layout from '../layouts/Layout.astro';
         return;
       }
 
-      requestDataBtn.disabled = true;
-      requestDataBtn.innerHTML = `
-        <div class="flex items-center justify-center gap-2">
-          <div class="flex items-center gap-1 animate-[flyRight_1.2s_linear_infinite]">
-            <div class="flex flex-col gap-[2px] opacity-70 mt-[2px]">
-              <div class="w-2 h-[2px] bg-white rounded"></div>
-              <div class="w-3 h-[2px] bg-white rounded -translate-x-1"></div>
-              <div class="w-1.5 h-[2px] bg-white rounded"></div>
-            </div>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-          </div>
-          Gathering & Exporting...
-        </div>
-      `;
+      requestDataBtn.innerHTML = 'Gathering & Exporting...';
 
       try {
-        // Fetch User profile doc
-        const userDocRef = doc(db, 'users', userEmail);
-        const userSnap = await getDoc(userDocRef);
-        const userData = userSnap.exists() ? userSnap.data() : { email: userEmail };
+        // Fetch User profile doc (Always query by email as requested)
+        let userData = { email: userEmail } as any;
+        const usersRef = collection(db, 'users');
+        const userQ = query(usersRef, where('email', '==', userEmail));
+        const userQSnap = await getDocs(userQ);
+        if (!userQSnap.empty) {
+          userData = userQSnap.docs[0].data();
+        }
+
+        // Fallback to Google Auth data if missing in Firestore
+        if (user) {
+          if (!userData.photoURL && !userData.avatar && user.photoURL) {
+            userData.photoURL = user.photoURL;
+          }
+          if (!userData.name && !userData.displayName && user.displayName) {
+            userData.name = user.displayName;
+          }
+          if (!userData.phoneNumber && user.phoneNumber) {
+            userData.phoneNumber = user.phoneNumber;
+          }
+          if (!userData.createdAt) {
+            userData.createdAt = user.metadata.creationTime;
+          }
+        }
 
         // Fetch user groups safely (Fix for Missing Permissions)
         const groupsRef = collection(db, 'groups');
@@ -195,6 +220,9 @@ import Layout from '../layouts/Layout.astro';
         const result = await res.json();
         if (!res.ok) throw new Error(result.error || 'Failed to dispatch email');
 
+        // Lock the export button for 24 hours
+        localStorage.setItem(LAST_EXPORT_KEY, Date.now().toString());
+
         // Show confirmation popup modal
         emailSentModal?.showModal();
 
@@ -202,26 +230,23 @@ import Layout from '../layouts/Layout.astro';
         console.error('Export Error:', err);
         alert(err.message || 'Failed to send data export email. Please try again.');
       } finally {
-        requestDataBtn.disabled = false;
-        requestDataBtn.innerHTML = `
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-          Request Data Over Email
-        `;
+        if (!checkExportLock()) {
+          requestDataBtn.disabled = false;
+          requestDataBtn.innerHTML = 'Request Data Over Email';
+        }
       }
     });
 
     closeModalBtn?.addEventListener('click', () => {
       emailSentModal?.close();
-      window.location.href = '/account';
+      checkExportLock(); // Make sure the button is greyed out after closing
     });
   </script>
 </Layout>
 
 <style>
-  @keyframes flyRight {
-    0% { transform: translateX(-15px); opacity: 0; }
-    20% { opacity: 1; }
-    80% { opacity: 1; }
-    100% { transform: translateX(15px); opacity: 0; }
+  @keyframes slideIn {
+    0% { transform: translateX(-40px); opacity: 0; }
+    100% { transform: translateX(0); opacity: 1; }
   }
 </style>
