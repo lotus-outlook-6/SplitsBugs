@@ -385,3 +385,74 @@ export function getOtpVerificationTemplate(code: string): string {
 </body>
 </html>`;
 }
+
+export function getGeneralNotificationEmailTemplate(title: string, message: string, actionUrl: string = 'https://splits-bugs.vercel.app/dashboard'): string {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${title}</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f4f2f8; font-family:Helvetica, Arial, sans-serif;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f4f2f8; padding:40px 0;">
+  <tr>
+    <td align="center">
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="background-color:#ffffff; border-radius:12px; overflow:hidden; max-width:600px; width:100%;">
+        <tr>
+          <td align="center" style="background-color:#ffffff; padding:32px 24px;">
+            <img src="https://splits-bugs.vercel.app/SplitBugs-Brand/logos/logo-wordmark.png" width="150" alt="SplitsBug" style="display:block; width:150px; max-width:150px; height:auto; border:0;">
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:40px 40px 24px 40px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td style="font-family:Helvetica, Arial, sans-serif; font-size:22px; line-height:28px; color:#1a1a1a; font-weight:bold; padding-bottom:16px;">
+                  ${title}
+                </td>
+              </tr>
+              <tr>
+                <td style="font-family:Helvetica, Arial, sans-serif; font-size:16px; line-height:24px; color:#4a4a4a; padding-bottom:32px;">
+                  ${message}
+                </td>
+              </tr>
+              <tr>
+                <td align="left">
+                  <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                    <tr>
+                      <td align="center" style="border-radius:8px; background-color:#5b21b6;">
+                        <a href="${actionUrl}" target="_blank" style="display:inline-block; padding:14px 32px; font-family:Helvetica, Arial, sans-serif; font-size:16px; font-weight:bold; color:#ffffff; text-decoration:none; border-radius:8px;">
+                          Open SplitsBug
+                        </a>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:0 40px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td style="border-top:1px solid #eeeeee; font-size:0; line-height:0;">&nbsp;</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td align="center" style="padding:24px 40px 32px 40px;">
+            <p style="margin:0; font-family:Helvetica, Arial, sans-serif; font-size:12px; line-height:18px; color:#9a9a9a;">
+              SplitsBug © 2026. All rights reserved. You received this email based on your SplitsBug notification settings.
+            </p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>`;
+}

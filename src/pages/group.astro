@@ -959,6 +959,21 @@ import Layout from '../layouts/Layout.astro';
                   timestamp: Date.now(),
                   read: false
                 });
+                try {
+                  const { sendEmail } = await import('../utils/email');
+                  await sendEmail({
+                    to: notif.to,
+                    subject: 'New Notification on SplitsBug',
+                    templateId: 'general',
+                    templateData: {
+                      title: 'New Activity on SplitsBug',
+                      message: notif.msg,
+                      actionUrl: `https://splits-bugs.vercel.app/group?id=${groupId}`
+                    }
+                  });
+                } catch (e) {
+                  console.error('Failed to send notification email:', e);
+                }
               }
               
               for (const act of newActivities) {
@@ -1760,12 +1775,28 @@ import Layout from '../layouts/Layout.astro';
             
             for (const p of participants) {
               if (p === currentUserEmail || p === paidBy || p === (window as any).MY_DISPLAY_NAME || p === 'You') continue;
+              const notifMsg = `${payerName} added the expense "${desc}" in "${groupData.name}".`;
               await addDoc(collection(db, "users", p, "notifications"), {
                 groupId: groupId,
-                message: `${payerName} added the expense "${desc}" in "${groupData.name}".`,
+                message: notifMsg,
                 timestamp: Date.now(),
                 read: false
               });
+              try {
+                const { sendEmail } = await import('../utils/email');
+                await sendEmail({
+                  to: p,
+                  subject: `New Expense in ${groupData.name}`,
+                  templateId: 'general',
+                  templateData: {
+                    title: `Expense Added in ${groupData.name}`,
+                    message: notifMsg,
+                    actionUrl: `https://splits-bugs.vercel.app/group?id=${groupId}`
+                  }
+                });
+              } catch (e) {
+                console.error('Failed to send notification email:', e);
+              }
             }
 
             // Add persistent activity
@@ -2888,12 +2919,38 @@ import Layout from '../layouts/Layout.astro';
             groupName: groupData.name,
             memberId: currentInviteMemberId,
             inviterEmail: currentUserEmail,
-            inviterName: (window as any).MY_DISPLAY_NAME,
+            inviterName: (window as any).MY_DISPLAY_NAME || currentUserEmail,
             inviteeEmail: email,
             status: 'pending',
             role: roleValue,
             createdAt: Date.now()
           });
+
+          // Add notification to invitee's notifications subcollection
+          const inviterDisplayName = (window as any).MY_DISPLAY_NAME || currentUserEmail;
+          await addDoc(collection(db, "users", email, "notifications"), {
+            groupId: groupId,
+            message: `${inviterDisplayName} invited you to join "${groupData.name}" as ${roleValue}.`,
+            timestamp: Date.now(),
+            read: false
+          }).catch(e => console.warn('Notification write warning:', e));
+
+          // Send Email Invite
+          try {
+            const { sendEmail } = await import('../utils/email');
+            await sendEmail({
+              to: email,
+              subject: `You've been invited to join ${groupData.name} on SplitsBug`,
+              templateId: 'group-invite',
+              templateData: {
+                userName: email.split('@')[0],
+                inviterName: inviterDisplayName,
+                groupName: groupData.name
+              }
+            });
+          } catch (emailErr) {
+            console.error('Failed to send group invite email:', emailErr);
+          }
           
           // Show success state
           const inviteForm = document.getElementById('inviteMemberForm');

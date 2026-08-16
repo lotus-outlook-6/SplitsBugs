@@ -1103,13 +1103,53 @@ import Layout from '../layouts/Layout.astro';
           });
 
           // Create notification for creating the group
-          // We will store notifications as subcollections inside users for Firestore
           await addDoc(collection(db, "users", currentUserEmail, "notifications"), {
             groupId: docRef.id,
             message: `You created the group "${name}".`,
             timestamp: Date.now(),
             read: false
           });
+
+          // Invite email members to group & send email notifications
+          const inviterDisplayName = (window as any).MY_DISPLAY_NAME || currentUserEmail;
+          for (const m of newGroup.members) {
+            if (m !== currentUserEmail && m.includes('@')) {
+              await addDoc(collection(db, "invites"), {
+                groupId: docRef.id,
+                groupName: name,
+                memberId: m,
+                inviterEmail: currentUserEmail,
+                inviterName: inviterDisplayName,
+                inviteeEmail: m,
+                status: 'pending',
+                role: 'editor',
+                createdAt: Date.now()
+              }).catch(e => console.warn('Invite doc write warning:', e));
+
+              await addDoc(collection(db, "users", m, "notifications"), {
+                groupId: docRef.id,
+                message: `${inviterDisplayName} invited you to join "${name}".`,
+                timestamp: Date.now(),
+                read: false
+              }).catch(e => console.warn('Notification write warning:', e));
+
+              try {
+                const { sendEmail } = await import('../utils/email');
+                await sendEmail({
+                  to: m,
+                  subject: `You've been invited to join ${name} on SplitsBug`,
+                  templateId: 'group-invite',
+                  templateData: {
+                    userName: m.split('@')[0],
+                    inviterName: inviterDisplayName,
+                    groupName: name
+                  }
+                });
+              } catch (e) {
+                console.error('Failed to send group invite email:', e);
+              }
+            }
+          }
 
           nameInput.value = '';
           currentMembers = [(window as any).MY_DISPLAY_NAME];

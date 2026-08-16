@@ -5,7 +5,8 @@ import {
   getNewDeviceLoginAlertTemplate,
   getGroupInviteNotificationTemplate,
   getAccountDeletionWarningTemplate,
-  getOtpVerificationTemplate
+  getOtpVerificationTemplate,
+  getGeneralNotificationEmailTemplate
 } from '../../utils/emailTemplates';
 
 // Setup Nodemailer transporter
@@ -44,6 +45,8 @@ export const POST: APIRoute = async ({ request }) => {
       html = getAccountDeletionWarningTemplate(templateData.userName);
     } else if (templateId === 'otp') {
       html = getOtpVerificationTemplate(templateData.code);
+    } else if (templateId === 'general') {
+      html = getGeneralNotificationEmailTemplate(templateData.title || subject, templateData.message || '', templateData.actionUrl);
     } else {
       return new Response(JSON.stringify({ error: 'Invalid template ID' }), { status: 400 });
     }

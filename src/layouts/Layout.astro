@@ -370,10 +370,13 @@ else initialIndex = -1;
 								snapshot.docChanges().forEach((change) => {
 									if (change.type === 'added') {
 										const notif = change.doc.data();
-										new Notification('SplitsBug', {
-											body: notif.text || 'You have a new notification',
-											icon: '/favicon.png'
-										});
+										// Only send native browser notification if user is NOT on the active page
+										if (document.hidden) {
+											new Notification('SplitsBug', {
+												body: notif.text || 'You have a new notification',
+												icon: '/favicon.png'
+											});
+										}
 									}
 								});
 							});
