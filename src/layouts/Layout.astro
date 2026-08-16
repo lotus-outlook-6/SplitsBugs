@@ -129,18 +129,18 @@ else initialIndex = -1;
 			<div class="relative flex items-center justify-between h-16 max-w-md mx-auto px-1">
 				<!-- Sleek Compact Light Purple Pill Indicator -->
 				<div id="navPill" style={`transform: translateX(${initialIndex >= 0 ? initialIndex * 100 : 0}%); opacity: ${initialIndex >= 0 ? 1 : 0};`} class="absolute inset-y-0 left-0 w-1/3 flex justify-center items-center pointer-events-none transition-transform duration-250 ease-out z-0">
-					<div class="w-4/5 h-12 bg-purple-100 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 rounded-full shadow-sm"></div>
+					<div class="w-4/5 h-12 bg-brand/10 border border-brand/20 rounded-full shadow-sm"></div>
 				</div>
 				
-				<a href="/dashboard" data-index="0" data-path="/dashboard" class={`relative z-10 flex flex-col items-center justify-center flex-1 h-full transition-colors nav-item ${isGroups ? 'active text-purple-600 font-semibold' : 'text-mute hover:text-ink'}`}>
+				<a href="/dashboard" data-index="0" data-path="/dashboard" class={`relative z-10 flex flex-col items-center justify-center flex-1 h-full transition-colors nav-item ${isGroups ? 'active text-brand font-semibold' : 'text-mute hover:text-ink'}`}>
 					<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-0.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
 					<span class="text-[10px] font-medium">Groups</span>
 				</a>
-				<a href="/activity" data-index="1" data-path="/activity" class={`relative z-10 flex flex-col items-center justify-center flex-1 h-full transition-colors nav-item ${isActivity ? 'active text-purple-600 font-semibold' : 'text-mute hover:text-ink'}`}>
+				<a href="/activity" data-index="1" data-path="/activity" class={`relative z-10 flex flex-col items-center justify-center flex-1 h-full transition-colors nav-item ${isActivity ? 'active text-brand font-semibold' : 'text-mute hover:text-ink'}`}>
 					<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-0.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
 					<span class="text-[10px] font-medium">Activity</span>
 				</a>
-				<a href="/account" data-index="2" data-path="/account" class={`relative z-10 flex flex-col items-center justify-center flex-1 h-full transition-colors group nav-item ${isAccount ? 'active text-purple-600 font-semibold' : 'text-mute hover:text-ink'}`}>
+				<a href="/account" data-index="2" data-path="/account" class={`relative z-10 flex flex-col items-center justify-center flex-1 h-full transition-colors group nav-item ${isAccount ? 'active text-brand font-semibold' : 'text-mute hover:text-ink'}`}>
 					<div id="navAccountIcon" class="flex flex-col items-center justify-center mb-0.5 min-h-[22px]">
 						<script is:inline>
 							(function() {
@@ -152,11 +152,11 @@ else initialIndex = -1;
 								var isAccountPath = window.location.pathname === '/account' || window.location.pathname.startsWith('/edit-profile');
 
 								if (avatar && avatar !== 'undefined' && avatar !== 'null') {
-									icon.innerHTML = '<img src="' + avatar + '" loading="eager" decoding="sync" class="w-5 h-5 rounded-full object-cover ring-2 ' + (isAccountPath ? 'ring-purple-600' : 'ring-transparent') + '" />';
+									icon.innerHTML = '<img src="' + avatar + '" loading="eager" decoding="sync" class="w-5 h-5 rounded-full object-cover ring-2 ' + (isAccountPath ? 'ring-brand' : 'ring-transparent') + '" />';
 								} else if (gradientTheme && gradientTheme !== '-1' && gradientTheme.startsWith('special-art-')) {
-									icon.innerHTML = '<div class="w-5 h-5 rounded-full overflow-hidden ring-2 ' + (isAccountPath ? 'ring-purple-600' : 'ring-transparent') + '">' + (window.renderAbstractArt ? window.renderAbstractArt(gradientTheme) : '') + '</div>';
+									icon.innerHTML = '<div class="w-5 h-5 rounded-full overflow-hidden ring-2 ' + (isAccountPath ? 'ring-brand' : 'ring-transparent') + '">' + (window.renderAbstractArt ? window.renderAbstractArt(gradientTheme) : '') + '</div>';
 								} else if (themeColor && themeColor.startsWith('special-art-')) {
-									icon.innerHTML = '<div class="w-5 h-5 rounded-full overflow-hidden ring-2 ' + (isAccountPath ? 'ring-purple-600' : 'ring-transparent') + '">' + (window.renderAbstractArt ? window.renderAbstractArt(themeColor) : '') + '</div>';
+									icon.innerHTML = '<div class="w-5 h-5 rounded-full overflow-hidden ring-2 ' + (isAccountPath ? 'ring-brand' : 'ring-transparent') + '">' + (window.renderAbstractArt ? window.renderAbstractArt(themeColor) : '') + '</div>';
 								} else if (userName) {
 									var parts = userName.trim().split(' ').filter(Boolean);
 									var initials = parts.length > 1 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : (parts[0] ? parts[0][0].toUpperCase() : 'U');
@@ -236,10 +236,10 @@ else initialIndex = -1;
 				
 				items.forEach((item, index) => {
 					if (index === activeIndex) {
-						item.classList.add('active', 'text-purple-600', 'dark:text-purple-400');
+						item.classList.add('active', 'text-brand');
 						item.classList.remove('text-mute', 'hover:text-ink');
 					} else {
-						item.classList.remove('active', 'text-purple-600', 'dark:text-purple-400');
+						item.classList.remove('active', 'text-brand');
 						item.classList.add('text-mute', 'hover:text-ink');
 					}
 				});
