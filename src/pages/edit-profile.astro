@@ -11,6 +11,43 @@ import Layout from '../layouts/Layout.astro';
       <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-ink">Edit Profile</h1>
     </header>
 
+    <script is:inline>
+      document.addEventListener('DOMContentLoaded', () => {
+        const email = localStorage.getItem('splitbug_userEmail');
+        const name = localStorage.getItem('splitbug_userName');
+        const avatar = localStorage.getItem('splitbug_userAvatar');
+        const theme = localStorage.getItem('splitbug_userThemeColor') || 'special-art-1';
+        
+        if (name) {
+          const nameEl = document.getElementById('nameInput');
+          if (nameEl) nameEl.value = name;
+        }
+        if (email) {
+          const emailEl = document.getElementById('emailInput');
+          if (emailEl) emailEl.value = email;
+        }
+
+        const avatarEl = document.getElementById('profileAvatar');
+        if (avatarEl) {
+          if (avatar) {
+            avatarEl.innerHTML = `<img src="${avatar}" loading="lazy" decoding="async" class="w-full h-full object-cover" />`;
+            avatarEl.className = "w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-transparent text-white flex items-center justify-center text-4xl sm:text-5xl font-bold overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all";
+          } else if (theme.startsWith('special-art-')) {
+            avatarEl.innerHTML = window.renderAbstractArt ? window.renderAbstractArt(theme) : '';
+            avatarEl.className = "w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-transparent text-white overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all";
+          } else if (name) {
+            const parts = name.trim().split(' ').filter(Boolean);
+            let initials = 'U';
+            if (parts.length > 0 && parts[0]) {
+              if (parts.length === 1) initials = parts[0].charAt(0).toUpperCase();
+              else initials = (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+            }
+            avatarEl.innerHTML = initials;
+            avatarEl.className = `w-24 h-24 sm:w-32 sm:h-32 rounded-full ${theme} text-white flex items-center justify-center text-4xl sm:text-5xl font-bold overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all`;
+          }
+        }
+      });
+    </script>
     <main class="flex-1 w-full max-w-5xl mx-auto p-4 sm:p-6 lg:p-8">
       <div class="w-full max-w-xl mx-auto bg-canvas p-4 sm:p-6 sm:rounded-2xl sm:shadow-lg sm:border sm:border-hairline relative mb-10">
       

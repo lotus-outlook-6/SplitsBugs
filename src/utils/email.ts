@@ -5,11 +5,28 @@ export interface EmailOptions {
   templateData: any;
 }
 
+import { db } from '../firebase';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+
 /**
  * Sends an email securely via the backend API route.
  */
 export async function sendEmail(options: EmailOptions): Promise<{ success: boolean; data?: any; error?: string }> {
   try {
+    // Only check preferences for non-critical emails (OTP must always send)
+    if (options.templateId !== 'otp') {
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('email', '==', options.to));
+      const snapshot = await getDocs(q);
+      
+      if (!snapshot.empty) {
+        const userData = snapshot.docs[0].data();
+        if (userData.emailNotifs === false) {
+          console.log(`Email to ${options.to} skipped: User disabled email notifications.`);
+          return { success: true, data: 'Skipped due to user preferences' };
+        }
+      }
+    }
     const response = await fetch('/api/send-email', {
       method: 'POST',
       headers: {

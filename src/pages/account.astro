@@ -11,13 +11,37 @@ import Layout from '../layouts/Layout.astro';
       const avatar = localStorage.getItem('splitbug_userAvatar');
       const theme = localStorage.getItem('splitbug_userThemeColor') || 'special-art-1';
       
-      if (email) document.getElementById('profileEmail').textContent = email;
-      if (name) document.getElementById('profileName').textContent = name;
+      function showProfile(nameVal, emailVal) {
+        const nameEl = document.getElementById('profileName');
+        const emailEl = document.getElementById('profileEmail');
+        const nameSkeleton = document.getElementById('nameSkeleton');
+        const emailSkeleton = document.getElementById('emailSkeleton');
+        const nameWrap = document.getElementById('profileNameWrap');
+        const emailWrap = document.getElementById('profileEmailWrap');
+        
+        if (nameVal && nameEl) {
+          nameEl.textContent = nameVal;
+          nameEl.classList.remove('hidden');
+          nameEl.classList.add('fade-in');
+          if (nameWrap) nameWrap.style.display = 'none';
+        }
+        if (emailVal && emailEl) {
+          emailEl.textContent = emailVal;
+          emailEl.classList.remove('hidden');
+          emailEl.classList.add('fade-in');
+          if (emailWrap) emailWrap.style.display = 'none';
+        }
+      }
+
+      if (name || email) {
+        showProfile(name, email);
+      }
       
       const avatarEl = document.getElementById('profileAvatar');
+      const avatarSkeleton = document.getElementById('avatarSkeleton');
       if (avatarEl) {
         if (avatar) {
-          avatarEl.innerHTML = `<img src="${avatar}" loading="lazy" decoding="async" class="w-full h-full object-cover" />`;
+          avatarEl.innerHTML = `<img src="${avatar}" loading="lazy" decoding="async" class="w-full h-full object-cover fade-in" />`;
           avatarEl.className = "w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-transparent text-white flex items-center justify-center text-4xl sm:text-5xl font-bold mb-4 overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all";
         } else if (theme.startsWith('special-art-')) {
           avatarEl.innerHTML = window.renderAbstractArt ? window.renderAbstractArt(theme) : '';
@@ -33,6 +57,9 @@ import Layout from '../layouts/Layout.astro';
           avatarEl.className = `w-24 h-24 sm:w-32 sm:h-32 rounded-full ${theme} text-white flex items-center justify-center text-4xl sm:text-5xl font-bold mb-4 overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all`;
         }
       }
+      
+      // Expose showProfile globally for the async script
+      window._showProfile = showProfile;
     });
   </script>
   <div class="min-h-screen flex flex-col bg-canvas-soft pb-32">
@@ -47,13 +74,21 @@ import Layout from '../layouts/Layout.astro';
       <!-- Left Column: Profile -->
       <div class="md:col-span-1 flex flex-col items-center md:items-start text-center md:text-left border-b border-hairline md:border-b-0 pb-8 md:pb-0">
         <div class="relative group cursor-pointer" id="avatarContainer">
-          <div id="profileAvatar" class="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-brand text-white flex items-center justify-center text-4xl sm:text-5xl font-bold mb-4 overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all">
-            <!-- Initials or Image -->
+          <div id="profileAvatar" class="w-24 h-24 sm:w-32 sm:h-32 rounded-full mb-4 overflow-hidden ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all">
+            <!-- Skeleton circle -->
+            <div id="avatarSkeleton" class="w-full h-full skeleton-circle"></div>
           </div>
         </div>
         
-        <h2 id="profileName" class="text-2xl font-bold text-ink leading-tight mb-1">Name</h2>
-        <p id="profileEmail" class="text-mute text-sm mb-4">email@example.com</p>
+        <div id="profileNameWrap">
+          <div id="nameSkeleton" class="skeleton h-7 w-40 mb-2"></div>
+        </div>
+        <h2 id="profileName" class="text-2xl font-bold text-ink leading-tight mb-1 hidden"></h2>
+        
+        <div id="profileEmailWrap">
+          <div id="emailSkeleton" class="skeleton h-4 w-52 mb-4"></div>
+        </div>
+        <p id="profileEmail" class="text-mute text-sm mb-4 hidden"></p>
         
         <a href="/edit-profile" id="editProfileBtn" class="bg-canvas-soft hover:bg-hairline transition-colors text-ink font-medium px-4 py-2 rounded-full text-sm border border-hairline w-full md:w-auto inline-block text-center mt-2">
           Edit Profile
@@ -77,7 +112,7 @@ import Layout from '../layouts/Layout.astro';
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-mute"><polyline points="9 18 15 12 9 6"></polyline></svg>
             </a>
 
-            <a href="/change-password" id="securityBtn" class="w-full flex items-center justify-between p-4 text-left hover:bg-canvas-soft transition-colors border-b border-hairline group">
+            <a href="/security" id="securityBtn" class="w-full flex items-center justify-between p-4 text-left hover:bg-canvas-soft transition-colors border-b border-hairline group">
               <div class="flex items-center gap-4">
                 <div class="w-8 h-8 rounded-full bg-canvas-soft flex items-center justify-center text-mute group-hover:text-ink group-hover:bg-hairline transition-colors">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
@@ -154,8 +189,6 @@ import Layout from '../layouts/Layout.astro';
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        document.getElementById('profileEmail')!.textContent = user.email || 'user@example.com';
-        
         try {
           const userDoc = await getDoc(doc(db, "users", user.uid));
           if (userDoc.exists()) {
@@ -164,25 +197,50 @@ import Layout from '../layouts/Layout.astro';
             const userAvatar = data.avatar || '';
             const userThemeColor = data.themeColor || 'special-art-1';
             
-            document.getElementById('profileName')!.textContent = userName;
+            const cachedAvatar = localStorage.getItem('splitbug_userAvatar') || '';
+            const cachedName = localStorage.getItem('splitbug_userName') || '';
             
-            const avatarEl = document.getElementById('profileAvatar');
-            if (userAvatar) {
-              avatarEl!.innerHTML = `<img src="${userAvatar}" loading="lazy" decoding="async" class="w-full h-full object-cover" />`;
-              avatarEl!.className = "w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-transparent text-white flex items-center justify-center text-4xl sm:text-5xl font-bold mb-4 overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all";
-            } else if (userThemeColor.startsWith('special-art-')) {
-              avatarEl!.innerHTML = renderAbstractArt(userThemeColor);
-              avatarEl!.className = "w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-transparent text-white mb-4 overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all";
-            } else {
-              const parts = userName.trim().split(' ').filter(Boolean);
-              let initials = 'U';
-              if (parts.length > 0 && parts[0]) {
-                if (parts.length === 1) initials = parts[0].charAt(0).toUpperCase();
-                else initials = (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+            // Only update DOM if the data is actually different
+            if (userName !== cachedName || user.email !== localStorage.getItem('splitbug_userEmail')) {
+              if (window._showProfile) {
+                window._showProfile(userName, user.email);
+              } else {
+                document.getElementById('profileName')!.textContent = userName;
+                document.getElementById('profileName')!.classList.remove('hidden');
+                document.getElementById('profileEmail')!.textContent = user.email || '';
+                document.getElementById('profileEmail')!.classList.remove('hidden');
               }
-              avatarEl!.innerHTML = initials;
-              avatarEl!.className = `w-24 h-24 sm:w-32 sm:h-32 rounded-full ${userThemeColor} text-white flex items-center justify-center text-4xl sm:text-5xl font-bold mb-4 overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all`;
             }
+            
+            if (userAvatar !== cachedAvatar || userThemeColor !== (localStorage.getItem('splitbug_userThemeColor') || 'special-art-1')) {
+              const avatarEl = document.getElementById('profileAvatar');
+              if (userAvatar) {
+                avatarEl!.innerHTML = `<img src="${userAvatar}" loading="lazy" decoding="async" class="w-full h-full object-cover fade-in" />`;
+                avatarEl!.className = "w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-transparent text-white flex items-center justify-center text-4xl sm:text-5xl font-bold mb-4 overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all";
+              } else if (userThemeColor.startsWith('special-art-')) {
+                avatarEl!.innerHTML = renderAbstractArt(userThemeColor);
+                avatarEl!.className = "w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-transparent text-white mb-4 overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all";
+              } else {
+                const parts = userName.trim().split(' ').filter(Boolean);
+                let initials = 'U';
+                if (parts.length > 0 && parts[0]) {
+                  if (parts.length === 1) initials = parts[0].charAt(0).toUpperCase();
+                  else initials = (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+                }
+                avatarEl!.innerHTML = initials;
+                avatarEl!.className = `w-24 h-24 sm:w-32 sm:h-32 rounded-full ${userThemeColor} text-white flex items-center justify-center text-4xl sm:text-5xl font-bold mb-4 overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all`;
+              }
+            }
+            
+            // Sync cache with latest DB data
+            localStorage.setItem('splitbug_userName', userName);
+            if (user.email) localStorage.setItem('splitbug_userEmail', user.email);
+            if (userAvatar) {
+              localStorage.setItem('splitbug_userAvatar', userAvatar);
+            } else {
+              localStorage.removeItem('splitbug_userAvatar');
+            }
+            localStorage.setItem('splitbug_userThemeColor', userThemeColor);
           }
         } catch (error) {
           console.error("Error fetching user data:", error);

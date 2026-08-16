@@ -58,7 +58,8 @@ import Layout from '../layouts/Layout.astro';
         </div>
         
         <!-- Group Title -->
-        <h1 id="groupTitle" class="text-4xl lg:text-5xl font-bold tracking-tight mb-4">Loading...</h1>
+        <div id="groupTitleSkeleton" class="skeleton h-10 w-64 mb-4"></div>
+        <h1 id="groupTitle" class="text-4xl lg:text-5xl font-bold tracking-tight mb-4 hidden"></h1>
         
         <!-- Info Pills -->
         <div class="flex flex-wrap items-center gap-3">
@@ -246,7 +247,7 @@ import Layout from '../layouts/Layout.astro';
               <label class="block text-sm font-medium text-ink mb-1">Paid by</label>
               <div class="relative h-full" id="paidByMenuContainer">
                 <button type="button" id="paidByBtn" class="w-full bg-canvas-soft border border-hairline rounded-sm px-3 h-10 text-sm text-left flex items-center justify-between hover:bg-hairline transition-colors">
-                  <span id="paidByText">Loading...</span>
+                  <span id="paidByText" class="text-mute">Select...</span>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-mute"><path d="m6 9 6 6 6-6"/></svg>
                 </button>
                 <div id="paidByMenu" class="hidden absolute top-full left-0 w-full mt-1 bg-canvas border border-hairline rounded-sm shadow-md z-10 py-1">
@@ -321,7 +322,7 @@ import Layout from '../layouts/Layout.astro';
             <div class="text-left mb-4">
               <label class="block text-sm font-medium text-ink mb-2">Select debt to settle:</label>
               <div id="settleDebtList" class="flex flex-col gap-2 max-h-48 overflow-y-auto">
-                <div class="text-sm text-mute text-center py-4">Loading...</div>
+                <div class="flex flex-col gap-2 py-2"><div class="skeleton h-10 w-full"></div><div class="skeleton h-10 w-full"></div></div>
               </div>
               <input type="hidden" id="settleDebtValue" required />
             </div>
@@ -1078,7 +1079,11 @@ import Layout from '../layouts/Layout.astro';
       // Data is loaded via Firebase onSnapshot
 
       if (!groupData) {
-        document.getElementById('groupTitle')!.textContent = "Group not found";
+        const titleEl = document.getElementById('groupTitle')!;
+        titleEl.textContent = "Group not found";
+        titleEl.classList.remove('hidden');
+        const titleSkel = document.getElementById('groupTitleSkeleton');
+        if (titleSkel) titleSkel.style.display = 'none';
         return;
       }
 
@@ -1124,7 +1129,12 @@ import Layout from '../layouts/Layout.astro';
         }
 
       // Update UI Header
-      document.getElementById('groupTitle')!.textContent = groupData.name;
+      const titleEl = document.getElementById('groupTitle')!;
+      titleEl.textContent = groupData.name;
+      titleEl.classList.remove('hidden');
+      titleEl.classList.add('fade-in');
+      const titleSkel = document.getElementById('groupTitleSkeleton');
+      if (titleSkel) titleSkel.style.display = 'none';
       document.getElementById('memberCountText')!.textContent = `${groupData.members.length} people`;
 
       // Apply dynamic accent color to headers
@@ -1586,7 +1596,11 @@ import Layout from '../layouts/Layout.astro';
           isGroupLoaded = true;
           initGroupData();
         } else {
-          document.getElementById('groupTitle')!.textContent = "Group not found";
+          const t = document.getElementById('groupTitle')!;
+          t.textContent = "Group not found";
+          t.classList.remove('hidden');
+          const s = document.getElementById('groupTitleSkeleton');
+          if (s) s.style.display = 'none';
         }
       });
     }

@@ -23,11 +23,11 @@ import Layout from '../layouts/Layout.astro';
         <p class="text-mute mb-8 max-w-md mx-auto">Get in touch with the SplitBugs support team. We generally reply within 24 hours.</p>
         
         <div class="flex flex-col gap-4 max-w-sm mx-auto">
-          <a href="mailto:support@splitbugs.app" class="flex items-center gap-4 p-4 border border-hairline rounded-xl hover:bg-canvas-soft transition-colors text-left group">
+          <a href="mailto:splitsbug.app@gmail.com" class="flex items-center gap-4 p-4 border border-hairline rounded-xl hover:bg-canvas-soft transition-colors text-left group">
             <svg class="text-mute group-hover:text-ink transition-colors" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
             <div>
               <p class="font-medium text-ink">Email Us</p>
-              <p class="text-sm text-mute">support@splitbugs.app</p>
+              <p class="text-sm text-mute">splitsbug.app@gmail.com</p>
             </div>
           </a>
           
@@ -48,7 +48,7 @@ import Layout from '../layouts/Layout.astro';
         <div class="space-y-4">
           <div>
             <p class="text-xs text-mute mb-1">Email ID</p>
-            <p id="userEmailDisplay" class="font-medium text-ink">loading...</p>
+            <p class="font-medium text-ink">kunalrabidas6@proton.me</p>
           </div>
         </div>
         
@@ -58,13 +58,4 @@ import Layout from '../layouts/Layout.astro';
     </main>
   </div>
 
-  <script>
-    import { auth } from '../firebase';
-    import { onAuthStateChanged } from 'firebase/auth';
-
-    onAuthStateChanged(auth, (user) => {
-      const email = user?.email || 'Not logged in';
-      document.getElementById('userEmailDisplay')!.textContent = email;
-    });
-  </script>
 </Layout>

@@ -318,3 +318,70 @@ export function getAccountDeletionWarningTemplate(userName: string): string {
 </body>
 </html>`;
 }
+
+export function getOtpVerificationTemplate(code: string): string {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Verification Code</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f4f2f8; font-family:Helvetica, Arial, sans-serif;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f4f2f8; padding:40px 0;">
+  <tr>
+    <td align="center">
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="background-color:#ffffff; border-radius:12px; overflow:hidden; max-width:600px; width:100%;">
+        <tr>
+          <td align="center" style="background-color:#ffffff; padding:32px 24px;">
+            <img src="https://splits-bugs.vercel.app/SplitBugs-Brand/logos/logo-wordmark.png" width="150" alt="SplitsBug" style="display:block; width:150px; max-width:150px; height:auto; border:0;">
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:40px 40px 24px 40px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td align="center" style="font-family:Helvetica, Arial, sans-serif; font-size:22px; line-height:28px; color:#1a1a1a; font-weight:bold; padding-bottom:16px;">
+                  Verify your email address
+                </td>
+              </tr>
+              <tr>
+                <td align="center" style="font-family:Helvetica, Arial, sans-serif; font-size:16px; line-height:24px; color:#4a4a4a; padding-bottom:32px;">
+                  Please use the verification code below to authorize your request. This code will expire in 5 minutes.
+                </td>
+              </tr>
+              <tr>
+                <td align="center">
+                  <div style="background-color:#f8f9fa; border:1px solid #e5e7eb; border-radius:8px; padding:24px; display:inline-block;">
+                    <span style="font-family:monospace; font-size:32px; font-weight:bold; letter-spacing:8px; color:#5b21b6;">
+                      ${code}
+                    </span>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:0 40px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td style="border-top:1px solid #eeeeee; font-size:0; line-height:0;">&nbsp;</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td align="center" style="padding:24px 40px 32px 40px;">
+            <p style="margin:0; font-family:Helvetica, Arial, sans-serif; font-size:12px; line-height:18px; color:#9a9a9a;">
+              If you did not request this, please ignore this email or secure your account.
+            </p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>`;
+}
