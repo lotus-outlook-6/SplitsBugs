@@ -7,9 +7,9 @@ export interface Props {
 
 const { hideNav = false } = Astro.props;
 const pathname = Astro.url.pathname;
-const isActivity = pathname === '/activity';
-const isAccount = pathname === '/account';
-const isGroups = pathname === '/dashboard' || pathname === '/';
+const isActivity = pathname.includes('/activity');
+const isAccount = pathname.includes('/account') || pathname.includes('/edit-profile') || pathname.includes('/security') || pathname.includes('/email-settings');
+const isGroups = pathname.includes('/dashboard') || pathname === '/' || pathname === '' || pathname === '/index.html';
 ---
 <!doctype html>
 <html lang="en">
@@ -176,15 +176,14 @@ const isGroups = pathname === '/dashboard' || pathname === '/';
 				const items = Array.from(nav.querySelectorAll('.nav-item'));
 				const pill = document.getElementById('navPill');
 				
-				let normalizedPath = path.replace(/\.html$/, '').replace(/\/+$/, '');
-				if (normalizedPath === '') normalizedPath = '/';
+				let normalizedPath = path.toLowerCase();
 				
 				let activeIndex = -1;
-				if (normalizedPath === '/dashboard' || normalizedPath === '/') {
+				if (normalizedPath.includes('/dashboard') || normalizedPath === '/' || normalizedPath.includes('/index')) {
 					activeIndex = 0;
-				} else if (normalizedPath === '/activity') {
+				} else if (normalizedPath.includes('/activity')) {
 					activeIndex = 1;
-				} else if (normalizedPath === '/account' || normalizedPath.startsWith('/edit-profile') || normalizedPath.startsWith('/security') || normalizedPath.startsWith('/email-settings')) {
+				} else if (normalizedPath.includes('/account') || normalizedPath.includes('/edit-profile') || normalizedPath.includes('/security') || normalizedPath.includes('/email-settings')) {
 					activeIndex = 2;
 				}
 				
