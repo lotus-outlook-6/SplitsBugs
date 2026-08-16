@@ -140,18 +140,41 @@ import Layout from '../layouts/Layout.astro';
 
 
     <!-- Notifications Modal -->
-    <dialog id="notificationsModal" class="backdrop:bg-black/50 text-ink fixed inset-0 z-40 w-full h-full max-w-none max-h-none m-0 p-0 bg-canvas border-0 overflow-hidden open:flex flex-col pb-[calc(4rem+env(safe-area-inset-bottom))] sm:pb-0 sm:m-auto sm:w-[95vw] sm:max-w-sm sm:h-auto sm:max-h-[80vh] sm:rounded-xl sm:border sm:border-hairline shadow-xl">
-      <div class="px-4 py-3 flex items-center justify-between border-b border-hairline bg-canvas shrink-0">
-        <h2 class="text-lg font-medium text-ink">Notifications</h2>
-        <div class="flex items-center gap-2">
-          <button type="button" id="markAllReadBtn" class="text-xs font-medium text-brand hover:text-brand-deep cursor-pointer hidden">Mark all read</button>
-          <button type="button" id="closeNotificationsBtn" class="p-1 hover:bg-canvas-soft rounded-full transition-colors cursor-pointer">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-ink"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    <dialog id="notificationsModal" class="backdrop:bg-black/60 text-ink fixed inset-0 z-50 w-full h-full max-w-none max-h-none m-0 p-0 bg-canvas border-0 overflow-hidden open:flex flex-col pb-[calc(4rem+env(safe-area-inset-bottom))] sm:pb-0 sm:m-auto sm:w-[95vw] sm:max-w-md sm:h-auto sm:max-h-[85vh] sm:rounded-2xl sm:border sm:border-hairline shadow-2xl transition-all">
+      <div class="px-5 py-4 flex items-center justify-between border-b border-hairline bg-canvas shrink-0">
+        <h2 class="text-xl font-bold text-ink">Notifications</h2>
+        <div class="flex items-center gap-3">
+          <button type="button" id="markAllReadBtn" class="text-xs font-semibold text-brand hover:text-brand-deep transition-colors cursor-pointer hidden">Mark all read</button>
+          <button type="button" id="closeNotificationsBtn" class="p-1.5 hover:bg-canvas-soft rounded-full transition-colors cursor-pointer">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-mute hover:text-ink"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
       </div>
-      <div id="invitesList" class="flex-1 overflow-y-auto bg-canvas p-4 min-h-0 space-y-3">
-        <div class="text-center text-sm text-mute mt-4">No new notifications</div>
+      <div id="invitesList" class="flex-1 overflow-y-auto bg-canvas p-4 sm:p-5 min-h-0 space-y-3">
+        <!-- Skeleton Loader -->
+        <div id="notifsSkeleton" class="space-y-4">
+          <div class="flex items-center gap-4 p-2">
+            <div class="skeleton-circle w-12 h-12"></div>
+            <div class="flex-1 space-y-2">
+              <div class="skeleton h-4 w-3/4"></div>
+              <div class="skeleton h-3 w-1/3"></div>
+            </div>
+          </div>
+          <div class="flex items-center gap-4 p-2">
+            <div class="skeleton-circle w-12 h-12"></div>
+            <div class="flex-1 space-y-2">
+              <div class="skeleton h-4 w-2/3"></div>
+              <div class="skeleton h-3 w-1/4"></div>
+            </div>
+          </div>
+          <div class="flex items-center gap-4 p-2">
+            <div class="skeleton-circle w-12 h-12"></div>
+            <div class="flex-1 space-y-2">
+              <div class="skeleton h-4 w-5/6"></div>
+              <div class="skeleton h-3 w-1/2"></div>
+            </div>
+          </div>
+        </div>
       </div>
     </dialog>
 
@@ -353,6 +376,7 @@ import Layout from '../layouts/Layout.astro';
     let allGroupsFromFirebase: any[] = [];
     let allInvitesFromFirebase: any[] = [];
     let allNotifsFromFirebase: any[] = [];
+    let usersMap: Record<string, any> = {};
     let isFirebaseLoaded = false;
     let currentUserEmail = 'user@example.com';
     
@@ -847,6 +871,19 @@ import Layout from '../layouts/Layout.astro';
     // Set up Firebase listener for Groups
     function initFirebase() {
       if (currentUserEmail) {
+        // Fetch all users once for avatars mapping
+        getDocs(collection(db, "users")).then(snap => {
+          snap.docs.forEach(doc => {
+            const data = doc.data();
+            if (data.name) {
+              usersMap[data.name] = data;
+            }
+          });
+          if (allNotifsFromFirebase.length > 0 || allInvitesFromFirebase.length > 0) {
+            renderNotifications();
+          }
+        });
+
         const q = query(collection(db, "groups"), where("members", "array-contains", currentUserEmail));
         onSnapshot(q, (snapshot) => {
           isFirebaseLoaded = true;
@@ -1340,51 +1377,100 @@ import Layout from '../layouts/Layout.astro';
           }, 0);
         }
 
-        myPendingInvites.forEach((inv: any) => {
+        myPendingInvites.forEach((inv: any, idx: number) => {
           const item = document.createElement('div');
-          item.className = 'p-3 border-b border-hairline hover:bg-canvas-soft transition-colors';
+          item.className = `notif-item reveal-hidden p-4 border border-hairline rounded-xl bg-canvas hover:bg-canvas-soft transition-colors shadow-sm`;
+          
+          let senderAvatarHTML = `<div class="w-12 h-12 rounded-full bg-brand/10 text-brand flex items-center justify-center font-bold text-lg border border-brand/20">${inv.inviterName ? inv.inviterName.charAt(0).toUpperCase() : 'I'}</div>`;
+          const senderInfo = usersMap[inv.inviterName];
+          if (senderInfo) {
+            const avatar = senderInfo.avatar || senderInfo.photoURL;
+            const theme = senderInfo.themeColor || senderInfo.gradientTheme;
+            if (avatar && avatar !== 'undefined' && avatar !== 'null') {
+              senderAvatarHTML = `<img src="${avatar}" class="w-12 h-12 rounded-full object-cover ring-2 ring-brand/20" />`;
+            } else if (theme && theme.startsWith('special-art-') && (window as any).renderAbstractArt) {
+              senderAvatarHTML = `<div class="w-12 h-12 rounded-full overflow-hidden ring-2 ring-brand/20">${(window as any).renderAbstractArt(theme)}</div>`;
+            }
+          }
+
           item.innerHTML = `
-            <p class="text-sm text-ink mb-3 leading-snug">
-              <span class="font-bold">${inv.inviterName}</span> invited you to join <span class="font-bold">${inv.groupName}</span> as a ${inv.role}.
-            </p>
+            <div class="flex items-start gap-4 mb-4">
+              ${senderAvatarHTML}
+              <div>
+                <p class="text-sm text-ink leading-relaxed">
+                  <span class="font-bold">${inv.inviterName}</span> invited you to join <span class="font-bold">${inv.groupName}</span> as a ${inv.role}.
+                </p>
+                <p class="text-xs text-mute mt-0.5">Just now</p>
+              </div>
+            </div>
             <div class="flex gap-3">
-              <button class="join-invite-btn flex-1 bg-brand text-white px-4 py-2 text-sm font-medium rounded-md hover:bg-brand-deep transition-colors text-center cursor-pointer" data-id="${inv.id}">Join</button>
-              <button class="reject-invite-btn flex-1 bg-canvas text-ink border border-hairline px-4 py-2 text-sm font-medium rounded-md hover:bg-canvas-soft transition-colors text-center cursor-pointer" data-id="${inv.id}">Decline</button>
+              <button class="join-invite-btn flex-1 bg-brand text-white px-4 py-2.5 text-sm font-bold rounded-xl hover:bg-brand-deep transition-all shadow-sm cursor-pointer" data-id="${inv.id}">Join Group</button>
+              <button class="reject-invite-btn flex-1 bg-canvas text-ink border border-hairline px-4 py-2.5 text-sm font-semibold rounded-xl hover:bg-canvas-soft transition-colors cursor-pointer" data-id="${inv.id}">Decline</button>
             </div>
           `;
           invitesList.appendChild(item);
         });
 
-        myNotifs.forEach((notif: any) => {
+        const offsetIdx = myPendingInvites.length;
+        myNotifs.forEach((notif: any, idx: number) => {
           const item = document.createElement('div');
           const isUnread = !notif.read;
-          const bgClass = isUnread ? 'bg-brand/5' : '';
-          item.className = `p-3 border-b border-hairline hover:bg-canvas-soft transition-colors flex items-start justify-between group ${bgClass}`;
+          const bgClass = isUnread ? 'bg-brand/5 border-brand/20' : 'bg-canvas border-hairline';
+          item.className = `notif-item reveal-hidden p-4 border rounded-xl hover:bg-canvas-soft transition-colors flex items-start justify-between group shadow-sm ${bgClass}`;
           
           let actionUrl = notif.groupId ? `/group?id=${notif.groupId}` : '#';
           
-          // Try to extract an initial
+          let senderName = '';
+          let senderAvatarHTML = '';
+          const sortedNames = Object.keys(usersMap).sort((a,b) => b.length - a.length);
+          for (const name of sortedNames) {
+            if (notif.message.startsWith(name)) {
+              senderName = name;
+              break;
+            }
+          }
+          
           let initial = 'N';
-          const match = notif.message.match(/^[A-Za-z]/);
-          if (match) initial = match[0].toUpperCase();
+          if (senderName) {
+            initial = senderName.charAt(0).toUpperCase();
+          } else {
+             const match = notif.message.match(/^[A-Za-z]/);
+             if (match) initial = match[0].toUpperCase();
+          }
 
-          const unreadDot = isUnread ? `<div class="w-2 h-2 rounded-full bg-brand shrink-0 mt-1 hidden sm:block"></div>` : '';
+          if (senderName && usersMap[senderName]) {
+             const senderInfo = usersMap[senderName];
+             const avatar = senderInfo.avatar || senderInfo.photoURL;
+             const theme = senderInfo.themeColor || senderInfo.gradientTheme;
+             if (avatar && avatar !== 'undefined' && avatar !== 'null') {
+               senderAvatarHTML = `<img src="${avatar}" class="w-12 h-12 rounded-full object-cover ring-2 ring-canvas-soft" />`;
+             } else if (theme && theme.startsWith('special-art-') && (window as any).renderAbstractArt) {
+               senderAvatarHTML = `<div class="w-12 h-12 rounded-full overflow-hidden ring-2 ring-canvas-soft">${(window as any).renderAbstractArt(theme)}</div>`;
+             }
+          }
+          
+          if (!senderAvatarHTML) {
+             senderAvatarHTML = `<div class="w-12 h-12 rounded-full bg-brand/10 text-brand flex items-center justify-center font-bold text-lg border border-brand/20">${initial}</div>`;
+          }
+
+          const unreadDot = isUnread ? `<div class="w-2.5 h-2.5 rounded-full bg-brand shrink-0"></div>` : '';
           
           item.innerHTML = `
-            <a href="${actionUrl}" class="flex-1 pr-2 flex items-start gap-3 notif-link" data-id="${notif.id}">
-              <div class="flex flex-col items-center gap-1 shrink-0">
-                <div class="w-10 h-10 rounded-full bg-brand/10 text-brand flex items-center justify-center font-bold">
-                  ${initial}
-                </div>
-                ${unreadDot}
+            <a href="${actionUrl}" class="flex-1 pr-3 flex items-start gap-4 notif-link" data-id="${notif.id}">
+              <div class="relative shrink-0">
+                ${senderAvatarHTML}
+                ${isUnread ? '<div class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-brand border-2 border-canvas rounded-full"></div>' : ''}
               </div>
-              <div>
-                <p class="text-sm text-ink mb-1 leading-snug ${isUnread ? 'font-medium' : ''}">${notif.message}</p>
-                <p class="text-xs text-mute">${new Date(notif.timestamp).toLocaleString()}</p>
+              <div class="flex-1 min-w-0 pt-0.5">
+                <p class="text-sm text-ink mb-1.5 leading-relaxed ${isUnread ? 'font-semibold' : 'font-medium'}">${notif.message}</p>
+                <p class="text-xs text-mute flex items-center gap-1.5">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  ${new Date(notif.timestamp).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                </p>
               </div>
             </a>
-            <button class="dismiss-notif-btn text-mute hover:text-danger opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity p-1 cursor-pointer shrink-0" data-id="${notif.id}" title="Dismiss">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <button class="dismiss-notif-btn text-mute hover:text-danger hover:bg-danger/10 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all p-2 rounded-full cursor-pointer shrink-0 mt-2" data-id="${notif.id}" title="Dismiss">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
           `;
           invitesList.appendChild(item);
@@ -1418,6 +1504,32 @@ import Layout from '../layouts/Layout.astro';
             const notifId = (e.currentTarget as HTMLElement).getAttribute('data-id');
             if (notifId) markNotificationAsRead(notifId);
           });
+        });
+
+        // Setup scroll reveal animation for notifications
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('reveal-visible');
+              entry.target.classList.remove('reveal-hidden');
+            } else {
+              entry.target.classList.remove('reveal-visible');
+              entry.target.classList.add('reveal-hidden');
+            }
+          });
+        }, {
+          threshold: 0.15,
+          rootMargin: "0px"
+        });
+
+        document.querySelectorAll('.notif-item').forEach((el, index) => {
+          if (index < 15) {
+             (el as HTMLElement).style.transitionDelay = `${index * 30}ms`;
+             setTimeout(() => {
+                (el as HTMLElement).style.transitionDelay = '0ms';
+             }, 1000);
+          }
+          observer.observe(el);
         });
       }
     }
