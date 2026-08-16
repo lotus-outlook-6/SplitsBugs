@@ -110,8 +110,8 @@ else initialIndex = -1;
 							if (Notification.permission === 'granted') {
 								addedNotifs.forEach((notif) => {
 									new Notification("SplitsBug", {
-										body: notif.message,
-										icon: '/SplitBugs-Brand/favicon/favicon.svg'
+										body: notif.message || notif.text || 'You have a new notification',
+										icon: '/SplitBugs-Brand/favicon/icon-rounded.png'
 									});
 								});
 							}
@@ -185,10 +185,10 @@ else initialIndex = -1;
 
 				<!-- 4 Square Digit Box UI -->
 				<div id="pinDigitContainer" class="flex gap-3 justify-center mb-6">
-					<input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="app-lock-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" autofocus />
-					<input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="app-lock-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" />
-					<input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="app-lock-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" />
-					<input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="app-lock-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" />
+					<input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="new-password" spellcheck="false" class="app-lock-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" autofocus />
+					<input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="new-password" spellcheck="false" class="app-lock-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" />
+					<input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="new-password" spellcheck="false" class="app-lock-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" />
+					<input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="new-password" spellcheck="false" class="app-lock-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" />
 				</div>
 
 				<p id="appLockError" class="text-xs font-semibold text-danger hidden mb-2"></p>
@@ -413,8 +413,8 @@ else initialIndex = -1;
 										// Only send native browser notification if user is NOT on the active page
 										if (document.hidden) {
 											new Notification('SplitsBug', {
-												body: notif.text || 'You have a new notification',
-												icon: '/favicon.png'
+												body: notif.message || notif.text || 'You have a new notification',
+												icon: '/SplitBugs-Brand/favicon/icon-rounded.png'
 											});
 										}
 									}
@@ -507,8 +507,20 @@ else initialIndex = -1;
 				if (overlay) {
 					overlay.classList.remove('hidden');
 					document.body.style.overflow = 'hidden';
-					const firstDigit = overlay.querySelector('.app-lock-digit') as HTMLInputElement;
-					if (firstDigit) firstDigit.focus();
+					
+					const digits = Array.from(overlay.querySelectorAll('.app-lock-digit')) as HTMLInputElement[];
+					digits.forEach(d => {
+						d.value = '';
+						d.classList.remove('border-danger', 'text-danger', 'bg-danger/10', 'ring-2', 'ring-danger/30');
+					});
+					
+					const pinBoxContainer = document.getElementById('pinDigitContainer');
+					if (pinBoxContainer) pinBoxContainer.classList.remove('animate-shake');
+					
+					const errorEl = document.getElementById('appLockError');
+					if (errorEl) errorEl.classList.add('hidden');
+					
+					setTimeout(() => digits[0]?.focus(), 50);
 				}
 			}
 

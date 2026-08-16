@@ -144,10 +144,10 @@ import Layout from '../layouts/Layout.astro';
 
       <!-- 4 Square Digit Boxes -->
       <div id="setPinBoxContainer" class="flex gap-3 justify-center my-2">
-        <input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="set-pin-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" autofocus />
-        <input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="set-pin-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" />
-        <input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="set-pin-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" />
-        <input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="set-pin-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" />
+        <input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="new-password" spellcheck="false" class="set-pin-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" autofocus />
+        <input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="new-password" spellcheck="false" class="set-pin-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" />
+        <input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="new-password" spellcheck="false" class="set-pin-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" />
+        <input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="new-password" spellcheck="false" class="set-pin-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" />
       </div>
 
       <div class="flex gap-3 w-full mt-2">
@@ -170,10 +170,10 @@ import Layout from '../layouts/Layout.astro';
 
       <!-- 4 Square Digit Boxes -->
       <div id="disablePinBoxContainer" class="flex gap-3 justify-center my-2">
-        <input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="disable-pin-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" autofocus />
-        <input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="disable-pin-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" />
-        <input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="disable-pin-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" />
-        <input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="disable-pin-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" />
+        <input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="new-password" spellcheck="false" class="disable-pin-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" autofocus />
+        <input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="new-password" spellcheck="false" class="disable-pin-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" />
+        <input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="new-password" spellcheck="false" class="disable-pin-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" />
+        <input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="new-password" spellcheck="false" class="disable-pin-digit w-12 h-14 text-center text-2xl font-bold rounded-2xl border border-hairline bg-canvas-soft focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-ink transition-all shadow-sm" />
       </div>
 
       <p id="disablePinError" class="text-xs text-danger font-semibold hidden"></p>
@@ -325,10 +325,6 @@ import Layout from '../layouts/Layout.astro';
           
           if (digit.value && idx < digits.length - 1) {
             digits[idx + 1].focus();
-          }
-
-          if (digits.every(d => d.value.length === 1)) {
-            onSubmit();
           }
         });
 

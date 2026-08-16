@@ -2832,12 +2832,18 @@ import Layout from '../layouts/Layout.astro';
           inviteMemberModal?.close();
         };
       }
-
+      const savedEmail = localStorage.getItem('splitsbug_last_invite_email');
+      if (savedEmail && !currentInviteMemberId) {
+        const emailInput = document.getElementById('inviteEmail') as HTMLInputElement;
+        if (emailInput) emailInput.value = savedEmail;
+      }
       inviteMemberModal?.showModal();
     };
 
     if (openInviteMemberBtn) {
-      openInviteMemberBtn.addEventListener('click', () => inviteMemberModal?.showModal());
+      openInviteMemberBtn.addEventListener('click', () => {
+        (window as any).openInviteModal();
+      });
     }
     if (closeInviteMemberBtn) {
       closeInviteMemberBtn.addEventListener('click', () => inviteMemberModal?.close());
@@ -2952,6 +2958,9 @@ import Layout from '../layouts/Layout.astro';
             console.error('Failed to send group invite email:', emailErr);
           }
           
+          // Save email to localStorage for memory
+          localStorage.setItem('splitsbug_last_invite_email', email);
+
           // Show success state
           const inviteForm = document.getElementById('inviteMemberForm');
           const inviteSuccessState = document.getElementById('inviteSuccessState');
