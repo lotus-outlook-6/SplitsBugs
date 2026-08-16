@@ -1336,9 +1336,23 @@ import Layout from '../layouts/Layout.astro';
             });
 
             window.location.href = '/dashboard';
-          } catch (e) {
+          } catch (e: any) {
             console.error("Error deleting group", e);
-            showToast("Failed to delete group", true);
+            
+            // Reset Animation
+            if (deleteNormalState) deleteNormalState.classList.remove('hidden');
+            if (deleteNormalState) deleteNormalState.classList.add('flex');
+            if (deleteAnimState) deleteAnimState.classList.remove('flex');
+            if (deleteAnimState) deleteAnimState.classList.add('hidden');
+            if (deleteModalContent) deleteModalContent.classList.remove('scale-95');
+            
+            deleteGroupModal.close();
+            
+            if (e.code === 'permission-denied') {
+              showToast("Only admins can delete groups right now.", true);
+            } else {
+              showToast("Failed to delete group", true);
+            }
           }
         }, 1500);
       });
