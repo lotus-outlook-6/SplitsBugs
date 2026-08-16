@@ -16,6 +16,7 @@
     "@tailwindcss/vite": "^4.3.3",
     "@types/nodemailer": "^8.0.1",
     "astro": "^7.1.6",
+    "exceljs": "^4.4.0",
     "firebase": "^12.16.0",
     "nodemailer": "^9.0.5",
     "tailwindcss": "^4.3.3"

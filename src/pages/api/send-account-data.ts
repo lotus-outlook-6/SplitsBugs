@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import nodemailer from 'nodemailer';
+import { generateUserDataExport } from '../../utils/exportUserData';
 
 // Helper to safely get env vars in Node/Vercel or Astro
 const getEnvVar = (key: string) => {
@@ -38,21 +39,71 @@ export const POST: APIRoute = async ({ request }) => {
     const createdAt = userData?.createdAt ? new Date(userData.createdAt).toLocaleString() : 'N/A';
     const defaultCurrency = userData?.currency || 'USD ($)';
 
-    // Build CSV Content
-    let csvRows = ['Category,Group,Title,Amount,PaidBy,Date,SplitDetails'];
-    (allExpenses || []).forEach((exp: any) => {
-      const title = `"${(exp.title || exp.name || 'Expense').replace(/"/g, '""')}"`;
-      const group = `"${(exp.groupName || 'Group').replace(/"/g, '""')}"`;
-      const cat = exp.category || 'General';
-      const amt = `${exp.currency || '$'}${exp.amount || 0}`;
-      const paidBy = exp.paidBy || 'Unknown';
-      const date = exp.createdAt ? new Date(exp.createdAt).toLocaleDateString() : 'N/A';
-      const splits = exp.splitBetween ? `"${JSON.stringify(exp.splitBetween).replace(/"/g, '""')}"` : 'Equal';
-      csvRows.push(`${cat},${group},${title},${amt},${paidBy},${date},${splits}`);
-    });
-    const csvContent = csvRows.join('\n');
+    // Map flat activities and expenses into the Groups array for Claude's Excel format
+    const formattedGroups = (userGroups || []).map((g: any) => {
+      const gExpenses = (allExpenses || []).filter((e: any) => e.groupId === g.id).map((e: any) => ({
+        id: e.id || 'N/A',
+        amount: e.amount || 0,
+        currency: e.currency || g.currency || 'USD',
+        description: e.title || e.name || 'Expense',
+        category: e.category || 'General',
+        paidBy: e.paidBy || 'Unknown',
+        participants: e.splitBetween ? Object.keys(e.splitBetween) : (e.participants || []),
+        splitAmong: e.splitBetween ? Object.keys(e.splitBetween).length : (e.participants || []).length,
+        timestamp: e.createdAt ? new Date(e.createdAt).getTime() : Date.now()
+      }));
 
-    // Build Groups HTML list
+      return {
+        id: g.id,
+        name: g.name || 'Unnamed Group',
+        type: 'Split Group',
+        currency: g.currency || 'USD',
+        createdAt: g.createdAt ? new Date(g.createdAt).getTime() : Date.now(),
+        createdBy: g.createdBy || 'Unknown',
+        members: g.members || [],
+        expenses: gExpenses
+      };
+    });
+
+    const formattedUser = {
+      email: to,
+      name: userName,
+      avatar: userData?.photoURL || userData?.avatar,
+      phone: userData?.phoneNumber,
+      dob: userData?.dateOfBirth,
+      appTheme: userData?.theme,
+      themeColor: userData?.themeColor,
+      createdAt: userData?.createdAt || new Date().toISOString()
+    };
+
+    const formattedNotifications = (notifications || []).map((n: any) => ({
+      title: n.title || 'Notification',
+      body: n.body || '',
+      type: n.type || 'general',
+      createdAt: n.createdAt || new Date().toISOString(),
+      read: n.read || false
+    }));
+
+    // Fetch logo for the excel sheet
+    let logoPngBuffer;
+    try {
+      const logoUrl = new URL('/SplitBugs-Brand/logos/logo-full.png', request.url).toString();
+      const logoRes = await fetch(logoUrl);
+      if (logoRes.ok) {
+        const arrayBuffer = await logoRes.arrayBuffer();
+        logoPngBuffer = Buffer.from(arrayBuffer);
+      }
+    } catch (e) {
+      console.warn('Could not load logo for excel sheet', e);
+    }
+
+    // Generate the .xlsx file
+    const excelBuffer = await generateUserDataExport(
+      { user: formattedUser, groups: formattedGroups, notifications: formattedNotifications },
+      { logoPngBuffer }
+    );
+
+    // Build Groups HTML list (for the email body)
     const groupsHtml = (userGroups || []).map((g: any) => `
       <div style="background:#f8fafc; border:1px solid #e2e8f0; padding:12px 16px; border-radius:12px; margin-bottom:10px;">
         <div style="font-weight:bold; font-size:14px; color:#1e293b;">${g.name || 'Unnamed Group'}</div>
@@ -92,7 +143,7 @@ export const POST: APIRoute = async ({ request }) => {
           </div>
           <div class="content">
             <p style="font-size: 14px; line-height: 1.5; color: #475569;">
-              Here is your complete personal data archive compiled from SplitsBug. Attached to this email is your structured CSV export file (<code>SplitsBug_Account_Data.csv</code>) compatible with Excel, Google Sheets, and Notion.
+              Here is your complete personal data archive compiled from SplitsBug. Attached to this email is your structured Excel export file (<code>SplitsBug_Account_Data.xlsx</code>) containing your profile, groups, expenses, and notifications.
             </p>
 
             <div class="stat-grid">
@@ -124,7 +175,7 @@ export const POST: APIRoute = async ({ request }) => {
 
             <div class="section-title">📊 Expense History Summary</div>
             <p style="font-size: 13px; color: #475569;">
-              You have a total of <strong>${(allExpenses || []).length}</strong> expenses recorded across your groups. Please inspect the attached <code>SplitsBug_Account_Data.csv</code> for itemized amounts, currencies, splits, and date timestamps.
+              You have a total of <strong>${(allExpenses || []).length}</strong> expenses recorded across your groups. Please inspect the attached <code>SplitsBug_Account_Data.xlsx</code> for itemized amounts, currencies, splits, and date timestamps.
             </p>
           </div>
           <div class="footer">
@@ -155,9 +206,9 @@ export const POST: APIRoute = async ({ request }) => {
       html: htmlReport,
       attachments: [
         {
-          filename: `SplitsBug_Account_Data_${userName.replace(/[^a-zA-Z0-9]/g, '_')}.csv`,
-          content: csvContent,
-          contentType: 'text/csv'
+          filename: `SplitsBug_Account_Data_${userName.replace(/[^a-zA-Z0-9]/g, '_')}.xlsx`,
+          content: excelBuffer,
+          contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         }
       ]
     });
