@@ -1021,7 +1021,7 @@ import Layout from '../layouts/Layout.astro';
         const accentHex = colors.dark;
 
         newHTML += `
-          <a href="/group?id=${group.id}" style="background-color: ${accentHex}10;" class="group group-card reveal-hidden block p-6 border border-hairline rounded-md hover:border-brand shadow-sm hover:shadow-md flex flex-col justify-between">
+          <a href="/group?id=${group.id}" onclick="sessionStorage.setItem('tempGroupColor', '${accentHex}'); sessionStorage.setItem('tempGroupType', '${group.type || 'Other'}');" style="background-color: ${accentHex}10;" class="group group-card reveal-hidden block p-6 border border-hairline rounded-md hover:border-brand shadow-sm hover:shadow-md flex flex-col justify-between">
             <div class="flex justify-between items-start mb-4">
               <div class="flex items-center gap-4">
                 <div style="background-color: ${accentHex}20; color: ${accentHex};" class="w-12 h-12 shrink-0 rounded-lg border border-hairline/50 flex items-center justify-center text-xl font-bold bg-white/60">
