@@ -227,7 +227,7 @@ import Layout from '../layouts/Layout.astro';
 
     <!-- Invite Member Modal -->
     <dialog id="inviteMemberModal" class="bg-transparent p-4 m-auto backdrop:bg-black/50 text-ink open:flex flex-col items-center justify-center w-full sm:max-w-md">
-      <div class="bg-canvas border border-hairline rounded-lg shadow-lg w-full max-w-sm mx-auto p-6 text-left relative overflow-hidden">
+      <div class="bg-canvas border border-hairline rounded-lg shadow-lg w-full max-w-sm mx-auto p-6 text-left relative">
         <div class="flex justify-between items-center mb-6">
           <h2 id="inviteModalTitle" class="text-xl font-bold">Invite Member</h2>
           <button id="closeInviteMemberBtn" class="text-mute hover:text-ink transition-colors focus:outline-none">✕</button>
@@ -2905,7 +2905,7 @@ import Layout from '../layouts/Layout.astro';
           try { allUsers = JSON.parse(usersStr); } catch (e) {}
         }
 
-        if (!allUsers[email]) {
+        if (!allUsers[email] && currentInviteState !== 'manage') {
           const modalContent = inviteMemberModal?.querySelector('.bg-canvas') as HTMLElement;
           if (modalContent) {
             // highlight the email input border
