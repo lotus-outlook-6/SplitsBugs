@@ -180,9 +180,9 @@ import Layout from '../layouts/Layout.astro';
     </main>
   </div>
 
-  <!-- Toast Notification -->
-  <div id="toastNotification" class="fixed bottom-24 left-1/2 -translate-x-1/2 px-4 py-3 rounded-full bg-ink text-canvas text-sm font-medium shadow-lg transition-all duration-300 transform translate-y-10 opacity-0 pointer-events-none z-[10000] flex items-center gap-2">
-    <span id="toastIcon"></span>
+  <!-- Custom Toast Notification -->
+  <div id="toastNotification" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-ink text-canvas px-4 py-3 rounded-md shadow-lg text-sm font-medium transition-all duration-300 translate-y-20 opacity-0 pointer-events-none z-40 flex items-center gap-2">
+    <span id="toastIcon" class="text-success"></span>
     <span id="toastMessage"></span>
   </div>
 
@@ -279,11 +279,11 @@ import Layout from '../layouts/Layout.astro';
         toastIcon.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>';
       }
       
-      toastNotification.classList.remove('translate-y-10', 'opacity-0');
+      toastNotification.classList.remove('translate-y-20', 'opacity-0');
       toastNotification.classList.add('translate-y-0', 'opacity-100');
       
       setTimeout(() => {
-        toastNotification.classList.add('translate-y-10', 'opacity-0');
+        toastNotification.classList.add('translate-y-20', 'opacity-0');
         toastNotification.classList.remove('translate-y-0', 'opacity-100');
       }, 2500);
     }
