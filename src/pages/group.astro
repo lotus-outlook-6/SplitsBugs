@@ -1472,8 +1472,14 @@ import Layout from '../layouts/Layout.astro';
       }
 
       let newHTML = '';
-      // Render items
-      exps.forEach((exp: any) => {
+      // Render items (newest first)
+      const sortedExps = [...exps].sort((a: any, b: any) => {
+        const timeA = a.timestamp || 0;
+        const timeB = b.timestamp || 0;
+        return timeB - timeA; 
+      });
+
+      sortedExps.forEach((exp: any) => {
         const letter = exp.description.charAt(0).toUpperCase();
         
         const paidByName = (window as any).getDisplayName(exp.paidBy);
@@ -1540,8 +1546,7 @@ import Layout from '../layouts/Layout.astro';
             ${detailsHTML}
           </details>
         `;
-        // Since original used insertAdjacentHTML('afterbegin'), prepend to newHTML
-        newHTML = newItemHTML + newHTML;
+        newHTML += newItemHTML;
       });
       
       if (activityFeed.innerHTML !== newHTML) {
