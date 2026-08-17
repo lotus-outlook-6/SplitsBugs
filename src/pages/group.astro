@@ -1229,6 +1229,13 @@ import Layout from '../layouts/Layout.astro';
           if (deleteGroupBtn) deleteGroupBtn.style.display = 'flex';
           if (editGroupBtn) editGroupBtn.style.display = 'flex';
         }
+        
+        // Re-render settings modal if it's open, to reflect role changes instantly
+        const groupSettingsModal = document.getElementById('groupSettingsModal') as HTMLDialogElement;
+        if (groupSettingsModal && groupSettingsModal.open) {
+          renderSettings();
+        }
+
 
       // Update UI Header
       const titleEl = document.getElementById('groupTitle')!;
