@@ -466,6 +466,23 @@ import Layout from '../layouts/Layout.astro';
         return;
       }
 
+      // Age check — must be 13 or older
+      const dobParts = dobInput.value.split('/');
+      if (dobParts.length === 3) {
+        const [day, month, year] = dobParts.map(Number);
+        const dob = new Date(year, month - 1, day);
+        const today = new Date();
+        let age = today.getFullYear() - dob.getFullYear();
+        const mDiff = today.getMonth() - dob.getMonth();
+        if (mDiff < 0 || (mDiff === 0 && today.getDate() < dob.getDate())) age--;
+
+        if (age < 13) {
+          errorBox.textContent = "You must be at least 13 years old to create a SplitsBug account.";
+          errorBox.classList.remove('hidden');
+          return;
+        }
+      }
+
       const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
       if (submitBtn) {
         submitBtn.disabled = true;

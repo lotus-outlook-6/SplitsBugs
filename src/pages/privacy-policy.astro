@@ -13,53 +13,371 @@ import Layout from '../layouts/Layout.astro';
     </header>
 
     <main class="flex-1 w-full max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
-      
-      <div class="bg-canvas border border-hairline rounded-xl p-6 sm:p-10 shadow-sm prose prose-sm sm:prose-base dark:prose-invert max-w-none">
-        <p class="text-sm text-mute mb-8">Last Updated: August 7, 2026</p>
 
-        <h2 class="text-2xl font-bold text-ink mt-8 mb-4">1. Introduction</h2>
-        <p class="text-ink mb-4">
-          Welcome to SplitBugs. We respect your privacy and are committed to protecting your personal data. This privacy policy will inform you as to how we look after your personal data when you visit our website (regardless of where you visit it from) and tell you about your privacy rights and how the law protects you.
-        </p>
+      <!-- Skeleton Loader -->
+      <div id="privacySkeleton" class="bg-canvas border border-hairline rounded-xl p-6 sm:p-10 shadow-sm">
+        <div class="h-32 sm:h-40 skeleton rounded-xl mb-8"></div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+          <div class="skeleton h-20 rounded-xl"></div>
+          <div class="skeleton h-20 rounded-xl"></div>
+          <div class="skeleton h-20 rounded-xl"></div>
+        </div>
+        <div class="space-y-10">
+          <div class="space-y-3">
+            <div class="skeleton h-6 w-48 rounded-lg"></div>
+            <div class="skeleton h-4 w-full rounded-md"></div>
+            <div class="skeleton h-4 w-5/6 rounded-md"></div>
+            <div class="skeleton h-4 w-3/4 rounded-md"></div>
+          </div>
+          <div class="space-y-3">
+            <div class="skeleton h-6 w-64 rounded-lg"></div>
+            <div class="skeleton h-4 w-full rounded-md"></div>
+            <div class="skeleton h-4 w-full rounded-md"></div>
+            <div class="skeleton h-4 w-2/3 rounded-md"></div>
+          </div>
+          <div class="space-y-3">
+            <div class="skeleton h-6 w-56 rounded-lg"></div>
+            <div class="skeleton h-4 w-full rounded-md"></div>
+            <div class="skeleton h-4 w-5/6 rounded-md"></div>
+          </div>
+          <div class="space-y-3">
+            <div class="skeleton h-6 w-44 rounded-lg"></div>
+            <div class="skeleton h-4 w-full rounded-md"></div>
+            <div class="skeleton h-4 w-4/5 rounded-md"></div>
+          </div>
+        </div>
+      </div>
 
-        <h2 class="text-2xl font-bold text-ink mt-8 mb-4">2. The Data We Collect About You</h2>
-        <p class="text-ink mb-4">
-          Personal data, or personal information, means any information about an individual from which that person can be identified. We may collect, use, store and transfer different kinds of personal data about you which we have grouped together as follows:
-        </p>
-        <ul class="list-disc pl-6 text-ink mb-4 space-y-2">
-          <li><strong>Identity Data:</strong> includes first name, last name, username or similar identifier, and date of birth.</li>
-          <li><strong>Contact Data:</strong> includes email address and telephone numbers.</li>
-          <li><strong>Financial Data:</strong> includes bank account and payment card details (handled securely by our payment partners).</li>
-          <li><strong>Transaction Data:</strong> includes details about payments to and from you, and other details of expenses you have shared using our app.</li>
-          <li><strong>Technical Data:</strong> includes internet protocol (IP) address, your login data, browser type and version, time zone setting and location.</li>
-        </ul>
+      <!-- Real Content -->
+      <div id="privacyContent" class="hidden bg-canvas border border-hairline rounded-xl shadow-sm overflow-hidden">
 
-        <h2 class="text-2xl font-bold text-ink mt-8 mb-4">3. How We Use Your Personal Data</h2>
-        <p class="text-ink mb-4">
-          We will only use your personal data when the law allows us to. Most commonly, we will use your personal data in the following circumstances:
-        </p>
-        <ul class="list-disc pl-6 text-ink mb-4 space-y-2">
-          <li>Where we need to perform the contract we are about to enter into or have entered into with you (e.g., managing your groups and splits).</li>
-          <li>Where it is necessary for our legitimate interests (or those of a third party) and your interests and fundamental rights do not override those interests.</li>
-          <li>Where we need to comply with a legal or regulatory obligation.</li>
-        </ul>
+        <!-- Hero Banner -->
+        <div class="bg-gradient-to-br from-brand via-indigo-600 to-violet-600 p-6 sm:p-10">
+          <div class="flex items-center gap-2 mb-4">
+            <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            </div>
+            <span class="text-white/70 text-xs font-semibold uppercase tracking-widest">SplitsBug Privacy</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-bold text-white mb-2 leading-snug">We built this for you,<br class="hidden sm:block" /> not to sell you.</h2>
+          <p class="text-white/75 text-sm sm:text-base mt-2 max-w-xl">No ads. No data brokers. No funny business. Just a straightforward expense splitter that respects your privacy.</p>
+          <p class="text-white/50 text-xs mt-5">Last Updated: August 17, 2026</p>
+        </div>
 
-        <h2 class="text-2xl font-bold text-ink mt-8 mb-4">4. Data Security</h2>
-        <p class="text-ink mb-4">
-          We have put in place appropriate security measures to prevent your personal data from being accidentally lost, used or accessed in an unauthorised way, altered or disclosed. In addition, we limit access to your personal data to those employees, agents, contractors and other third parties who have a business need to know.
-        </p>
+        <!-- Quick summary -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-5 sm:p-8 border-b border-hairline bg-canvas-soft">
+          <div class="bg-canvas rounded-xl p-4 border border-hairline flex gap-3 items-start">
+            <div class="w-9 h-9 rounded-lg bg-green-500/10 flex items-center justify-center shrink-0">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-green-600 dark:text-green-400"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <div>
+              <p class="font-semibold text-ink text-sm">Your data is yours</p>
+              <p class="text-xs text-mute mt-0.5">Export or delete everything anytime. No questions asked.</p>
+            </div>
+          </div>
+          <div class="bg-canvas rounded-xl p-4 border border-hairline flex gap-3 items-start">
+            <div class="w-9 h-9 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-blue-600 dark:text-blue-400"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            </div>
+            <div>
+              <p class="font-semibold text-ink text-sm">Encrypted end-to-end</p>
+              <p class="text-xs text-mute mt-0.5">AES-256 at rest, TLS in transit. Firebase keeps it locked.</p>
+            </div>
+          </div>
+          <div class="bg-canvas rounded-xl p-4 border border-hairline flex gap-3 items-start">
+            <div class="w-9 h-9 rounded-lg bg-red-500/10 flex items-center justify-center shrink-0">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-red-500 dark:text-red-400"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </div>
+            <div>
+              <p class="font-semibold text-ink text-sm">Zero ads or tracking</p>
+              <p class="text-xs text-mute mt-0.5">No Google Analytics, no Facebook Pixel, no trackers of any kind.</p>
+            </div>
+          </div>
+        </div>
 
-        <h2 class="text-2xl font-bold text-ink mt-8 mb-4">5. Your Legal Rights</h2>
-        <p class="text-ink mb-4">
-          Under certain circumstances, you have rights under data protection laws in relation to your personal data, including the right to request access, correction, erasure, restriction, transfer, to object to processing, to portability of data and (where the lawful ground of processing is consent) to withdraw consent.
-        </p>
+        <!-- Prose Content -->
+        <div class="p-5 sm:p-10 space-y-10 text-sm sm:text-base">
 
-        <h2 class="text-2xl font-bold text-ink mt-8 mb-4">6. Contact Us</h2>
-        <p class="text-ink mb-4">
-          If you have any questions about this privacy policy or our privacy practices, please contact us via the <a href="/contact-support" class="text-brand hover:underline">Contact Support</a> page or email us at <a href="mailto:privacy@splitbugs.app" class="text-brand hover:underline">privacy@splitbugs.app</a>.
-        </p>
+          <!-- 1 -->
+          <section>
+            <h2 class="text-lg font-bold text-ink mb-3 flex items-center gap-2">
+              <span class="w-6 h-6 rounded-md bg-brand/10 text-brand flex items-center justify-center text-xs font-bold shrink-0">1</span>
+              Who are we?
+            </h2>
+            <div class="pl-8 text-ink/75 leading-relaxed space-y-2">
+              <p>SplitsBug is a small, independent app — not a corporation with shareholders to please. We built it to make splitting expenses with friends and family simple and fair. There's no VC-backed ad machine behind it.</p>
+              <p>If you have any questions about this policy or your data, you can reach us directly at <a href="mailto:splitbugs.app@gmail.com" class="text-brand hover:underline font-medium">splitbugs.app@gmail.com</a>. We actually read those emails.</p>
+            </div>
+          </section>
+
+          <hr class="border-hairline" />
+
+          <!-- 2 -->
+          <section>
+            <h2 class="text-lg font-bold text-ink mb-3 flex items-center gap-2">
+              <span class="w-6 h-6 rounded-md bg-brand/10 text-brand flex items-center justify-center text-xs font-bold shrink-0">2</span>
+              What data do we actually collect?
+            </h2>
+            <div class="pl-8 text-ink/75 leading-relaxed space-y-4">
+              <p>Only what's needed for the app to work. Nothing more.</p>
+              <div class="space-y-3">
+                <div class="border border-hairline rounded-xl p-4 bg-canvas-soft">
+                  <p class="font-semibold text-ink mb-1">Your name and email</p>
+                  <p class="text-mute text-sm">Collected when you sign up with email/password or Google. Used to identify you in groups and display your profile. That's it.</p>
+                </div>
+                <div class="border border-hairline rounded-xl p-4 bg-canvas-soft">
+                  <p class="font-semibold text-ink mb-1">Expenses and groups</p>
+                  <p class="text-mute text-sm">The expenses you add, the groups you're in, the amounts, descriptions, who owes what. This is literally what the app is for — we need this data to show you your splits and balances.</p>
+                </div>
+                <div class="border border-hairline rounded-xl p-4 bg-canvas-soft">
+                  <p class="font-semibold text-ink mb-1">App preferences</p>
+                  <p class="text-mute text-sm">Your chosen theme, currency preference, and notification settings. Stored so things look right when you switch devices.</p>
+                </div>
+                <div class="border border-hairline rounded-xl p-4 bg-canvas-soft">
+                  <p class="font-semibold text-ink mb-1">Profile photo</p>
+                  <p class="text-mute text-sm">If you sign up with <strong class="text-ink">Google</strong>, we automatically import the profile photo linked to your Google account — that's the picture you'd see next to your name in Gmail. If you sign up with email/password, your photo is blank by default and you can optionally upload one later. Either way, your photo is stored in Firebase Storage and is visible to members of your groups.</p>
+                </div>
+                <div class="border border-green-500/20 bg-green-500/5 rounded-xl p-4">
+                  <p class="font-semibold text-green-700 dark:text-green-400 mb-2 text-sm">Things we definitely do NOT collect:</p>
+                  <ul class="text-sm text-mute space-y-1">
+                    <li>• Your bank details or payment cards</li>
+                    <li>• Your real-time GPS location</li>
+                    <li>• Your phone contacts or address book</li>
+                    <li>• Your browsing history or anything you do outside this app</li>
+                    <li>• Any biometric data</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <hr class="border-hairline" />
+
+          <!-- 3 -->
+          <section>
+            <h2 class="text-lg font-bold text-ink mb-3 flex items-center gap-2">
+              <span class="w-6 h-6 rounded-md bg-brand/10 text-brand flex items-center justify-center text-xs font-bold shrink-0">3</span>
+              How do we use it?
+            </h2>
+            <div class="pl-8 text-ink/75 leading-relaxed space-y-2">
+              <p>Short answer: to make the app work for you. Long answer:</p>
+              <ul class="space-y-2 mt-2">
+                <li class="flex gap-2"><span class="text-mute shrink-0">•</span><span>Show you your groups, expenses, and balances</span></li>
+                <li class="flex gap-2"><span class="text-mute shrink-0">•</span><span>Keep you logged in between sessions</span></li>
+                <li class="flex gap-2"><span class="text-mute shrink-0">•</span><span>Send you notifications when someone adds an expense to your group (only if you said yes)</span></li>
+                <li class="flex gap-2"><span class="text-mute shrink-0">•</span><span>Remember your theme and currency preferences</span></li>
+                <li class="flex gap-2"><span class="text-mute shrink-0">•</span><span>Anonymized usage patterns might help us figure out what features to build next — but we never look at individual records</span></li>
+              </ul>
+              <p class="mt-3 font-medium text-ink">We don't use it for ads. We don't sell it. We don't share it with anyone who doesn't need it to run the app.</p>
+            </div>
+          </section>
+
+          <hr class="border-hairline" />
+
+          <!-- 4 -->
+          <section>
+            <h2 class="text-lg font-bold text-ink mb-3 flex items-center gap-2">
+              <span class="w-6 h-6 rounded-md bg-brand/10 text-brand flex items-center justify-center text-xs font-bold shrink-0">4</span>
+              Who can see your data?
+            </h2>
+            <div class="pl-8 text-ink/75 leading-relaxed space-y-2">
+              <ul class="space-y-2">
+                <li class="flex gap-2"><span class="text-mute shrink-0">•</span><span><strong class="text-ink">Group members</strong> — people in your groups can see your name, photo, and the expenses you add. That's the whole point of a group.</span></li>
+                <li class="flex gap-2"><span class="text-mute shrink-0">•</span><span><strong class="text-ink">Google Firebase</strong> — our backend. Firestore for the database, Firebase Auth for login, Firebase Storage for photos. Google processes this data strictly on our behalf and is not allowed to use it for their own purposes.</span></li>
+                <li class="flex gap-2"><span class="text-mute shrink-0">•</span><span><strong class="text-ink">Legal requirements</strong> — if a court orders us to hand over data, we'd have to. We'd tell you if we legally can.</span></li>
+              </ul>
+              <p class="mt-3">That's literally the entire list. Nobody else.</p>
+            </div>
+          </section>
+
+          <hr class="border-hairline" />
+
+          <!-- 5 -->
+          <section>
+            <h2 class="text-lg font-bold text-ink mb-3 flex items-center gap-2">
+              <span class="w-6 h-6 rounded-md bg-brand/10 text-brand flex items-center justify-center text-xs font-bold shrink-0">5</span>
+              How is your data secured?
+            </h2>
+            <div class="pl-8 text-ink/75 leading-relaxed space-y-2">
+              <ul class="space-y-2">
+                <li class="flex gap-2"><span class="text-mute shrink-0">•</span><span>All connections use HTTPS — everything going to and from the app is encrypted in transit</span></li>
+                <li class="flex gap-2"><span class="text-mute shrink-0">•</span><span>Firebase Firestore encrypts all stored data at rest using AES-256</span></li>
+                <li class="flex gap-2"><span class="text-mute shrink-0">•</span><span>Firestore Security Rules mean no user can ever read or write another user's private data — even if they tried</span></li>
+                <li class="flex gap-2"><span class="text-mute shrink-0">•</span><span>We never store your password — Firebase Auth handles that with industry-standard hashing</span></li>
+                <li class="flex gap-2"><span class="text-mute shrink-0">•</span><span>Zero third-party trackers or analytics scripts running on these pages</span></li>
+              </ul>
+              <p class="mt-3">If something ever goes wrong on our end, we'll tell you. Promptly. Via your registered email.</p>
+            </div>
+          </section>
+
+          <hr class="border-hairline" />
+
+          <!-- 6 -->
+          <section>
+            <h2 class="text-lg font-bold text-ink mb-3 flex items-center gap-2">
+              <span class="w-6 h-6 rounded-md bg-brand/10 text-brand flex items-center justify-center text-xs font-bold shrink-0">6</span>
+              Cookies and localStorage
+            </h2>
+            <div class="pl-8 text-ink/75 leading-relaxed space-y-2">
+              <p>We use your browser's <strong class="text-ink">localStorage</strong> (not cookies) to keep things fast. Specifically, we store:</p>
+              <ul class="space-y-1 mt-2">
+                <li class="flex gap-2"><span class="text-mute shrink-0">•</span><span>Your login status (so you don't have to log in every time)</span></li>
+                <li class="flex gap-2"><span class="text-mute shrink-0">•</span><span>Your theme preference (so the right theme loads instantly)</span></li>
+                <li class="flex gap-2"><span class="text-mute shrink-0">•</span><span>Your display name and currency (to avoid an unnecessary network call)</span></li>
+              </ul>
+              <p class="mt-3">This data lives only on your device. When you log out, it's cleared. We do not use advertising cookies, tracking cookies, or session-recording tools.</p>
+            </div>
+          </section>
+
+          <hr class="border-hairline" />
+
+          <!-- 7 -->
+          <section>
+            <h2 class="text-lg font-bold text-ink mb-3 flex items-center gap-2">
+              <span class="w-6 h-6 rounded-md bg-brand/10 text-brand flex items-center justify-center text-xs font-bold shrink-0">7</span>
+              How long do we keep your data?
+            </h2>
+            <div class="pl-8 text-ink/75 leading-relaxed space-y-2">
+              <ul class="space-y-2">
+                <li class="flex gap-2"><span class="text-mute shrink-0">•</span><span>While your account is active, we keep your data so the app works</span></li>
+                <li class="flex gap-2"><span class="text-mute shrink-0">•</span><span>When you delete your account, all personal data is permanently removed within 30 days</span></li>
+                <li class="flex gap-2"><span class="text-mute shrink-0">•</span><span>Shared expenses in groups may remain as part of that group's record after you leave, but your name and personal info are stripped from them</span></li>
+              </ul>
+            </div>
+          </section>
+
+          <hr class="border-hairline" />
+
+          <!-- 8 — Your Rights with ACTION BUTTONS -->
+          <section>
+            <h2 class="text-lg font-bold text-ink mb-3 flex items-center gap-2">
+              <span class="w-6 h-6 rounded-md bg-brand/10 text-brand flex items-center justify-center text-xs font-bold shrink-0">8</span>
+              Your rights (and how to use them)
+            </h2>
+            <div class="pl-8 text-ink/75 leading-relaxed space-y-4">
+              <p>You have full control. Here's what you can do, and exactly where in the app to do it:</p>
+
+              <!-- Export Data -->
+              <div class="border border-hairline rounded-xl p-4 bg-canvas-soft flex flex-col sm:flex-row sm:items-center gap-4">
+                <div class="flex-1">
+                  <p class="font-semibold text-ink mb-0.5">Download a copy of your data</p>
+                  <p class="text-sm text-mute">Get everything — your expenses, groups, and profile — exported as a JSON or CSV file.</p>
+                </div>
+                <a href="/export-data" class="inline-flex items-center justify-center gap-2 bg-brand text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand/90 transition-colors shrink-0">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                  Export Data
+                </a>
+              </div>
+
+              <!-- Edit Profile -->
+              <div class="border border-hairline rounded-xl p-4 bg-canvas-soft flex flex-col sm:flex-row sm:items-center gap-4">
+                <div class="flex-1">
+                  <p class="font-semibold text-ink mb-0.5">Correct your information</p>
+                  <p class="text-sm text-mute">Update your name or profile photo at any time from the Edit Profile page.</p>
+                </div>
+                <a href="/edit-profile" class="inline-flex items-center justify-center gap-2 bg-canvas border border-hairline text-ink px-4 py-2 rounded-lg text-sm font-medium hover:bg-canvas-soft transition-colors shrink-0">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                  Edit Profile
+                </a>
+              </div>
+
+              <!-- Delete Account -->
+              <div class="border border-red-500/20 rounded-xl p-4 bg-red-500/5 flex flex-col sm:flex-row sm:items-center gap-4">
+                <div class="flex-1">
+                  <p class="font-semibold text-ink mb-0.5">Permanently delete your account</p>
+                  <p class="text-sm text-mute">Go to Account → Danger Zone. This is irreversible. All your personal data is erased within 30 days.</p>
+                </div>
+                <a href="/account#danger-zone" class="inline-flex items-center justify-center gap-2 bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-500/20 transition-colors shrink-0">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path></svg>
+                  Delete Account
+                </a>
+              </div>
+
+              <!-- Revoke Notifications -->
+              <div class="border border-hairline rounded-xl p-4 bg-canvas-soft flex flex-col sm:flex-row sm:items-center gap-4">
+                <div class="flex-1">
+                  <p class="font-semibold text-ink mb-0.5">Withdraw notification consent</p>
+                  <p class="text-sm text-mute">Turn off notifications from Notification Settings or from your browser/device settings anytime.</p>
+                </div>
+                <a href="/notification-settings" class="inline-flex items-center justify-center gap-2 bg-canvas border border-hairline text-ink px-4 py-2 rounded-lg text-sm font-medium hover:bg-canvas-soft transition-colors shrink-0">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                  Notifications
+                </a>
+              </div>
+
+              <p class="text-sm mt-1">Need something not covered above? Email us at <a href="mailto:splitbugs.app@gmail.com" class="text-brand hover:underline">splitbugs.app@gmail.com</a> and we'll sort it out within a week.</p>
+            </div>
+          </section>
+
+          <hr class="border-hairline" />
+
+          <!-- 9 -->
+          <section>
+            <h2 class="text-lg font-bold text-ink mb-3 flex items-center gap-2">
+              <span class="w-6 h-6 rounded-md bg-brand/10 text-brand flex items-center justify-center text-xs font-bold shrink-0">9</span>
+              Kids and this app
+            </h2>
+            <div class="pl-8 text-ink/75 leading-relaxed space-y-2">
+              <p>SplitsBug is not designed for, or directed at, anyone under 13. We actively enforce this — the signup form checks your date of birth and <strong class="text-ink">blocks registration if you are under 13 years old</strong>. There's no workaround built in.</p>
+              <p>If you're a parent and believe your child created an account using a false date of birth, email us at <a href="mailto:splitbugs.app@gmail.com" class="text-brand hover:underline">splitbugs.app@gmail.com</a> and we'll delete it immediately — no questions asked.</p>
+            </div>
+          </section>
+
+          <hr class="border-hairline" />
+
+          <!-- 10 -->
+          <section>
+            <h2 class="text-lg font-bold text-ink mb-3 flex items-center gap-2">
+              <span class="w-6 h-6 rounded-md bg-brand/10 text-brand flex items-center justify-center text-xs font-bold shrink-0">10</span>
+              If we update this policy
+            </h2>
+            <div class="pl-8 text-ink/75 leading-relaxed space-y-2">
+              <p>We'll update the date at the top of this page. If anything significant changes — like how we handle your data — we'll send a notification in the app. Continuing to use SplitsBug after that means you accept the update.</p>
+            </div>
+          </section>
+
+          <hr class="border-hairline" />
+
+          <!-- Contact -->
+          <section class="bg-brand/5 border border-brand/15 rounded-2xl p-6 text-center">
+            <p class="text-2xl mb-3">👋</p>
+            <h2 class="text-lg font-bold text-ink mb-2">Still have questions?</h2>
+            <p class="text-ink/65 text-sm mb-5 max-w-sm mx-auto">We're a small team and we're happy to chat. Drop us a message and we'll get back to you.</p>
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+              <a href="mailto:splitbugs.app@gmail.com" class="inline-flex items-center justify-center gap-2 bg-brand text-white px-5 py-2.5 rounded-xl font-medium text-sm hover:bg-brand/90 transition-colors">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                splitbugs.app@gmail.com
+              </a>
+              <a href="/contact-support" class="inline-flex items-center justify-center gap-2 bg-canvas border border-hairline text-ink px-5 py-2.5 rounded-xl font-medium text-sm hover:bg-canvas-soft transition-colors">
+                Contact Support
+              </a>
+            </div>
+          </section>
+
+        </div>
       </div>
 
     </main>
   </div>
+
+  <style>
+    @keyframes privacyRise {
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    #privacyContent {
+      animation: privacyRise 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+  </style>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const skeleton = document.getElementById('privacySkeleton');
+      const content = document.getElementById('privacyContent');
+      setTimeout(() => {
+        if (skeleton) skeleton.style.display = 'none';
+        if (content) content.classList.remove('hidden');
+      }, 650);
+    });
+  </script>
 </Layout>

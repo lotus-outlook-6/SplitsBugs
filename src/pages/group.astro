@@ -1766,25 +1766,46 @@ import Layout from '../layouts/Layout.astro';
 
         (async () => {
           try {
-            await updateDoc(groupDocRef, {
-              expenses: arrayUnion(newExpense)
-            });
+            const payerName = paidBy === currentUserEmail || paidBy === (window as any).MY_DISPLAY_NAME || paidBy === 'You'
+              ? (window as any).MY_DISPLAY_NAME
+              : (window as any).getDisplayName(paidBy);
 
-            // Add notifications for involved participants
-            const payerName = paidBy === currentUserEmail || paidBy === (window as any).MY_DISPLAY_NAME || paidBy === 'You' ? (window as any).MY_DISPLAY_NAME : (window as any).getDisplayName(paidBy);
-            
-            for (const p of participants) {
-              if (p === currentUserEmail || p === paidBy || p === (window as any).MY_DISPLAY_NAME || p === 'You') continue;
-              const notifMsg = `${payerName} added the expense "${desc}" in "${groupData.name}".`;
-              await addDoc(collection(db, "users", p, "notifications"), {
+            // Run all Firestore writes in parallel for maximum speed
+            const notifTargets = participants.filter(
+              p => p !== currentUserEmail && p !== paidBy && p !== (window as any).MY_DISPLAY_NAME && p !== 'You'
+            );
+            const notifMsg = `${payerName} added the expense "${desc}" in "${groupData.name}".`;
+
+            await Promise.all([
+              // 1. Update group expenses
+              updateDoc(groupDocRef, { expenses: arrayUnion(newExpense) }),
+              // 2. Write all notifications in parallel
+              ...notifTargets.map(p =>
+                addDoc(collection(db, "users", p, "notifications"), {
+                  groupId: groupId,
+                  message: notifMsg,
+                  timestamp: Date.now(),
+                  read: false
+                })
+              ),
+              // 3. Write activity log
+              addDoc(collection(db, "activities"), {
                 groupId: groupId,
-                message: notifMsg,
-                timestamp: Date.now(),
-                read: false
-              });
-              try {
-                const { sendEmail } = await import('../utils/email');
-                await sendEmail({
+                groupName: groupData.name,
+                type: 'expense_added',
+                description: desc,
+                amount: amount,
+                currency: curr,
+                paidBy: paidBy,
+                participants: participants,
+                timestamp: Date.now()
+              })
+            ]);
+
+            // Fire emails in background - don't await, don't block the user
+            import('../utils/email').then(({ sendEmail }) => {
+              notifTargets.forEach(p => {
+                sendEmail({
                   to: p,
                   subject: `New Expense in ${groupData.name}`,
                   templateId: 'general',
@@ -1793,26 +1814,11 @@ import Layout from '../layouts/Layout.astro';
                     message: notifMsg,
                     actionUrl: `https://splits-bugs.vercel.app/group?id=${groupId}`
                   }
-                });
-              } catch (e) {
-                console.error('Failed to send notification email:', e);
-              }
-            }
+                }).catch(e => console.error('Email send failed for', p, e));
+              });
+            }).catch(() => {});
 
-            // Add persistent activity
-            await addDoc(collection(db, "activities"), {
-              groupId: groupId,
-              groupName: groupData.name,
-              type: 'expense_added',
-              description: desc,
-              amount: amount,
-              currency: curr,
-              paidBy: paidBy,
-              participants: participants,
-              timestamp: Date.now()
-            });
-
-            // Reset and close
+            // Reset and close immediately
             resetAddExpenseModal();
             addExpenseModal?.close();
             showToast('Expense added successfully!', false);

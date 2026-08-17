@@ -38,13 +38,15 @@ else initialIndex = -1;
 		<script is:inline>
 			// Apply Theme
 			const savedTheme = localStorage.getItem('splitbug_theme') || 'dark-grey';
-			window.applyTheme = (theme) => {
-				document.documentElement.className = '';
+			window.applyTheme = (theme, options = {}) => {
+				const currentClass = document.documentElement.className;
+				let newClass = '';
+				
 				if (theme === 'system') {
 					if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-						document.documentElement.classList.add('theme-dark-grey');
+						newClass = 'theme-dark-grey';
 					} else {
-						document.documentElement.classList.add('theme-light-white');
+						newClass = 'theme-light-white';
 					}
 				} else if (theme === 'splitsbug') {
 					const hour = new Date().getHours();
@@ -54,24 +56,37 @@ else initialIndex = -1;
 					else if (hour >= 17 && hour < 18) activeTheme = 'light-cream';
 					else if (hour >= 18 && hour < 21) activeTheme = 'dark-grey';
 					else activeTheme = 'dark-amoled';
-					document.documentElement.classList.add(`theme-${activeTheme}`);
+					newClass = `theme-${activeTheme}`;
 				} else {
-					document.documentElement.classList.add(`theme-${theme}`);
+					newClass = `theme-${theme}`;
 				}
-				window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: document.documentElement.className } }));
+
+				if (currentClass !== newClass) {
+					const updateDOM = () => {
+						document.documentElement.className = newClass;
+						window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: newClass } }));
+					};
+
+					if (options.smooth && document.startViewTransition) {
+						document.startViewTransition(() => updateDOM());
+					} else {
+						updateDOM();
+					}
+				}
 			};
+			
 			window.applyTheme(savedTheme);
 
 			// Automatically re-apply theme if system preference changes or if splitsbug theme is active
 			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
 				if (localStorage.getItem('splitbug_theme') === 'system') {
-					window.applyTheme('system');
+					window.applyTheme('system', { smooth: true });
 				}
 			});
 
 			setInterval(() => {
 				if (localStorage.getItem('splitbug_theme') === 'splitsbug') {
-					window.applyTheme('splitsbug');
+					window.applyTheme('splitsbug', { smooth: true });
 				}
 			}, 60000);
 
@@ -230,8 +245,13 @@ else initialIndex = -1;
 					activeIndex = 0;
 				} else if (normalizedPath.includes('/activity')) {
 					activeIndex = 1;
-				} else if (normalizedPath.includes('/account') || normalizedPath.includes('/edit-profile') || normalizedPath.includes('/security') || normalizedPath.includes('/email-settings') || normalizedPath.includes('/appearance') || normalizedPath.includes('/contact-support') || normalizedPath.includes('/notification-settings')) {
+				} else if (normalizedPath.includes('/account') || normalizedPath.includes('/edit-profile') || normalizedPath.includes('/security') || normalizedPath.includes('/email-settings') || normalizedPath.includes('/appearance') || normalizedPath.includes('/contact-support') || normalizedPath.includes('/notification-settings') || normalizedPath.includes('/privacy-policy') || normalizedPath.includes('/export-data') || normalizedPath.includes('/terms')) {
 					activeIndex = 2;
+				}
+				
+				// Persist last known active index so pages without a tab remember where to animate from
+				if (activeIndex >= 0) {
+					sessionStorage.setItem('lastNavIndex', String(activeIndex));
 				}
 				
 				items.forEach((item, index) => {
@@ -249,6 +269,9 @@ else initialIndex = -1;
 						pill.style.opacity = '1';
 						pill.style.transform = `translateX(${activeIndex * 100}%)`;
 					} else {
+						// No active tab on this page — hide pill but keep it at its last position
+						const lastIndex = parseInt(sessionStorage.getItem('lastNavIndex') || '0', 10);
+						pill.style.transform = `translateX(${lastIndex * 100}%)`;
 						pill.style.opacity = '0';
 					}
 				}

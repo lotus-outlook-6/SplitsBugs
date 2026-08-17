@@ -32,23 +32,27 @@ import Layout from '../layouts/Layout.astro';
     <!-- Activity Feed List -->
     <main class="w-full max-w-[800px] mx-auto sm:my-8">
       <div id="activityFeedContainer" class="flex flex-col">
-        <!-- Skeleton activity items -->
-        <div id="activitySkeleton">
+        <!-- Skeleton activity items (1:1 Match with Real Card Container) -->
+        <div id="activitySkeleton" class="flex flex-col bg-canvas border-x border-hairline sm:border sm:rounded-xl overflow-hidden sm:shadow-sm">
           <div class="flex items-start gap-4 p-4 lg:p-5 border-b border-hairline bg-canvas">
             <div class="relative shrink-0 mt-1"><div class="skeleton w-12 h-12 rounded-lg"></div></div>
-            <div class="flex-1"><div class="skeleton h-4 w-3/4 mb-3 mt-1"></div><div class="skeleton h-3 w-1/2 mb-3"></div><div class="skeleton h-2 w-1/4"></div></div>
+            <div class="flex-1 min-w-0"><div class="skeleton h-4 sm:h-5 w-3/4 max-w-md mb-2.5 mt-0.5 rounded-md"></div><div class="skeleton h-3.5 w-1/3 max-w-[200px] mb-2 rounded-md"></div><div class="skeleton h-3 w-1/4 max-w-[120px] rounded-md"></div></div>
           </div>
           <div class="flex items-start gap-4 p-4 lg:p-5 border-b border-hairline bg-canvas">
             <div class="relative shrink-0 mt-1"><div class="skeleton w-12 h-12 rounded-lg"></div></div>
-            <div class="flex-1"><div class="skeleton h-4 w-2/3 mb-3 mt-1"></div><div class="skeleton h-3 w-1/3 mb-3"></div><div class="skeleton h-2 w-1/5"></div></div>
+            <div class="flex-1 min-w-0"><div class="skeleton h-4 sm:h-5 w-2/3 max-w-md mb-2.5 mt-0.5 rounded-md"></div><div class="skeleton h-3.5 w-1/3 max-w-[180px] mb-2 rounded-md"></div><div class="skeleton h-3 w-1/5 max-w-[100px] rounded-md"></div></div>
           </div>
           <div class="flex items-start gap-4 p-4 lg:p-5 border-b border-hairline bg-canvas">
             <div class="relative shrink-0 mt-1"><div class="skeleton w-12 h-12 rounded-lg"></div></div>
-            <div class="flex-1"><div class="skeleton h-4 w-4/5 mb-3 mt-1"></div><div class="skeleton h-3 w-2/5 mb-3"></div><div class="skeleton h-2 w-1/4"></div></div>
+            <div class="flex-1 min-w-0"><div class="skeleton h-4 sm:h-5 w-4/5 max-w-lg mb-2.5 mt-0.5 rounded-md"></div><div class="skeleton h-3.5 w-2/5 max-w-[220px] mb-2 rounded-md"></div><div class="skeleton h-3 w-1/4 max-w-[120px] rounded-md"></div></div>
           </div>
           <div class="flex items-start gap-4 p-4 lg:p-5 border-b border-hairline bg-canvas">
             <div class="relative shrink-0 mt-1"><div class="skeleton w-12 h-12 rounded-lg"></div></div>
-            <div class="flex-1"><div class="skeleton h-4 w-1/2 mb-3 mt-1"></div><div class="skeleton h-3 w-1/4 mb-3"></div><div class="skeleton h-2 w-1/6"></div></div>
+            <div class="flex-1 min-w-0"><div class="skeleton h-4 sm:h-5 w-1/2 max-w-sm mb-2.5 mt-0.5 rounded-md"></div><div class="skeleton h-3.5 w-1/4 max-w-[150px] mb-2 rounded-md"></div><div class="skeleton h-3 w-1/6 max-w-[90px] rounded-md"></div></div>
+          </div>
+          <div class="flex items-start gap-4 p-4 lg:p-5 border-b border-hairline bg-canvas">
+            <div class="relative shrink-0 mt-1"><div class="skeleton w-12 h-12 rounded-lg"></div></div>
+            <div class="flex-1 min-w-0"><div class="skeleton h-4 sm:h-5 w-3/5 max-w-md mb-2.5 mt-0.5 rounded-md"></div><div class="skeleton h-3.5 w-1/3 max-w-[180px] mb-2 rounded-md"></div><div class="skeleton h-3 w-1/5 max-w-[100px] rounded-md"></div></div>
           </div>
         </div>
       </div>
@@ -73,29 +77,23 @@ import Layout from '../layouts/Layout.astro';
   <script>
     import { auth, db } from '../firebase';
     import { onAuthStateChanged } from 'firebase/auth';
-    import { collection, onSnapshot, query, where, getDoc, doc } from 'firebase/firestore';
+    import { collection, query, where, getDocs, getDoc, doc } from 'firebase/firestore';
 
     let currentUserEmail = 'user@example.com';
     let currentUserName = 'You';
+    let usersMap: Record<string, any> = {};
     
     const feedContainer = document.getElementById('activityFeedContainer');
 
-    (window as any).getDisplayName = async function(raw: string) {
+    function resolveDisplayName(raw: string) {
       if (!raw) return '';
-      if (!raw.includes('@')) return raw;
-      if (raw === currentUserEmail) return currentUserName || 'You';
-      
-      try {
-        const userDocRef = doc(db, "users", raw);
-        const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists()) {
-          const data = userDoc.data();
-          if (data.name) return data.name;
-        }
-      } catch (e) {}
-      
-      return raw.split('@')[0];
-    };
+      if (raw === 'You' || raw === currentUserEmail || raw === (window as any).MY_DISPLAY_NAME) return 'You';
+      if (usersMap[raw]) {
+        return usersMap[raw].name || usersMap[raw].displayName || raw.split('@')[0];
+      }
+      if (raw.includes('@')) return raw.split('@')[0];
+      return raw;
+    }
 
     function formatDate(ts: number) {
       const d = new Date(ts);
@@ -155,41 +153,41 @@ import Layout from '../layouts/Layout.astro';
         let mainText = '';
         let subTextHTML = '';
 
-        const who = act.paidBy === 'You' || act.paidBy === (window as any).MY_DISPLAY_NAME || act.paidBy === currentUserEmail ? 'You' : (window as any).getDisplayName(act.paidBy);
+        const who = resolveDisplayName(act.paidBy);
 
         if (act.type === 'group_created') {
-          avatarLetter = act.groupName.charAt(0).toUpperCase();
-          mainText = `<span class="font-bold text-ink">${who}</span> created the group "<span class="font-bold text-ink">${act.groupName}</span>".`;
+          avatarLetter = (act.groupName || 'G').charAt(0).toUpperCase();
+          mainText = `<span class="font-bold text-ink">${who}</span> created the group "<span class="font-bold text-ink">${act.groupName || 'Group'}</span>".`;
         } else if (act.type === 'group_deleted') {
-          avatarLetter = act.groupName.charAt(0).toUpperCase();
-          mainText = `<span class="font-bold text-ink">${who}</span> deleted the group "<span class="font-bold text-ink">${act.groupName}</span>".`;
+          avatarLetter = (act.groupName || 'G').charAt(0).toUpperCase();
+          mainText = `<span class="font-bold text-ink">${who}</span> deleted the group "<span class="font-bold text-ink">${act.groupName || 'Group'}</span>".`;
         } else if (act.type === 'group_edited') {
-          avatarLetter = act.groupName.charAt(0).toUpperCase();
-          mainText = `<span class="font-bold text-ink">${who}</span> updated settings for "<span class="font-bold text-ink">${act.groupName}</span>".`;
+          avatarLetter = (act.groupName || 'G').charAt(0).toUpperCase();
+          mainText = `<span class="font-bold text-ink">${who}</span> updated settings for "<span class="font-bold text-ink">${act.groupName || 'Group'}</span>".`;
         } else if (act.type === 'expense_added' || act.type === 'debt_settled') {
-          avatarLetter = act.description.charAt(0).toUpperCase();
+          avatarLetter = act.description ? act.description.charAt(0).toUpperCase() : 'E';
           if (act.type === 'debt_settled') {
-             const toWho = act.participants[0] === currentUserEmail || act.participants[0] === (window as any).MY_DISPLAY_NAME ? 'you' : (window as any).getDisplayName(act.participants[0]);
-             mainText = `<span class="font-bold text-ink">${who}</span> paid ${toWho} ${act.currency}${act.amount.toFixed(2)} in "<span class="font-bold text-ink">${act.groupName}</span>".`;
+             const toWho = act.participants && act.participants[0] ? resolveDisplayName(act.participants[0]) : 'someone';
+             mainText = `<span class="font-bold text-ink">${who}</span> paid ${toWho} ${act.currency || '$'}${(act.amount || 0).toFixed(2)} in "<span class="font-bold text-ink">${act.groupName || 'Group'}</span>".`;
           } else {
-             mainText = `<span class="font-bold text-ink">${who}</span> added "<span class="font-bold text-ink">${act.description}</span>" in "<span class="font-bold text-ink">${act.groupName}</span>".`;
+             mainText = `<span class="font-bold text-ink">${who}</span> added "<span class="font-bold text-ink">${act.description || 'Expense'}</span>" in "<span class="font-bold text-ink">${act.groupName || 'Group'}</span>".`;
           }
           
-          const isParticipant = act.participants.includes('You') || act.participants.includes((window as any).MY_DISPLAY_NAME) || act.participants.includes(currentUserEmail);
+          const isParticipant = (act.participants || []).includes('You') || (act.participants || []).includes((window as any).MY_DISPLAY_NAME) || (act.participants || []).includes(currentUserEmail);
           const isPayer = act.paidBy === 'You' || act.paidBy === (window as any).MY_DISPLAY_NAME || act.paidBy === currentUserEmail;
-          const myShare = isParticipant ? (act.amount / act.participants.length) : 0;
+          const myShare = isParticipant ? (act.amount / (act.participants || []).length) : 0;
           const curr = act.currency;
 
           if (isPayer) {
             const getBack = act.amount - myShare;
             if (getBack > 0.01) {
-              subTextHTML = `<div class="text-success mt-0.5">You get back ${curr}${getBack.toFixed(2)}</div>`;
+              subTextHTML = `<div class="text-success mt-0.5 font-medium">You get back ${curr}${getBack.toFixed(2)}</div>`;
             } else {
               subTextHTML = `<div class="text-mute mt-0.5">You paid for yourself</div>`;
             }
           } else {
             if (isParticipant) {
-              subTextHTML = `<div class="text-danger mt-0.5">You owe ${curr}${myShare.toFixed(2)}</div>`;
+              subTextHTML = `<div class="text-danger mt-0.5 font-medium">You owe ${curr}${myShare.toFixed(2)}</div>`;
             } else {
               subTextHTML = `<div class="text-mute mt-0.5">Not involved</div>`;
             }
@@ -198,6 +196,21 @@ import Layout from '../layouts/Layout.astro';
 
         const dateStr = formatDate(act.timestamp);
         const faviconPath = "/SplitBugs-Brand/favicon/favicon.svg";
+
+        let avatarHTML = '';
+        const senderInfo = usersMap[act.paidBy] || usersMap[who];
+        if (senderInfo) {
+          const avatar = senderInfo.avatar || senderInfo.photoURL;
+          const theme = senderInfo.themeColor || senderInfo.gradientTheme;
+          if (avatar && avatar !== 'undefined' && avatar !== 'null') {
+            avatarHTML = `<img src="${avatar}" referrerpolicy="no-referrer" onerror="this.onerror=null; this.outerHTML='<div class=\\'w-12 h-12 rounded-xl bg-[#b2dfdb] border border-hairline flex items-center justify-center font-bold text-2xl text-ink shrink-0\\'>${avatarLetter}</div>';" class="w-12 h-12 rounded-xl object-cover ring-2 ring-canvas-soft shrink-0" />`;
+          } else if (theme && theme.startsWith('special-art-') && (window as any).renderAbstractArt) {
+            avatarHTML = `<div class="w-12 h-12 rounded-xl overflow-hidden ring-2 ring-canvas-soft shrink-0">${(window as any).renderAbstractArt(theme)}</div>`;
+          }
+        }
+        if (!avatarHTML) {
+          avatarHTML = `<div class="w-12 h-12 rounded-xl bg-[#b2dfdb] border border-hairline flex items-center justify-center font-bold text-2xl text-ink shrink-0">${avatarLetter}</div>`;
+        }
 
         // Check if group is deleted based on realtime listener
         const isGroupDeleted = !groupsData[act.groupId];
@@ -210,9 +223,7 @@ import Layout from '../layouts/Layout.astro';
         const itemHTML = `
           <${itemTag} ${linkAttr} class="activity-item flex items-start gap-4 p-4 lg:p-5 border-b border-hairline block ${actionClasses} ${opacityClass} reveal-hidden">
             <div class="relative shrink-0 mt-1">
-              <div class="w-12 h-12 rounded-lg bg-[#b2dfdb] border border-hairline flex items-center justify-center font-bold text-2xl text-ink">
-                ${avatarLetter}
-              </div>
+              ${avatarHTML}
               <img src="${faviconPath}" alt="SplitBugs" class="absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-full border-2 border-canvas bg-white object-cover" />
             </div>
             <div class="flex-1 min-w-0">
@@ -253,52 +264,45 @@ import Layout from '../layouts/Layout.astro';
       });
     }
 
-    // Set up Firebase Listeners
-    function initFirebase() {
-      if (currentUserEmail) {
-        // 1. Listen for active groups to know if a group was deleted
-        const qGroups = query(collection(db, "groups"), where("members", "array-contains", currentUserEmail));
-        onSnapshot(qGroups, (snapshot) => {
-          const newGroupsData: Record<string, any> = {};
-          snapshot.forEach((doc) => {
-            newGroupsData[doc.id] = doc.data();
-          });
-          groupsData = newGroupsData;
-          isFirebaseLoaded = true;
-          renderActivity(currentSearchQuery);
+    // Set up Firebase data loading using one-time reads (getDocs)
+    // This avoids ERR_BLOCKED_BY_CLIENT issues with onSnapshot's persistent channels
+    async function initFirebase() {
+      if (!currentUserEmail) return;
+
+      try {
+        // 1. Fetch all users for avatar/display name lookup
+        const usersSnap = await getDocs(collection(db, 'users'));
+        usersSnap.forEach((d) => {
+          const data = d.data();
+          if (data.name) usersMap[data.name] = data;
+          if (data.displayName) usersMap[data.displayName] = data;
+          if (d.id) usersMap[d.id] = data;
+          if (data.email) usersMap[data.email] = data;
         });
 
-        // 2. Listen for activities where user is a participant
-        const qActivitiesParticipant = query(collection(db, "activities"), where("participants", "array-contains", currentUserEmail));
-        onSnapshot(qActivitiesParticipant, (snapshot) => {
-          const actsMap = new Map();
-          snapshot.forEach((doc) => actsMap.set(doc.id, { id: doc.id, ...doc.data() }));
-          
-          // Merge with activities where user is payer
-          allActivities = allActivities.filter(a => a.paidBy === currentUserEmail && !a.participants.includes(currentUserEmail)); 
-          actsMap.forEach((val) => allActivities.push(val));
-          
-          isFirebaseLoaded = true;
-          renderActivity(currentSearchQuery);
-        });
+        // 2. Fetch active groups so we know which are deleted
+        const qGroups = query(collection(db, 'groups'), where('members', 'array-contains', currentUserEmail));
+        const groupsSnap = await getDocs(qGroups);
+        groupsSnap.forEach((d) => { groupsData[d.id] = d.data(); });
 
-        // 3. Listen for activities where user is payer (but not in participants array, e.g. some edge cases)
-        const qActivitiesPayer = query(collection(db, "activities"), where("paidBy", "==", currentUserEmail));
-        onSnapshot(qActivitiesPayer, (snapshot) => {
-          const actsMap = new Map();
-          snapshot.forEach((doc) => actsMap.set(doc.id, { id: doc.id, ...doc.data() }));
-          
-          // Merge with activities where user is participant
-          allActivities = allActivities.filter(a => a.participants.includes(currentUserEmail)); 
-          actsMap.forEach((val) => {
-            if (!allActivities.find(a => a.id === val.id)) {
-              allActivities.push(val);
-            }
-          });
-          
-          isFirebaseLoaded = true;
-          renderActivity(currentSearchQuery);
-        });
+        // 3. Fetch activities where user is a participant
+        const merged = new Map<string, any>();
+        const qParticipant = query(collection(db, 'activities'), where('participants', 'array-contains', currentUserEmail));
+        const participantSnap = await getDocs(qParticipant);
+        participantSnap.forEach((d) => merged.set(d.id, { id: d.id, ...d.data() }));
+
+        // 4. Fetch activities where user is the payer
+        const qPayer = query(collection(db, 'activities'), where('paidBy', '==', currentUserEmail));
+        const payerSnap = await getDocs(qPayer);
+        payerSnap.forEach((d) => { if (!merged.has(d.id)) merged.set(d.id, { id: d.id, ...d.data() }); });
+
+        allActivities = Array.from(merged.values());
+        isFirebaseLoaded = true;
+        renderActivity(currentSearchQuery);
+      } catch (err) {
+        console.error('[Activity] Firebase load error:', err);
+        isFirebaseLoaded = true;
+        renderActivity(currentSearchQuery);
       }
     }
 

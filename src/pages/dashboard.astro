@@ -10,7 +10,7 @@ import Layout from '../layouts/Layout.astro';
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  .group-card {
+  .group-card, .notif-item {
     transition: opacity 0.5s ease-out, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   }
   .reveal-hidden {
@@ -144,7 +144,10 @@ import Layout from '../layouts/Layout.astro';
       <div class="px-5 py-4 flex items-center justify-between border-b border-hairline bg-canvas shrink-0">
         <h2 class="text-xl font-bold text-ink">Notifications</h2>
         <div class="flex items-center gap-3">
-          <button type="button" id="markAllReadBtn" class="text-xs font-semibold text-brand hover:text-brand-deep transition-colors cursor-pointer hidden">Mark all read</button>
+          <button type="button" id="markAllReadBtn" class="text-xs font-bold text-brand bg-brand/10 hover:bg-brand/20 active:scale-95 px-3 py-1.5 rounded-full transition-all cursor-pointer hidden shadow-sm flex items-center gap-1">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>Mark all read</span>
+          </button>
           <button type="button" id="closeNotificationsBtn" class="p-1.5 hover:bg-canvas-soft rounded-full transition-colors cursor-pointer">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-mute hover:text-ink"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
@@ -878,6 +881,12 @@ import Layout from '../layouts/Layout.astro';
             if (data.name) {
               usersMap[data.name] = data;
             }
+            if (data.displayName) {
+              usersMap[data.displayName] = data;
+            }
+            if (doc.id) {
+              usersMap[doc.id] = data;
+            }
           });
           if (allNotifsFromFirebase.length > 0 || allInvitesFromFirebase.length > 0) {
             renderNotifications();
@@ -1324,7 +1333,8 @@ import Layout from '../layouts/Layout.astro';
       const myNotifs = allNotifsFromFirebase || [];
 
       const unreadNotifs = myNotifs.filter((n: any) => !n.read);
-      const totalNotifsCount = myPendingInvites.length + unreadNotifs.length;
+      const totalUnreadCount = myPendingInvites.length + unreadNotifs.length;
+      const totalAllItemsCount = myPendingInvites.length + myNotifs.length;
       
       const markAllReadBtn = document.getElementById('markAllReadBtn');
       if (markAllReadBtn) {
@@ -1336,8 +1346,8 @@ import Layout from '../layouts/Layout.astro';
       }
 
       if (notificationBadge) {
-        if (totalNotifsCount > 0) {
-          notificationBadge.textContent = totalNotifsCount >= 99 ? ':)' : totalNotifsCount.toString();
+        if (totalUnreadCount > 0) {
+          notificationBadge.textContent = totalUnreadCount >= 99 ? ':)' : totalUnreadCount.toString();
           notificationBadge.classList.remove('hidden');
         } else {
           notificationBadge.classList.add('hidden');
@@ -1345,8 +1355,8 @@ import Layout from '../layouts/Layout.astro';
       }
 
       if (invitesList) {
-        if (totalNotifsCount === 0) {
-          invitesList.innerHTML = '<div class="p-4 text-center text-xs text-mute">No new notifications</div>';
+        if (totalAllItemsCount === 0) {
+          invitesList.innerHTML = '<div class="p-8 text-center text-sm text-mute flex flex-col items-center justify-center gap-2"><svg class="w-8 h-8 opacity-40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span>No notifications yet</span></div>';
           return;
         }
 
@@ -1381,15 +1391,15 @@ import Layout from '../layouts/Layout.astro';
           const item = document.createElement('div');
           item.className = `notif-item reveal-hidden p-4 border border-hairline rounded-xl bg-canvas hover:bg-canvas-soft transition-colors shadow-sm`;
           
-          let senderAvatarHTML = `<div class="w-12 h-12 rounded-full bg-brand/10 text-brand flex items-center justify-center font-bold text-lg border border-brand/20">${inv.inviterName ? inv.inviterName.charAt(0).toUpperCase() : 'I'}</div>`;
+          let senderAvatarHTML = `<div class="w-12 h-12 rounded-full bg-brand/10 text-brand flex items-center justify-center font-bold text-lg border border-brand/20 shrink-0">${inv.inviterName ? inv.inviterName.charAt(0).toUpperCase() : 'I'}</div>`;
           const senderInfo = usersMap[inv.inviterName];
           if (senderInfo) {
             const avatar = senderInfo.avatar || senderInfo.photoURL;
             const theme = senderInfo.themeColor || senderInfo.gradientTheme;
             if (avatar && avatar !== 'undefined' && avatar !== 'null') {
-              senderAvatarHTML = `<img src="${avatar}" class="w-12 h-12 rounded-full object-cover ring-2 ring-brand/20" />`;
+              senderAvatarHTML = `<img src="${avatar}" referrerpolicy="no-referrer" onerror="this.onerror=null; this.outerHTML='<div class=\\'w-12 h-12 rounded-full bg-brand/10 text-brand flex items-center justify-center font-bold text-lg border border-brand/20 shrink-0\\'>${inv.inviterName ? inv.inviterName.charAt(0).toUpperCase() : 'I'}</div>';" class="w-12 h-12 rounded-full object-cover ring-2 ring-brand/20 shrink-0" />`;
             } else if (theme && theme.startsWith('special-art-') && (window as any).renderAbstractArt) {
-              senderAvatarHTML = `<div class="w-12 h-12 rounded-full overflow-hidden ring-2 ring-brand/20">${(window as any).renderAbstractArt(theme)}</div>`;
+              senderAvatarHTML = `<div class="w-12 h-12 rounded-full overflow-hidden ring-2 ring-brand/20 shrink-0">${(window as any).renderAbstractArt(theme)}</div>`;
             }
           }
 
@@ -1416,62 +1426,70 @@ import Layout from '../layouts/Layout.astro';
           const item = document.createElement('div');
           const isUnread = !notif.read;
           const bgClass = isUnread ? 'bg-brand/5 border-brand/20' : 'bg-canvas border-hairline';
-          item.className = `notif-item reveal-hidden p-4 border rounded-xl hover:bg-canvas-soft transition-colors flex items-start justify-between group shadow-sm ${bgClass}`;
+          item.className = `notif-item reveal-hidden p-4 border rounded-xl hover:bg-canvas-soft transition-colors flex items-center justify-between group shadow-sm ${bgClass}`;
           
+          const msg = notif.message || '';
           let actionUrl = notif.groupId ? `/group?id=${notif.groupId}` : '#';
           
           let senderName = '';
           let senderAvatarHTML = '';
-          const sortedNames = Object.keys(usersMap).sort((a,b) => b.length - a.length);
-          for (const name of sortedNames) {
-            if (notif.message.startsWith(name)) {
-              senderName = name;
-              break;
+          const isMe = msg.startsWith("You ") || msg.startsWith("You're");
+
+          if (isMe) {
+            senderName = currentUserEmail;
+          } else {
+            const sortedNames = Object.keys(usersMap).sort((a,b) => b.length - a.length);
+            for (const name of sortedNames) {
+              if (msg.startsWith(name)) {
+                senderName = name;
+                break;
+              }
             }
           }
-          
-          let initial = 'N';
-          if (senderName) {
-            initial = senderName.charAt(0).toUpperCase();
+
+          let initial = 'U';
+          if (isMe) {
+            const meData = usersMap[currentUserEmail] || {};
+            const fallbackName = (window as any).MY_DISPLAY_NAME || currentUserEmail || '';
+            const meName = meData.name || meData.displayName || fallbackName;
+            initial = meName && meName !== 'You' ? String(meName).charAt(0).toUpperCase() : (currentUserEmail ? String(currentUserEmail).charAt(0).toUpperCase() : 'U');
+          } else if (senderName) {
+            initial = String(senderName).charAt(0).toUpperCase();
           } else {
-             const match = notif.message.match(/^[A-Za-z]/);
+             const match = msg.match(/^[A-Za-z]/);
              if (match) initial = match[0].toUpperCase();
           }
 
-          if (senderName && usersMap[senderName]) {
-             const senderInfo = usersMap[senderName];
+          const senderInfo = isMe ? (usersMap[currentUserEmail] || usersMap[(window as any).MY_DISPLAY_NAME]) : (usersMap[senderName] || null);
+
+          if (senderInfo) {
              const avatar = senderInfo.avatar || senderInfo.photoURL;
              const theme = senderInfo.themeColor || senderInfo.gradientTheme;
              if (avatar && avatar !== 'undefined' && avatar !== 'null') {
-               senderAvatarHTML = `<img src="${avatar}" class="w-12 h-12 rounded-full object-cover ring-2 ring-canvas-soft" />`;
+               senderAvatarHTML = `<img src="${avatar}" referrerpolicy="no-referrer" onerror="this.onerror=null; this.outerHTML='<div class=\\'w-12 h-12 rounded-full bg-brand/10 text-brand flex items-center justify-center font-bold text-lg border border-brand/20 shrink-0\\'>${initial}</div>';" class="w-12 h-12 rounded-full object-cover ring-2 ring-canvas-soft shrink-0" />`;
              } else if (theme && theme.startsWith('special-art-') && (window as any).renderAbstractArt) {
-               senderAvatarHTML = `<div class="w-12 h-12 rounded-full overflow-hidden ring-2 ring-canvas-soft">${(window as any).renderAbstractArt(theme)}</div>`;
+               senderAvatarHTML = `<div class="w-12 h-12 rounded-full overflow-hidden ring-2 ring-canvas-soft shrink-0">${(window as any).renderAbstractArt(theme)}</div>`;
              }
           }
           
           if (!senderAvatarHTML) {
-             senderAvatarHTML = `<div class="w-12 h-12 rounded-full bg-brand/10 text-brand flex items-center justify-center font-bold text-lg border border-brand/20">${initial}</div>`;
+             senderAvatarHTML = `<div class="w-12 h-12 rounded-full bg-brand/10 text-brand flex items-center justify-center font-bold text-lg border border-brand/20 shrink-0">${initial}</div>`;
           }
 
-          const unreadDot = isUnread ? `<div class="w-2.5 h-2.5 rounded-full bg-brand shrink-0"></div>` : '';
-          
           item.innerHTML = `
-            <a href="${actionUrl}" class="flex-1 pr-3 flex items-start gap-4 notif-link" data-id="${notif.id}">
-              <div class="relative shrink-0">
+            <a href="${actionUrl}" class="flex-1 w-full flex items-start gap-4 notif-link text-left" data-id="${notif.id}">
+              <div class="relative shrink-0 mt-0.5">
                 ${senderAvatarHTML}
-                ${isUnread ? '<div class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-brand border-2 border-canvas rounded-full"></div>' : ''}
+                ${isUnread ? '<div class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-brand border-2 border-canvas rounded-full shadow-sm"></div>' : ''}
               </div>
               <div class="flex-1 min-w-0 pt-0.5">
-                <p class="text-sm text-ink mb-1.5 leading-relaxed ${isUnread ? 'font-semibold' : 'font-medium'}">${notif.message}</p>
+                <p class="text-sm text-ink mb-1.5 leading-snug ${isUnread ? 'font-bold' : 'font-medium'}">${notif.message}</p>
                 <p class="text-xs text-mute flex items-center gap-1.5">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                   ${new Date(notif.timestamp).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                 </p>
               </div>
             </a>
-            <button class="dismiss-notif-btn text-mute hover:text-danger hover:bg-danger/10 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all p-2 rounded-full cursor-pointer shrink-0 mt-2" data-id="${notif.id}" title="Dismiss">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
           `;
           invitesList.appendChild(item);
         });
@@ -1490,12 +1508,12 @@ import Layout from '../layouts/Layout.astro';
           });
         });
 
-        document.querySelectorAll('.dismiss-notif-btn').forEach(btn => {
+        document.querySelectorAll('.mark-read-single-btn').forEach(btn => {
           btn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
             const notifId = (e.currentTarget as HTMLElement).getAttribute('data-id');
-            dismissNotification(notifId);
+            if (notifId) markNotificationAsRead(notifId);
           });
         });
 
@@ -1506,7 +1524,7 @@ import Layout from '../layouts/Layout.astro';
           });
         });
 
-        // Setup scroll reveal animation for notifications
+        const invitesListEl = document.getElementById('invitesList');
         const observer = new IntersectionObserver((entries) => {
           entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -1518,19 +1536,12 @@ import Layout from '../layouts/Layout.astro';
             }
           });
         }, {
-          threshold: 0.15,
+          root: invitesListEl,
+          threshold: 0.1,
           rootMargin: "0px"
         });
 
-        document.querySelectorAll('.notif-item').forEach((el, index) => {
-          if (index < 15) {
-             (el as HTMLElement).style.transitionDelay = `${index * 30}ms`;
-             setTimeout(() => {
-                (el as HTMLElement).style.transitionDelay = '0ms';
-             }, 1000);
-          }
-          observer.observe(el);
-        });
+        document.querySelectorAll('.notif-item').forEach(el => observer.observe(el));
       }
     }
 

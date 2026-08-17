@@ -53,10 +53,48 @@ import Layout from '../layouts/Layout.astro';
             avatarEl.className = `w-24 h-24 sm:w-32 sm:h-32 rounded-full ${theme} text-white flex items-center justify-center text-4xl sm:text-5xl font-bold overflow-hidden object-cover ring-4 ring-canvas-soft group-hover:ring-brand/50 transition-all`;
           }
         }
+
+        setTimeout(() => {
+          const skeleton = document.getElementById('profileSkeleton');
+          const content = document.getElementById('profileContent');
+          if (skeleton) skeleton.style.display = 'none';
+          if (content) content.classList.remove('hidden');
+        }, 600);
       });
     </script>
     <main class="flex-1 w-full max-w-5xl mx-auto p-4 sm:p-6 lg:p-8">
-      <div class="w-full max-w-xl mx-auto bg-canvas p-4 sm:p-6 sm:rounded-2xl sm:shadow-lg sm:border sm:border-hairline relative mb-10">
+      
+      <!-- Skeleton Loader -->
+      <div id="profileSkeleton" class="w-full max-w-xl mx-auto bg-canvas p-4 sm:p-6 sm:rounded-2xl sm:shadow-lg sm:border sm:border-hairline relative mb-10">
+        <div class="flex flex-col items-center mb-6">
+          <div class="skeleton w-24 h-24 sm:w-32 sm:h-32 rounded-full mb-3"></div>
+          <div class="skeleton w-32 h-3 rounded-full"></div>
+        </div>
+        <div class="space-y-4">
+          <div>
+            <div class="skeleton w-24 h-4 rounded-md mb-1"></div>
+            <div class="skeleton w-full h-12 rounded-md"></div>
+          </div>
+          <div>
+            <div class="skeleton w-24 h-4 rounded-md mb-1"></div>
+            <div class="skeleton w-full h-12 rounded-md"></div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+              <div class="skeleton w-24 h-4 rounded-md mb-1"></div>
+              <div class="skeleton w-full h-12 rounded-md"></div>
+            </div>
+            <div>
+              <div class="skeleton w-24 h-4 rounded-md mb-1"></div>
+              <div class="skeleton w-full h-12 rounded-md"></div>
+            </div>
+          </div>
+          <div class="skeleton w-full h-12 rounded-md mt-4"></div>
+        </div>
+      </div>
+
+      <!-- Real Content -->
+      <div id="profileContent" class="hidden w-full max-w-xl mx-auto bg-canvas p-4 sm:p-6 sm:rounded-2xl sm:shadow-lg sm:border sm:border-hairline relative mb-10">
       
       <form id="editProfileForm" class="flex flex-col gap-4">
         <div id="errorBox" class="hidden bg-danger/10 border border-danger/20 text-danger p-3 rounded-md text-sm font-medium"></div>
@@ -103,7 +141,7 @@ import Layout from '../layouts/Layout.astro';
             Email address
             <span class="text-xs text-mute flex items-center gap-1"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Locked</span>
           </label>
-          <input type="text" required id="emailInput" readonly class="w-full p-3 rounded-md border border-hairline bg-canvas-soft text-mute cursor-not-allowed pointer-events-none opacity-80 focus:outline-none" placeholder="john@example.com" />
+          <input type="text" required id="emailInput" readonly class="w-full p-3 rounded-md border border-hairline bg-canvas-soft text-mute cursor-not-allowed opacity-80 focus:outline-none" placeholder="john@example.com" />
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -125,11 +163,11 @@ import Layout from '../layouts/Layout.astro';
               <span class="text-xs text-mute flex items-center gap-1"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Locked</span>
             </label>
             <div class="flex border border-hairline rounded-md bg-canvas-soft overflow-hidden opacity-80 cursor-not-allowed">
-              <button type="button" disabled id="countryCodeBtn" class="px-3 py-3 bg-canvas-soft flex items-center gap-1 border-r border-hairline text-mute cursor-not-allowed pointer-events-none focus:outline-none">
+              <button type="button" id="countryCodeBtn" class="px-3 py-3 bg-canvas-soft flex items-center gap-1 border-r border-hairline text-mute cursor-not-allowed focus:outline-none">
                 <span id="countryCodeLabel">+1</span>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="opacity-50"><polyline points="6 9 12 15 18 9"></polyline></svg>
               </button>
-              <input type="text" required id="phoneInput" readonly autocomplete="off" maxlength="10" class="flex-1 p-3 w-full bg-transparent focus:outline-none text-mute cursor-not-allowed pointer-events-none" placeholder="XXXXXXXXXX" />
+              <input type="text" required id="phoneInput" readonly autocomplete="off" maxlength="10" class="flex-1 p-3 w-full bg-transparent focus:outline-none text-mute cursor-not-allowed" placeholder="XXXXXXXXXX" />
             </div>
           </div>
         </div>
@@ -140,6 +178,12 @@ import Layout from '../layouts/Layout.astro';
       </form>
     </div>
     </main>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toastNotification" class="fixed bottom-24 left-1/2 -translate-x-1/2 px-4 py-3 rounded-full bg-ink text-canvas text-sm font-medium shadow-lg transition-all duration-300 transform translate-y-10 opacity-0 pointer-events-none z-[10000] flex items-center gap-2">
+    <span id="toastIcon"></span>
+    <span id="toastMessage"></span>
   </div>
 
   <!-- Shared Calendar Picker Dialog -->
@@ -213,6 +257,37 @@ import Layout from '../layouts/Layout.astro';
     let currentThemeColor = 'special-art-1';
     let currentUserUid = '';
     
+    let initialState = {
+      name: '',
+      dob: '',
+      phone: '',
+      themeColor: '',
+      avatar: ''
+    };
+
+    const toastNotification = document.getElementById('toastNotification');
+    const toastMessage = document.getElementById('toastMessage');
+    const toastIcon = document.getElementById('toastIcon');
+
+    function showToast(message: string, isSuccess = true) {
+      if (!toastNotification || !toastMessage || !toastIcon) return;
+      
+      toastMessage.textContent = message;
+      if (isSuccess) {
+        toastIcon.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+      } else {
+        toastIcon.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>';
+      }
+      
+      toastNotification.classList.remove('translate-y-10', 'opacity-0');
+      toastNotification.classList.add('translate-y-0', 'opacity-100');
+      
+      setTimeout(() => {
+        toastNotification.classList.add('translate-y-10', 'opacity-0');
+        toastNotification.classList.remove('translate-y-0', 'opacity-100');
+      }, 2500);
+    }
+    
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         currentUserUid = user.uid;
@@ -224,7 +299,17 @@ import Layout from '../layouts/Layout.astro';
             const data = userDoc.data();
             nameInput.value = data.name || user.displayName || '';
             dobInput.value = data.dob || '';
-            phoneInput.value = (data.phone || '').replace(/^\+\d+\s/, ''); // Strip country code if present, or just leave it
+            const dbPhone = data.phone || '';
+            const codeMatch = dbPhone.match(/^(\+\d+)\s?/);
+            if (codeMatch && codeMatch[1]) {
+              const code = codeMatch[1];
+              countryCodeLabel.textContent = code;
+              // Update selectedCountry if COUNTRIES is already defined, or just let the default catch it
+              try { selectedCountry = COUNTRIES.find(c => c.code === code) || selectedCountry; } catch(e) {}
+              phoneInput.value = dbPhone.replace(/^\+\d+\s?/, '');
+            } else {
+              phoneInput.value = dbPhone;
+            }
             
             if (data.gradientTheme && data.gradientTheme !== '-1') {
               currentThemeColor = data.gradientTheme;
@@ -235,6 +320,14 @@ import Layout from '../layouts/Layout.astro';
               currentAvatarBase64 = data.avatar;
             }
             updateAvatarView();
+
+            initialState = {
+              name: nameInput.value,
+              dob: dobInput.value,
+              phone: (data.phone || '').trim(), // Compare against exact database format
+              themeColor: currentThemeColor,
+              avatar: currentAvatarBase64
+            };
           }
         } catch (e) {
           console.error("Error fetching user data:", e);
@@ -279,7 +372,10 @@ import Layout from '../layouts/Layout.astro';
       selectedCountry = c;
     }
     
-    nameInput.addEventListener('input', () => {
+    nameInput.addEventListener('input', (e) => {
+      const target = e.target as HTMLInputElement;
+      // Strip anything that is not a letter or a space
+      target.value = target.value.replace(/[^a-zA-Z\s]/g, '');
       if (!currentAvatarBase64) updateAvatarView();
     });
 
@@ -399,6 +495,11 @@ import Layout from '../layouts/Layout.astro';
     const countrySearchInput = document.getElementById('countrySearchInput') as HTMLInputElement;
     let selectedCountry = COUNTRIES.find(c => c.code === (localStorage.getItem('splitbug_userCode') || '+91')) || COUNTRIES[2];
 
+    const showSupportToast = () => showToast('Contact support team to change these info', false);
+    emailInput.addEventListener('click', showSupportToast);
+    phoneInput.addEventListener('click', showSupportToast);
+    if (countryCodeBtn) countryCodeBtn.addEventListener('click', showSupportToast);
+
     function renderCountries(filterText = '') {
       countryList.innerHTML = '';
       const filtered = COUNTRIES.filter(c => 
@@ -478,9 +579,22 @@ import Layout from '../layouts/Layout.astro';
       const phone = phoneInput.value.trim();
       
       if(dob && dob.length !== 10) return showError("Please enter a valid Date of Birth");
-      if(phone && phone.length !== selectedCountry.length) return showError(`Please enter a valid ${selectedCountry.length}-digit phone number`);
 
-      const submitBtn = document.getElementById('saveProfileBtn') as HTMLButtonElement;
+      const fullPhone = phone ? `${selectedCountry.code} ${phone}` : '';
+      
+      const hasChanges = 
+        name !== initialState.name || 
+        dob !== initialState.dob || 
+        fullPhone !== initialState.phone || 
+        currentThemeColor !== initialState.themeColor || 
+        currentAvatarBase64 !== initialState.avatar;
+
+      if (!hasChanges) {
+        showToast('No changes to save', false);
+        return;
+      }
+
+      const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
       if (submitBtn) {
         submitBtn.disabled = true;
         submitBtn.textContent = 'Saving...';
@@ -517,7 +631,10 @@ import Layout from '../layouts/Layout.astro';
             });
           }
 
-          window.location.href = '/account';
+          showToast('Changes saved', true);
+          setTimeout(() => {
+            window.location.href = '/account';
+          }, 1000);
         } catch (error: any) {
           console.error("Error updating profile:", error);
           showError("Failed to update profile. " + (error.message || ""));
@@ -635,4 +752,14 @@ import Layout from '../layouts/Layout.astro';
     // Start
     initDefaultCountry();
   </script>
+
+  <style>
+    @keyframes profileRise {
+      0% { opacity: 0; transform: translateY(20px) scale(0.98); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    #profileContent {
+      animation: profileRise 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+  </style>
 </Layout>
