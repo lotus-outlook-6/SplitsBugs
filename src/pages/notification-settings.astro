@@ -9,7 +9,7 @@ import Layout from '../layouts/Layout.astro';
       <a href="/account" class="w-10 h-10 flex items-center justify-center rounded-full bg-canvas-soft hover:bg-hairline transition-colors text-ink">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
       </a>
-      <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-ink">Notification Preferences</h1>
+      <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-ink">Notification Settings</h1>
     </header>
 
     <main class="flex-1 w-full max-w-3xl mx-auto p-4 sm:p-6 lg:p-8">
@@ -23,71 +23,126 @@ import Layout from '../layouts/Layout.astro';
         <button id="enableBrowserNotifBtn" class="bg-brand text-white text-xs px-3 py-1.5 rounded-lg font-semibold hover:opacity-90 transition-opacity shrink-0">Enable</button>
       </div>
 
-      <!-- General Delivery Channels -->
-      <div class="bg-canvas border border-hairline rounded-xl p-6 shadow-sm mb-6">
-        <h2 class="text-sm font-bold text-mute uppercase tracking-wider mb-4">Notification Channels</h2>
-        
-        <div class="space-y-4">
-          <div class="flex items-center justify-between gap-4 py-2 border-b border-hairline/60">
-            <div>
-              <p class="font-medium text-ink">Browser & Push Notifications</p>
-              <p class="text-xs text-mute">Receive instant notifications in your browser when away</p>
+      <!-- Skeleton Loader Container -->
+      <div id="notifSettingsSkeleton" class="space-y-6">
+        <!-- Channels Skeleton -->
+        <div class="bg-canvas border border-hairline rounded-xl p-6 shadow-sm">
+          <div class="skeleton h-5 w-40 mb-4 rounded-md"></div>
+          <div class="space-y-4">
+            <div class="flex items-center justify-between gap-4 py-2 border-b border-hairline/60">
+              <div>
+                <div class="skeleton h-5 w-48 rounded-md mb-1.5"></div>
+                <div class="skeleton h-3.5 w-64 rounded-md"></div>
+              </div>
+              <div class="skeleton w-11 h-6 rounded-full shrink-0"></div>
             </div>
-            <label class="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" id="browserNotifToggle" class="sr-only peer" checked>
-              <div class="w-11 h-6 bg-canvas-soft peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand"></div>
-            </label>
+            <div class="flex items-center justify-between gap-4 py-2">
+              <div>
+                <div class="skeleton h-5 w-36 rounded-md mb-1.5"></div>
+                <div class="skeleton h-3.5 w-60 rounded-md"></div>
+              </div>
+              <div class="skeleton w-11 h-6 rounded-full shrink-0"></div>
+            </div>
           </div>
+        </div>
 
-          <div class="flex items-center justify-between gap-4 py-2">
-            <div>
-              <p class="font-medium text-ink">Email Notifications</p>
-              <p class="text-xs text-mute">Receive an email whenever a notification is triggered</p>
+        <!-- Events Skeleton -->
+        <div class="bg-canvas border border-hairline rounded-xl p-6 shadow-sm">
+          <div class="skeleton h-5 w-36 mb-4 rounded-md"></div>
+          <div class="space-y-4">
+            <div class="flex items-center justify-between gap-4 py-2 border-b border-hairline/60">
+              <div>
+                <div class="skeleton h-5 w-44 rounded-md mb-1.5"></div>
+                <div class="skeleton h-3.5 w-72 rounded-md"></div>
+              </div>
+              <div class="skeleton w-11 h-6 rounded-full shrink-0"></div>
             </div>
-            <label class="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" id="emailNotifToggle" class="sr-only peer" checked>
-              <div class="w-11 h-6 bg-canvas-soft peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand"></div>
-            </label>
+            <div class="flex items-center justify-between gap-4 py-2 border-b border-hairline/60">
+              <div>
+                <div class="skeleton h-5 w-40 rounded-md mb-1.5"></div>
+                <div class="skeleton h-3.5 w-64 rounded-md"></div>
+              </div>
+              <div class="skeleton w-11 h-6 rounded-full shrink-0"></div>
+            </div>
+            <div class="flex items-center justify-between gap-4 py-2">
+              <div>
+                <div class="skeleton h-5 w-48 rounded-md mb-1.5"></div>
+                <div class="skeleton h-3.5 w-68 rounded-md"></div>
+              </div>
+              <div class="skeleton w-11 h-6 rounded-full shrink-0"></div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Granular Categories -->
-      <div class="bg-canvas border border-hairline rounded-xl p-6 shadow-sm">
-        <h2 class="text-sm font-bold text-mute uppercase tracking-wider mb-4">Notification Events</h2>
-        
-        <div class="space-y-4">
-          <div class="flex items-center justify-between gap-4 py-2 border-b border-hairline/60">
-            <div>
-              <p class="font-medium text-ink">Expenses Added / Edited</p>
-              <p class="text-xs text-mute">When someone adds or edits an expense in your groups</p>
+      <!-- Real Settings Content (Initially Hidden) -->
+      <div id="notifSettingsContent" class="hidden space-y-6">
+        <!-- General Delivery Channels -->
+        <div class="bg-canvas border border-hairline rounded-xl p-6 shadow-sm">
+          <h2 class="text-sm font-bold text-mute uppercase tracking-wider mb-4">Notification Channels</h2>
+          
+          <div class="space-y-4">
+            <div class="flex items-center justify-between gap-4 py-2 border-b border-hairline/60">
+              <div>
+                <p class="font-medium text-ink">Browser & Push Notifications</p>
+                <p class="text-xs text-mute">Receive instant notifications in your browser when away</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="browserNotifToggle" class="sr-only peer" checked>
+                <div class="w-11 h-6 bg-mute/30 dark:bg-mute/20 border border-hairline peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand"></div>
+              </label>
             </div>
-            <label class="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" id="expensesToggle" class="sr-only peer" checked>
-              <div class="w-11 h-6 bg-canvas-soft peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand"></div>
-            </label>
-          </div>
 
-          <div class="flex items-center justify-between gap-4 py-2 border-b border-hairline/60">
-            <div>
-              <p class="font-medium text-ink">Settlements Recorded</p>
-              <p class="text-xs text-mute">When a group member records a payment or settlement</p>
+            <div class="flex items-center justify-between gap-4 py-2">
+              <div>
+                <p class="font-medium text-ink">Email Notifications</p>
+                <p class="text-xs text-mute">Receive an email whenever a notification is triggered</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="emailNotifToggle" class="sr-only peer" checked>
+                <div class="w-11 h-6 bg-mute/30 dark:bg-mute/20 border border-hairline peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand"></div>
+              </label>
             </div>
-            <label class="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" id="settlementsToggle" class="sr-only peer" checked>
-              <div class="w-11 h-6 bg-canvas-soft peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand"></div>
-            </label>
           </div>
+        </div>
 
-          <div class="flex items-center justify-between gap-4 py-2">
-            <div>
-              <p class="font-medium text-ink">Group Invites & Activity</p>
-              <p class="text-xs text-mute">When you are invited to a new group or member leaves</p>
+        <!-- Granular Categories -->
+        <div class="bg-canvas border border-hairline rounded-xl p-6 shadow-sm">
+          <h2 class="text-sm font-bold text-mute uppercase tracking-wider mb-4">Notification Events</h2>
+          
+          <div class="space-y-4">
+            <div class="flex items-center justify-between gap-4 py-2 border-b border-hairline/60">
+              <div>
+                <p class="font-medium text-ink">Expenses Added / Edited</p>
+                <p class="text-xs text-mute">When someone adds or edits an expense in your groups</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="expensesToggle" class="sr-only peer" checked>
+                <div class="w-11 h-6 bg-mute/30 dark:bg-mute/20 border border-hairline peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand"></div>
+              </label>
             </div>
-            <label class="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" id="invitesToggle" class="sr-only peer" checked>
-              <div class="w-11 h-6 bg-canvas-soft peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand"></div>
-            </label>
+
+            <div class="flex items-center justify-between gap-4 py-2 border-b border-hairline/60">
+              <div>
+                <p class="font-medium text-ink">Settlements Recorded</p>
+                <p class="text-xs text-mute">When a group member records a payment or settlement</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="settlementsToggle" class="sr-only peer" checked>
+                <div class="w-11 h-6 bg-mute/30 dark:bg-mute/20 border border-hairline peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand"></div>
+              </label>
+            </div>
+
+            <div class="flex items-center justify-between gap-4 py-2">
+              <div>
+                <p class="font-medium text-ink">Group Invites & Activity</p>
+                <p class="text-xs text-mute">When you are invited to a new group or member leaves</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="invitesToggle" class="sr-only peer" checked>
+                <div class="w-11 h-6 bg-mute/30 dark:bg-mute/20 border border-hairline peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand"></div>
+              </label>
+            </div>
           </div>
         </div>
       </div>
@@ -98,7 +153,7 @@ import Layout from '../layouts/Layout.astro';
   <!-- Save Toast -->
   <div id="saveToast" class="fixed bottom-20 left-1/2 -translate-x-1/2 bg-ink text-canvas px-4 py-2 rounded-full shadow-lg text-xs font-medium transition-all duration-300 translate-y-10 opacity-0 pointer-events-none z-50 flex items-center gap-2">
     <svg class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-    Preferences saved
+    Settings saved
   </div>
 
   <script>
@@ -142,6 +197,43 @@ import Layout from '../layouts/Layout.astro';
       }, 2000);
     }
 
+    let prevExpenses = expensesToggle.checked;
+    let prevSettlements = settlementsToggle.checked;
+    let prevInvites = invitesToggle.checked;
+    let isAutoDisabled = false;
+
+    function syncEventTogglesState() {
+      const bothChannelsOff = !browserNotifToggle.checked && !emailNotifToggle.checked;
+      
+      if (bothChannelsOff && !isAutoDisabled) {
+        // Just turned both off -> save current states and disable
+        prevExpenses = expensesToggle.checked;
+        prevSettlements = settlementsToggle.checked;
+        prevInvites = invitesToggle.checked;
+        
+        expensesToggle.checked = false;
+        settlementsToggle.checked = false;
+        invitesToggle.checked = false;
+        
+        [expensesToggle, settlementsToggle, invitesToggle].forEach(t => {
+          t.disabled = true;
+          t.parentElement?.parentElement?.classList.add('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
+        });
+        isAutoDisabled = true;
+      } else if (!bothChannelsOff && isAutoDisabled) {
+        // At least one channel is back on -> restore states
+        expensesToggle.checked = prevExpenses;
+        settlementsToggle.checked = prevSettlements;
+        invitesToggle.checked = prevInvites;
+        
+        [expensesToggle, settlementsToggle, invitesToggle].forEach(t => {
+          t.disabled = false;
+          t.parentElement?.parentElement?.classList.remove('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
+        });
+        isAutoDisabled = false;
+      }
+    }
+
     async function savePreferences() {
       const prefs = {
         browserNotifs: browserNotifToggle.checked,
@@ -166,8 +258,26 @@ import Layout from '../layouts/Layout.astro';
       showSaveToast();
     }
 
+    function revealNotifSettings() {
+      const skeleton = document.getElementById('notifSettingsSkeleton');
+      const content = document.getElementById('notifSettingsContent');
+      if (skeleton) {
+        skeleton.style.transition = 'opacity 0.3s ease-out';
+        skeleton.style.opacity = '0';
+        setTimeout(() => {
+          skeleton.style.display = 'none';
+          if (content) {
+            content.classList.remove('hidden');
+            content.classList.add('fade-in');
+          }
+        }, 300);
+      }
+    }
+
     // Load saved preferences
     onAuthStateChanged(auth, async (user) => {
+      setTimeout(revealNotifSettings, 450);
+
       if (user && user.email) {
         currentEmail = user.email;
         try {
@@ -179,6 +289,11 @@ import Layout from '../layouts/Layout.astro';
             if (typeof data.expensesNotif === 'boolean') expensesToggle.checked = data.expensesNotif;
             if (typeof data.settlementsNotif === 'boolean') settlementsToggle.checked = data.settlementsNotif;
             if (typeof data.invitesNotif === 'boolean') invitesToggle.checked = data.invitesNotif;
+            
+            prevExpenses = expensesToggle.checked;
+            prevSettlements = settlementsToggle.checked;
+            prevInvites = invitesToggle.checked;
+            syncEventTogglesState();
           }
         } catch (e) {
           console.error('Error loading notif prefs:', e);
@@ -187,7 +302,12 @@ import Layout from '../layouts/Layout.astro';
     });
 
     [browserNotifToggle, emailNotifToggle, expensesToggle, settlementsToggle, invitesToggle].forEach(t => {
-      t?.addEventListener('change', savePreferences);
+      t?.addEventListener('change', () => {
+        if (t === browserNotifToggle || t === emailNotifToggle) {
+          syncEventTogglesState();
+        }
+        savePreferences();
+      });
     });
   </script>
 </Layout>

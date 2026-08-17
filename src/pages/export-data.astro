@@ -12,67 +12,152 @@ import Layout from '../layouts/Layout.astro';
       <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-ink">Export Account Data</h1>
     </header>
 
+    <style is:inline>
+      .skeleton {
+        background: linear-gradient(90deg,
+          rgba(229, 231, 235, 0.4) 25%,
+          rgba(229, 231, 235, 0.8) 37%,
+          rgba(229, 231, 235, 0.4) 63%
+        );
+        background-size: 400% 100%;
+        animation: skeleton-shimmer 1.4s ease infinite;
+      }
+      :global(.dark) .skeleton {
+        background: linear-gradient(90deg,
+          rgba(255, 255, 255, 0.03) 25%,
+          rgba(255, 255, 255, 0.08) 37%,
+          rgba(255, 255, 255, 0.03) 63%
+        );
+        background-size: 400% 100%;
+        animation: skeleton-shimmer 1.4s ease infinite;
+      }
+      @keyframes skeleton-shimmer {
+        0% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+      .fade-in {
+        animation: fadeIn 0.5s ease-out forwards;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+    </style>
+
     <!-- Main Content -->
     <main class="flex-1 w-full max-w-3xl mx-auto p-4 sm:p-6 lg:p-8">
       
-      <!-- Info Overview Banner -->
-      <div class="relative overflow-hidden bg-gradient-to-br from-canvas to-canvas-soft border border-hairline p-6 sm:p-8 rounded-2xl shadow-xl mb-8 group">
-        <!-- Decorative background glow -->
-        <div class="absolute -top-24 -right-24 w-48 h-48 bg-brand/20 blur-[80px] rounded-full group-hover:bg-brand/30 transition-all duration-700"></div>
-
-        <div class="relative z-10">
-          <h2 class="text-2xl sm:text-3xl font-bold text-ink mb-3 tracking-tight">Your Personal Data Archive</h2>
-          <p class="text-mute mb-8 max-w-xl text-sm leading-relaxed">SplitsBug allows you to download all information associated with your account from the moment you joined. Your data is compiled into a structured Excel archive for your records.</p>
+      <!-- Skeleton Loader Container (1:1 Match with Real Content) -->
+      <div id="exportSkeleton" class="space-y-8">
+        <!-- Banner Skeleton -->
+        <div class="bg-canvas border border-hairline p-6 sm:p-8 rounded-2xl shadow-xl">
+          <div class="skeleton h-8 sm:h-9 w-64 sm:w-80 rounded-md mb-3"></div>
+          <div class="skeleton h-4 sm:h-5 w-full max-w-xl rounded-md mb-2"></div>
+          <div class="skeleton h-4 sm:h-5 w-3/4 max-w-lg rounded-md mb-7"></div>
           
           <div class="space-y-3">
-            <div class="flex items-center gap-4 p-4 border border-hairline rounded-xl text-left bg-canvas transition-colors hover:bg-canvas-soft">
-              <div class="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center shrink-0 text-blue-500">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-              </div>
-              <div>
-                <h4 class="font-bold text-ink text-sm">Personal Profile</h4>
-                <p class="text-xs text-mute mt-0.5">Name, Email, Profile Picture, Phone, DOB, and Settings.</p>
-              </div>
-            </div>
-
-            <div class="flex items-center gap-4 p-4 border border-hairline rounded-xl text-left bg-canvas transition-colors hover:bg-canvas-soft">
-              <div class="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center shrink-0 text-purple-500">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-              </div>
-              <div>
-                <h4 class="font-bold text-ink text-sm">Groups & Memberships</h4>
-                <p class="text-xs text-mute mt-0.5">Group Names, Descriptions, Member Lists, Roles, and Currencies.</p>
+            <!-- Item 1 Skeleton -->
+            <div class="flex items-center gap-4 p-4 border border-hairline rounded-xl bg-canvas">
+              <div class="skeleton w-10 h-10 rounded-full shrink-0"></div>
+              <div class="flex-1">
+                <div class="skeleton h-4 sm:h-5 w-32 rounded-md mb-1"></div>
+                <div class="skeleton h-3.5 sm:h-4 w-full max-w-xs rounded-md"></div>
               </div>
             </div>
-
-            <div class="flex items-center gap-4 p-4 border border-hairline rounded-xl text-left bg-canvas transition-colors hover:bg-canvas-soft">
-              <div class="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0 text-emerald-500">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+            <!-- Item 2 Skeleton -->
+            <div class="flex items-center gap-4 p-4 border border-hairline rounded-xl bg-canvas">
+              <div class="skeleton w-10 h-10 rounded-full shrink-0"></div>
+              <div class="flex-1">
+                <div class="skeleton h-4 sm:h-5 w-40 rounded-md mb-1"></div>
+                <div class="skeleton h-3.5 sm:h-4 w-full max-w-sm rounded-md"></div>
               </div>
-              <div>
-                <h4 class="font-bold text-ink text-sm">Expenses & Settlements</h4>
-                <p class="text-xs text-mute mt-0.5">Exact Amounts, Paid By, Split Methods, and Timestamps.</p>
+            </div>
+            <!-- Item 3 Skeleton -->
+            <div class="flex items-center gap-4 p-4 border border-hairline rounded-xl bg-canvas">
+              <div class="skeleton w-10 h-10 rounded-full shrink-0"></div>
+              <div class="flex-1">
+                <div class="skeleton h-4 sm:h-5 w-44 rounded-md mb-1"></div>
+                <div class="skeleton h-3.5 sm:h-4 w-full max-w-xs rounded-md"></div>
               </div>
             </div>
           </div>
         </div>
+
+        <!-- Action Box Skeleton -->
+        <div class="bg-canvas border border-hairline rounded-xl p-6 sm:p-8 shadow-sm">
+          <div class="skeleton h-4 w-40 rounded-md mb-4"></div>
+          <div class="flex items-start gap-3 mb-4">
+            <div class="skeleton w-4 h-4 rounded mt-0.5 shrink-0"></div>
+            <div class="flex-1">
+              <div class="skeleton h-4 sm:h-5 w-full max-w-xl rounded-md"></div>
+              <div class="skeleton h-4 w-2/3 max-w-xs rounded-md sm:hidden mt-1.5"></div>
+            </div>
+          </div>
+          <div class="skeleton h-[44px] sm:h-[46px] w-full rounded-xl"></div>
+        </div>
       </div>
 
-      <!-- Action Box -->
-      <div class="bg-canvas border border-hairline rounded-xl p-6 shadow-sm">
-        <h3 class="text-xs font-bold text-mute uppercase tracking-wider mb-4">Request Data Delivery</h3>
+      <!-- Real Content Container (Initially Hidden) -->
+      <div id="exportContent" class="hidden space-y-8">
+        <!-- Info Overview Banner -->
+        <div class="relative overflow-hidden bg-gradient-to-br from-canvas to-canvas-soft border border-hairline p-6 sm:p-8 rounded-2xl shadow-xl group">
+          <!-- Decorative background glow -->
+          <div class="absolute -top-24 -right-24 w-48 h-48 bg-brand/20 blur-[80px] rounded-full group-hover:bg-brand/30 transition-all duration-700"></div>
 
-        <div class="flex items-start gap-3 select-none mb-4">
-          <input type="checkbox" id="requestDataConsent" class="mt-1 w-4 h-4 text-brand rounded border-hairline focus:ring-brand accent-brand cursor-pointer shrink-0" />
-          <span class="text-sm text-ink font-medium leading-relaxed">
-            I request my complete account data to be exported and sent to my registered email address.
-          </span>
+          <div class="relative z-10">
+            <h2 class="text-2xl sm:text-3xl font-bold text-ink mb-3 tracking-tight">Your Personal Data Archive</h2>
+            <p class="text-mute mb-8 max-w-xl text-sm leading-relaxed">SplitsBug allows you to download all information associated with your account from the moment you joined. Your data is compiled into a structured Excel archive for your records.</p>
+            
+            <div class="space-y-3">
+              <div class="flex items-center gap-4 p-4 border border-hairline rounded-xl text-left bg-canvas transition-colors hover:bg-canvas-soft">
+                <div class="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center shrink-0 text-blue-500">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <div>
+                  <h4 class="font-bold text-ink text-sm">Personal Profile</h4>
+                  <p class="text-xs text-mute mt-0.5">Name, Email, Profile Picture, Phone, DOB, and Settings.</p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-4 p-4 border border-hairline rounded-xl text-left bg-canvas transition-colors hover:bg-canvas-soft">
+                <div class="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center shrink-0 text-purple-500">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+                <div>
+                  <h4 class="font-bold text-ink text-sm">Groups & Memberships</h4>
+                  <p class="text-xs text-mute mt-0.5">Group Names, Descriptions, Member Lists, Roles, and Currencies.</p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-4 p-4 border border-hairline rounded-xl text-left bg-canvas transition-colors hover:bg-canvas-soft">
+                <div class="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0 text-emerald-500">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+                </div>
+                <div>
+                  <h4 class="font-bold text-ink text-sm">Expenses & Settlements</h4>
+                  <p class="text-xs text-mute mt-0.5">Exact Amounts, Paid By, Split Methods, and Timestamps.</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <!-- Request Button -->
-        <button type="button" id="requestDataBtn" class="w-full py-3 bg-brand text-white font-bold rounded-xl transition-all shadow-sm text-sm opacity-40 cursor-not-allowed flex items-center justify-center gap-2">
-          Request Data Over Email
-        </button>
+        <!-- Action Box -->
+        <div class="bg-canvas border border-hairline rounded-xl p-6 sm:p-8 shadow-sm">
+          <h3 class="text-xs font-bold text-mute uppercase tracking-wider mb-4">Request Data Delivery</h3>
+
+          <div class="flex items-start gap-3 select-none mb-4">
+            <input type="checkbox" id="requestDataConsent" class="mt-1 w-4 h-4 text-brand rounded border-hairline focus:ring-brand accent-brand cursor-pointer shrink-0" />
+            <span class="text-sm text-ink font-medium leading-relaxed">
+              I request my complete account data to be exported and sent to my registered email address.
+            </span>
+          </div>
+
+          <!-- Request Button -->
+          <button type="button" id="requestDataBtn" class="w-full py-3 bg-brand text-white font-bold rounded-xl transition-all shadow-sm text-sm opacity-40 cursor-not-allowed flex items-center justify-center gap-2">
+            Request Data Over Email
+          </button>
+        </div>
       </div>
 
     </main>
@@ -113,6 +198,26 @@ import Layout from '../layouts/Layout.astro';
   <script>
     import { auth, db } from '../firebase';
     import { doc, getDoc, collection, getDocs, query, where } from 'firebase/firestore';
+
+    function revealExportPage() {
+      const skeleton = document.getElementById('exportSkeleton');
+      const content = document.getElementById('exportContent');
+      if (skeleton) {
+        skeleton.style.transition = 'opacity 0.3s ease-out';
+        skeleton.style.opacity = '0';
+        setTimeout(() => {
+          skeleton.style.display = 'none';
+          if (content) {
+            content.classList.remove('hidden');
+            content.classList.add('fade-in');
+          }
+        }, 300);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(revealExportPage, 450);
+    });
 
     const consentCheckbox = document.getElementById('requestDataConsent') as HTMLInputElement;
     const requestDataBtn = document.getElementById('requestDataBtn') as HTMLButtonElement;

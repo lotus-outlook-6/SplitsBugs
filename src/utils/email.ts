@@ -26,19 +26,45 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
           const userData = userSnap.data();
           if (userData.emailNotifs === false) {
             emailNotifsEnabled = false;
+          } else {
+            if (options.templateId === 'group-invite' && userData.invitesNotif === false) {
+              emailNotifsEnabled = false;
+            } else if (options.templateId === 'general') {
+              const sub = (options.subject || '').toLowerCase();
+              if (sub.includes('settlement') && userData.settlementsNotif === false) {
+                emailNotifsEnabled = false;
+              } else if (sub.includes('expense') && userData.expensesNotif === false) {
+                emailNotifsEnabled = false;
+              }
+            }
           }
         } else {
           // Fallback to query
           const usersRef = collection(db, 'users');
           const q = query(usersRef, where('email', '==', options.to));
           const snapshot = await getDocs(q);
-          if (!snapshot.empty && snapshot.docs[0].data().emailNotifs === false) {
-            emailNotifsEnabled = false;
+          const userData = snapshot.empty ? null : snapshot.docs[0].data();
+          
+          if (userData) {
+            if (userData.emailNotifs === false) {
+              emailNotifsEnabled = false;
+            } else {
+              if (options.templateId === 'group-invite' && userData.invitesNotif === false) {
+                emailNotifsEnabled = false;
+              } else if (options.templateId === 'general') {
+                const sub = (options.subject || '').toLowerCase();
+                if (sub.includes('settlement') && userData.settlementsNotif === false) {
+                  emailNotifsEnabled = false;
+                } else if (sub.includes('expense') && userData.expensesNotif === false) {
+                  emailNotifsEnabled = false;
+                }
+              }
+            }
           }
         }
         
         if (!emailNotifsEnabled) {
-          console.log(`Email to ${options.to} skipped: User disabled email notifications.`);
+          console.log(`Email to ${options.to} skipped: User disabled email/category notifications.`);
           return { success: true, data: 'Skipped due to user preferences' };
         }
       } catch (prefErr) {
