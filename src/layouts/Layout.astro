@@ -37,7 +37,7 @@ else initialIndex = -1;
 		<script src="/js/categories.js" is:inline></script>
 		<script is:inline>
 			// Apply Theme
-			const savedTheme = localStorage.getItem('splitbug_theme') || 'dark-grey';
+			const savedTheme = localStorage.getItem('splitbug_theme') || 'system';
 			window.applyTheme = (theme, options = {}) => {
 				const currentClass = document.documentElement.className;
 				let newClass = '';
