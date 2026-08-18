@@ -953,9 +953,14 @@ import Layout from "../layouts/Layout.astro";
       "confirmDeleteBtn",
     ) as HTMLButtonElement;
 
-    openDeleteModalBtn?.addEventListener("click", () => {
-      confirmDeleteInput.value = "";
+    openDeleteModalBtn?.addEventListener('click', () => {
+      confirmDeleteInput.value = '';
       confirmDeleteBtn.disabled = true;
+      // Reset password field too
+      const pwInput = document.getElementById('deletePasswordInput') as HTMLInputElement;
+      const pwError = document.getElementById('deletePasswordError');
+      if (pwInput) pwInput.value = '';
+      if (pwError) pwError.classList.add('hidden');
       deleteModal.showModal();
     });
 
@@ -968,7 +973,6 @@ import Layout from "../layouts/Layout.astro";
       if (pwError) pwError.classList.add('hidden');
     });
 
-    const confirmDeleteInput = document.getElementById('confirmDeleteInput') as HTMLInputElement;
     const deletePasswordInput = document.getElementById('deletePasswordInput') as HTMLInputElement;
     const deletePasswordError = document.getElementById('deletePasswordError');
 
