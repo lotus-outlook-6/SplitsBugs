@@ -414,7 +414,15 @@ import Layout from '../layouts/Layout.astro';
               <input type="hidden" id="settleDebtValue" required />
             </div>
             
-            <button type="submit" class="w-full bg-primary text-on-primary px-4 py-2 rounded-pill font-medium hover:opacity-90 transition-opacity cursor-pointer">Record Payment</button>
+            <div id="settleAmountContainer" class="hidden text-left mb-4">
+              <label class="block text-sm font-medium text-ink mb-2">Amount to pay:</label>
+              <div class="flex items-center gap-2 border border-hairline focus-within:border-brand rounded-lg px-3 py-2 bg-canvas transition-colors">
+                <span id="settleCurrencySymbol" class="text-mute font-medium"></span>
+                <input type="number" id="settleAmountInput" step="0.01" min="0.01" class="w-full bg-transparent text-ink focus:outline-none" required />
+              </div>
+            </div>
+            
+            <button type="submit" id="recordSettleBtn" class="w-full bg-primary text-on-primary px-4 py-2 rounded-pill font-medium hover:opacity-90 transition-opacity cursor-pointer">Record Payment</button>
             <button type="button" id="cancelSettleBtn" class="w-full bg-canvas text-ink px-4 py-2 rounded-pill font-medium border border-hairline hover:bg-canvas-soft transition-colors cursor-pointer">Cancel</button>
           </form>
         </div>
@@ -933,12 +941,19 @@ import Layout from '../layouts/Layout.astro';
               let newActivities: any[] = [];
               let newNotifs: {to: string, msg: string}[] = [];
               
+              const amountInput = document.getElementById('settleAmountInput') as HTMLInputElement;
+              const useCustomAmount = checkedOptions.length === 1 && amountInput && amountInput.value;
+              
               checkedOptions.forEach(opt => {
                 const debt = JSON.parse(opt.value);
+                const finalAmount = useCustomAmount ? parseFloat(amountInput.value) : debt.amount;
+                
+                if (finalAmount <= 0) return;
+                
                 const settlementExpense = {
                   id: Date.now().toString() + Math.random().toString(36).substring(7),
                   description: 'Payment',
-                  amount: debt.amount,
+                  amount: finalAmount,
                   paidBy: debt.from,
                   participants: [debt.to],
                   splitAmong: 1,
@@ -952,7 +967,7 @@ import Layout from '../layouts/Layout.astro';
                 if (p !== currentUserEmail && p !== debt.from && p !== (window as any).MY_DISPLAY_NAME && p !== 'You') {
                   newNotifs.push({
                     to: p,
-                    msg: `${payerName} paid you ${curr}${debt.amount.toFixed(2)}.`
+                    msg: `${payerName} paid you ${curr}${finalAmount.toFixed(2)}.`
                   });
                 }
                 
@@ -961,7 +976,7 @@ import Layout from '../layouts/Layout.astro';
                   groupName: groupData.name,
                   type: 'debt_settled',
                   description: 'Payment',
-                  amount: debt.amount,
+                  amount: finalAmount,
                   currency: curr,
                   paidBy: debt.from,
                   participants: [debt.to],
@@ -1190,15 +1205,21 @@ import Layout from '../layouts/Layout.astro';
       }
 
       const myRole = groupData.roles ? groupData.roles[currentUserEmail] : 'editor';
+      const addExpenseBtn = document.getElementById('addExpenseBtn') as HTMLButtonElement;
+      const settleUpBtn = document.getElementById('settleUpBtn') as HTMLButtonElement;
+      const groupSettingsBtn = document.getElementById('groupSettingsBtn') as HTMLButtonElement;
+      const stickySettingsBtn = document.getElementById('stickySettingsBtn') as HTMLButtonElement;
+      
       if (myRole === 'viewer') {
-        const addExpenseBtn = document.getElementById('addExpenseBtn');
-        const settleUpBtn = document.getElementById('settleUpBtn');
-        const groupSettingsBtn = document.getElementById('groupSettingsBtn');
-        const stickySettingsBtn = document.getElementById('stickySettingsBtn');
-        if (addExpenseBtn) addExpenseBtn.style.display = 'none';
-        if (settleUpBtn) settleUpBtn.style.display = 'none';
+        if (addExpenseBtn) { addExpenseBtn.disabled = true; addExpenseBtn.classList.add('opacity-50', 'cursor-not-allowed'); addExpenseBtn.title = 'Viewers cannot add expenses'; }
+        if (settleUpBtn) { settleUpBtn.disabled = true; settleUpBtn.classList.add('opacity-50', 'cursor-not-allowed'); settleUpBtn.title = 'Viewers cannot settle up'; }
         if (groupSettingsBtn) groupSettingsBtn.style.display = 'none';
         if (stickySettingsBtn) stickySettingsBtn.style.display = 'none';
+      } else {
+        if (addExpenseBtn) { addExpenseBtn.disabled = false; addExpenseBtn.classList.remove('opacity-50', 'cursor-not-allowed'); addExpenseBtn.title = ''; }
+        if (settleUpBtn) { settleUpBtn.disabled = false; settleUpBtn.classList.remove('opacity-50', 'cursor-not-allowed'); settleUpBtn.title = ''; }
+        if (groupSettingsBtn) groupSettingsBtn.style.display = 'flex';
+        if (stickySettingsBtn) stickySettingsBtn.style.display = 'flex';
       }
 
       // Hide settings options if not Admin (owner or admin)
@@ -1513,6 +1534,20 @@ import Layout from '../layouts/Layout.astro';
             </div>
           `;
         });
+        const myRole = groupData.roles ? groupData.roles[currentUserEmail] : 'editor';
+        const isOwnerOrAdmin = myRole === 'owner' || myRole === 'admin';
+        const canDelete = isOwnerOrAdmin || exp.paidBy === currentUserEmail || exp.paidBy === (window as any).MY_DISPLAY_NAME || exp.paidBy === 'You';
+        
+        if (canDelete) {
+          detailsHTML += `
+            <div class="mt-2 pt-3 border-t border-hairline flex justify-end">
+              <button type="button" class="delete-expense-btn text-danger hover:text-red-600 text-xs font-medium flex items-center gap-1 transition-colors" data-id="${exp.id}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2M10 11v6M14 11v6"/></svg>
+                Delete Expense
+              </button>
+            </div>
+          `;
+        }
         detailsHTML += `</div>`;
 
         const expDate = new Date(exp.timestamp || Date.now());
@@ -1558,6 +1593,53 @@ import Layout from '../layouts/Layout.astro';
       
       if (activityFeed.innerHTML !== newHTML) {
         activityFeed.innerHTML = newHTML;
+        
+        // Attach delete listeners
+        const deleteBtns = activityFeed.querySelectorAll('.delete-expense-btn');
+        deleteBtns.forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            e.stopPropagation(); // prevent `<details>` from toggling
+            
+            const expenseId = btn.getAttribute('data-id');
+            if (!expenseId || !groupData) return;
+            
+            if (confirm('Are you sure you want to delete this expense? This will update balances for everyone involved.')) {
+              const expToDelete = groupData.expenses.find((exp: any) => exp.id === expenseId);
+              if (!expToDelete) return;
+              
+              const prevText = btn.innerHTML;
+              btn.innerHTML = 'Deleting...';
+              (btn as HTMLButtonElement).disabled = true;
+              
+              try {
+                // arrayRemove requires the exact object
+                await updateDoc(groupDocRef, {
+                  expenses: arrayRemove(expToDelete)
+                });
+                
+                await addDoc(collection(db, "activities"), {
+                  groupId: groupId,
+                  groupName: groupData.name,
+                  type: 'expense_deleted',
+                  description: 'Deleted an expense',
+                  amount: expToDelete.amount,
+                  currency: expToDelete.currency || '$',
+                  paidBy: currentUserEmail,
+                  participants: expToDelete.participants || groupData.members,
+                  timestamp: Date.now()
+                });
+                
+                showToast('Expense deleted successfully.');
+              } catch (err) {
+                console.error("Error deleting expense:", err);
+                showToast('Failed to delete expense.', true);
+                btn.innerHTML = prevText;
+                (btn as HTMLButtonElement).disabled = false;
+              }
+            }
+          });
+        });
       }
     }
 
@@ -1642,6 +1724,29 @@ import Layout from '../layouts/Layout.astro';
             `;
             settleDebtList.appendChild(label);
           });
+          
+          // Add change listener to show/hide the custom amount input
+          const checkboxes = settleDebtList.querySelectorAll('input[name="settleDebtOption"]');
+          const amountContainer = document.getElementById('settleAmountContainer');
+          const amountInput = document.getElementById('settleAmountInput') as HTMLInputElement;
+          const currSymbol = document.getElementById('settleCurrencySymbol');
+          
+          if (amountContainer && amountInput && currSymbol) {
+            checkboxes.forEach(cb => {
+              cb.addEventListener('change', () => {
+                const checked = Array.from(checkboxes).filter(c => (c as HTMLInputElement).checked);
+                if (checked.length === 1) {
+                  const debt = JSON.parse((checked[0] as HTMLInputElement).value);
+                  amountContainer.classList.remove('hidden');
+                  currSymbol.textContent = groupData.currency || '$';
+                  amountInput.value = debt.amount.toFixed(2);
+                  amountInput.max = debt.amount.toFixed(2);
+                } else {
+                  amountContainer.classList.add('hidden');
+                }
+              });
+            });
+          }
         }
       }
 
@@ -2938,8 +3043,10 @@ import Layout from '../layouts/Layout.astro';
         if (currentInviteState === 'manage') {
           if (!groupData) return;
           try {
+            const newRoles = { ...(groupData.roles || {}) };
+            newRoles[email] = roleValue;
             await updateDoc(groupDocRef, {
-              [`roles.${email}`]: roleValue
+              roles: newRoles
             });
             showToast("Role updated successfully.");
             inviteMemberModal?.close();
