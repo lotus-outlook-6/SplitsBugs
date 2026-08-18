@@ -462,6 +462,18 @@ import Layout from '../layouts/Layout.astro';
       </div>
     </dialog>
 
+    <!-- Delete Expense Modal -->
+    <dialog id="deleteExpenseModal" class="bg-transparent p-0 m-auto backdrop:bg-black/50 text-ink open:flex flex-col items-center justify-center w-[92vw] sm:w-full max-w-sm z-[9999]">
+      <div class="bg-canvas border border-hairline rounded-lg shadow-lg w-full p-6 text-center transition-all duration-300">
+        <h2 class="text-xl font-bold mb-2 text-ink">Delete Expense?</h2>
+        <p class="text-body text-sm mb-6 text-mute">Are you sure you want to delete this expense? This will update balances for everyone involved.</p>
+        <div class="flex gap-3 w-full">
+          <button type="button" id="cancelDeleteExpenseBtn" class="flex-1 bg-canvas text-ink px-4 py-2 rounded-pill font-medium border border-hairline hover:bg-canvas-soft transition-colors cursor-pointer">Cancel</button>
+          <button type="button" id="confirmDeleteExpenseBtn" class="flex-1 bg-danger text-white px-4 py-2 rounded-pill font-medium hover:opacity-90 transition-opacity cursor-pointer">Delete</button>
+        </div>
+      </div>
+    </dialog>
+
     <!-- Group Settings Modal -->
     <dialog id="groupSettingsModal" class="bg-canvas text-ink p-0 m-0 w-full h-full max-w-none max-h-none md:w-[480px] md:h-[90vh] md:m-auto md:rounded-2xl shadow-2xl backdrop:bg-black/50 text-ink overflow-y-auto">
       <!-- Settings Header -->
@@ -1488,6 +1500,64 @@ import Layout from '../layouts/Layout.astro';
       });
     }
 
+    // --- Delete Expense Logic ---
+    const deleteExpenseModal = document.getElementById('deleteExpenseModal') as HTMLDialogElement;
+    const cancelDeleteExpenseBtn = document.getElementById('cancelDeleteExpenseBtn');
+    const confirmDeleteExpenseBtn = document.getElementById('confirmDeleteExpenseBtn');
+
+    if (deleteExpenseModal && cancelDeleteExpenseBtn && confirmDeleteExpenseBtn) {
+      cancelDeleteExpenseBtn.addEventListener('click', () => deleteExpenseModal.close());
+      
+      deleteExpenseModal.addEventListener('click', (e) => {
+        const d = deleteExpenseModal.getBoundingClientRect();
+        if (e.clientX < d.left || e.clientX > d.right || e.clientY < d.top || e.clientY > d.bottom) deleteExpenseModal.close();
+      });
+
+      confirmDeleteExpenseBtn.addEventListener('click', async () => {
+        const expenseId = (window as any).currentExpenseToDeleteId;
+        const btn = (window as any).currentDeleteBtn;
+        if (!expenseId || !groupData || !btn) return;
+        
+        const expToDelete = groupData.expenses.find((exp: any) => exp.id === expenseId);
+        if (!expToDelete) {
+           deleteExpenseModal.close();
+           return;
+        }
+
+        const prevText = confirmDeleteExpenseBtn.innerHTML;
+        confirmDeleteExpenseBtn.innerHTML = 'Deleting...';
+        (confirmDeleteExpenseBtn as HTMLButtonElement).disabled = true;
+
+        try {
+          // arrayRemove requires the exact object
+          await updateDoc(groupDocRef, {
+            expenses: arrayRemove(expToDelete)
+          });
+          
+          await addDoc(collection(db, "activities"), {
+            groupId: groupId,
+            groupName: groupData.name,
+            type: 'expense_deleted',
+            description: 'Deleted an expense',
+            amount: expToDelete.amount,
+            currency: expToDelete.currency || '$',
+            paidBy: currentUserEmail,
+            participants: expToDelete.participants || groupData.members,
+            timestamp: Date.now()
+          });
+          
+          showToast('Expense deleted successfully.');
+          deleteExpenseModal.close();
+        } catch (err) {
+          console.error("Error deleting expense:", err);
+          showToast('Failed to delete expense.', true);
+        } finally {
+          confirmDeleteExpenseBtn.innerHTML = prevText;
+          (confirmDeleteExpenseBtn as HTMLButtonElement).disabled = false;
+        }
+      });
+    }
+
     function renderFeed() {
       if (!activityFeed || !groupData) return;
       const exps = groupData.expenses || [];
@@ -1604,40 +1674,12 @@ import Layout from '../layouts/Layout.astro';
             const expenseId = btn.getAttribute('data-id');
             if (!expenseId || !groupData) return;
             
-            if (confirm('Are you sure you want to delete this expense? This will update balances for everyone involved.')) {
-              const expToDelete = groupData.expenses.find((exp: any) => exp.id === expenseId);
-              if (!expToDelete) return;
-              
-              const prevText = btn.innerHTML;
-              btn.innerHTML = 'Deleting...';
-              (btn as HTMLButtonElement).disabled = true;
-              
-              try {
-                // arrayRemove requires the exact object
-                await updateDoc(groupDocRef, {
-                  expenses: arrayRemove(expToDelete)
-                });
-                
-                await addDoc(collection(db, "activities"), {
-                  groupId: groupId,
-                  groupName: groupData.name,
-                  type: 'expense_deleted',
-                  description: 'Deleted an expense',
-                  amount: expToDelete.amount,
-                  currency: expToDelete.currency || '$',
-                  paidBy: currentUserEmail,
-                  participants: expToDelete.participants || groupData.members,
-                  timestamp: Date.now()
-                });
-                
-                showToast('Expense deleted successfully.');
-              } catch (err) {
-                console.error("Error deleting expense:", err);
-                showToast('Failed to delete expense.', true);
-                btn.innerHTML = prevText;
-                (btn as HTMLButtonElement).disabled = false;
-              }
-            }
+            // Set global variables for the modal to use
+            (window as any).currentExpenseToDeleteId = expenseId;
+            (window as any).currentDeleteBtn = btn;
+            
+            const deleteExpenseModal = document.getElementById('deleteExpenseModal') as HTMLDialogElement;
+            if (deleteExpenseModal) deleteExpenseModal.showModal();
           });
         });
       }
