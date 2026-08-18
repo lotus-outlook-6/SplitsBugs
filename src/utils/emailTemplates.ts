@@ -409,10 +409,10 @@ export function getFarewellEmailTemplate(
                 We are sorry to see you go, ${userName}.
               </p>
               <p style="margin:0 0 16px 0; font-family:'Inter', Helvetica, Arial, sans-serif; font-size:15px; line-height:24px; color:${C.inkMid};">
-                Your SplitsBug account and all associated data have been permanently deleted as requested.
+                Your SplitsBug profile and authentication credentials have been deleted.
               </p>
               <p style="margin:0 0 32px 0; font-family:'Inter', Helvetica, Arial, sans-serif; font-size:15px; line-height:24px; color:${C.inkMid};">
-                We built SplitsBug to make sharing expenses effortless. If something fell short of that, we genuinely want to know about it. Your feedback will directly shape the product for everyone who comes after you.
+                Please note that shared group data, expenses, and activity are retained to preserve the financial history for other members in your groups. If you create a new account with this email address in the future, you will automatically regain access to those shared records.
               </p>
             </td>
           </tr>
