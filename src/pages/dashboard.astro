@@ -373,7 +373,7 @@ import Layout from '../layouts/Layout.astro';
   
   <script>
     import { auth, db } from '../firebase';
-    import { collection, query, where, onSnapshot, doc, setDoc, addDoc, serverTimestamp, getDocs } from 'firebase/firestore';
+    import { collection, query, where, onSnapshot, doc, setDoc, addDoc, serverTimestamp, getDocs, getDoc } from 'firebase/firestore';
     import { onAuthStateChanged } from 'firebase/auth';
 
     let allGroupsFromFirebase: any[] = [];
@@ -383,10 +383,28 @@ import Layout from '../layouts/Layout.astro';
     let isFirebaseLoaded = false;
     let currentUserEmail = 'user@example.com';
     
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
       if (user) {
+        // Guard: check if the user has completed their profile in Firestore.
+        // New users (especially Google sign-ups) are authenticated but don't
+        // have a Firestore doc yet until they finish the signup form.
+        try {
+          const userDocRef = doc(db, 'users', user.uid);
+          const userSnap = await getDoc(userDocRef);
+          if (!userSnap.exists()) {
+            // Profile not complete — send them back to finish signup
+            window.location.href = '/signup?google=true';
+            return;
+          }
+        } catch (e) {
+          // If we can't check (network error etc.), let them through
+          console.warn('Profile check failed, proceeding anyway:', e);
+        }
         currentUserEmail = user.email || 'user@example.com';
         initFirebase();
+      } else {
+        // Not logged in
+        window.location.href = '/login';
       }
     });
     const GLOBAL_GROUPS_KEY = 'splitsbug_global_groups';

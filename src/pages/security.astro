@@ -1012,22 +1012,39 @@ import Layout from "../layouts/Layout.astro";
       try {
         const userEmail = user.email;
         const uid = user.uid;
+        const userName = user.displayName || (userEmail ? userEmail.split('@')[0] : 'there');
 
-        // 1. Delete user documents from Firestore
+        // 1. Send farewell email FIRST (while we still have the user's email)
+        if (userEmail) {
+          try {
+            const { sendEmail } = await import('../utils/email');
+            await sendEmail({
+              to: userEmail,
+              subject: 'We are sorry to see you go — SplitsBug',
+              templateId: 'farewell',
+              templateData: { userName }
+            });
+          } catch (mailErr) {
+            console.warn('Farewell email failed (non-critical):', mailErr);
+          }
+        }
+
+        // 2. Delete user documents from Firestore
         if (userEmail) {
           await deleteDoc(doc(db, 'users', userEmail)).catch((e) => console.warn(e));
         }
         await deleteDoc(doc(db, 'users', uid)).catch((e) => console.warn(e));
 
-        // 2. Delete user from Firebase Auth
+        // 3. Delete user from Firebase Auth
         await deleteUser(user);
 
-        // 3. Clear storage
+        // 4. Clear storage
         localStorage.clear();
         sessionStorage.clear();
 
-        // 4. Redirect to signup
+        // 5. Redirect to signup
         window.location.href = '/signup?deleted=true';
+
       } catch (err: any) {
         console.error('Account deletion error:', err);
         alert(err.message || 'Failed to delete account. Please try again.');

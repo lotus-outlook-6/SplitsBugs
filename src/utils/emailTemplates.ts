@@ -394,3 +394,62 @@ export function getGeneralNotificationEmailTemplate(
 
   return emailShell(title, body);
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 7. Farewell / Account Deleted Goodbye Email
+// ─────────────────────────────────────────────────────────────────────────────
+export function getFarewellEmailTemplate(
+  userName: string,
+  surveyUrl: string = 'https://forms.google.com/YOUR_SURVEY_LINK_HERE'
+): string {
+  const body = `
+          <tr>
+            <td style="padding:36px 40px 0 40px;">
+              <p style="margin:0 0 24px 0; font-family:'Inter', Helvetica, Arial, sans-serif; font-size:22px; line-height:30px; font-weight:700; color:${C.ink}; letter-spacing:-0.4px;">
+                We are sorry to see you go, ${userName}.
+              </p>
+              <p style="margin:0 0 16px 0; font-family:'Inter', Helvetica, Arial, sans-serif; font-size:15px; line-height:24px; color:${C.inkMid};">
+                Your SplitsBug account and all associated data have been permanently deleted as requested.
+              </p>
+              <p style="margin:0 0 32px 0; font-family:'Inter', Helvetica, Arial, sans-serif; font-size:15px; line-height:24px; color:${C.inkMid};">
+                We built SplitsBug to make sharing expenses effortless. If something fell short of that, we genuinely want to know about it. Your feedback will directly shape the product for everyone who comes after you.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Survey card -->
+          <tr>
+            <td style="padding:0 40px 32px 40px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid ${C.border}; border-radius:8px; overflow:hidden;">
+                <tr>
+                  <td style="padding:10px 24px; background-color:${C.brand};">
+                    <p style="margin:0; font-family:'Inter', Helvetica, Arial, sans-serif; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:rgba(255,255,255,0.75);">Quick survey &mdash; 2 minutes</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:20px 24px;">
+                    <p style="margin:0 0 6px 0; font-family:'Inter', Helvetica, Arial, sans-serif; font-size:15px; font-weight:600; color:${C.ink};">Help us do better</p>
+                    <p style="margin:0 0 20px 0; font-family:'Inter', Helvetica, Arial, sans-serif; font-size:13px; line-height:20px; color:${C.inkMid};">
+                      What made you leave? Was something broken, confusing, or missing? Take 2 minutes to tell us.
+                      Your response is anonymous and helps the team prioritize the right improvements.
+                    </p>
+                    ${primaryButton('Take the Survey', surveyUrl)}
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:0 40px 40px 40px;">
+              <p style="margin:0 0 6px 0; font-family:'Inter', Helvetica, Arial, sans-serif; font-size:14px; line-height:22px; color:${C.inkMid};">
+                If you ever decide to come back, you are always welcome. Simply create a new account at any time.
+              </p>
+              <p style="margin:0; font-family:'Inter', Helvetica, Arial, sans-serif; font-size:13px; line-height:20px; color:${C.inkLight};">
+                Thank you for being part of SplitsBug.
+              </p>
+            </td>
+          </tr>`;
+
+  return emailShell('We are sorry to see you go &mdash; SplitsBug', body);
+}

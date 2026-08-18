@@ -6,7 +6,8 @@ import {
   getGroupInviteNotificationTemplate,
   getAccountDeletionWarningTemplate,
   getOtpVerificationTemplate,
-  getGeneralNotificationEmailTemplate
+  getGeneralNotificationEmailTemplate,
+  getFarewellEmailTemplate
 } from '../../utils/emailTemplates';
 
 // Helper to safely get env vars in Node/Vercel or Astro
@@ -56,7 +57,9 @@ export const POST: APIRoute = async ({ request }) => {
     } else if (templateId === 'otp') {
       html = getOtpVerificationTemplate(templateData.code);
     } else if (templateId === 'general') {
-      html = getGeneralNotificationEmailTemplate(templateData.title || subject, templateData.message || '', templateData.actionUrl);
+      html = getGeneralNotificationEmailTemplate(templateData.title || subject, templateData.message || '', templateData.actionUrl, templateData.actionLabel);
+    } else if (templateId === 'farewell') {
+      html = getFarewellEmailTemplate(templateData.userName, templateData.surveyUrl);
     } else {
       return new Response(JSON.stringify({ error: 'Invalid template ID' }), { status: 400 });
     }

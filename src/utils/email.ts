@@ -1,7 +1,7 @@
 export interface EmailOptions {
   to: string;
   subject: string;
-  templateId: 'welcome' | 'new-device' | 'group-invite' | 'account-deletion' | 'otp' | 'general';
+  templateId: 'welcome' | 'new-device' | 'group-invite' | 'account-deletion' | 'otp' | 'general' | 'farewell';
   templateData: any;
 }
 
