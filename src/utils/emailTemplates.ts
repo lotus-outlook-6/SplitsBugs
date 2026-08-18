@@ -400,7 +400,7 @@ export function getGeneralNotificationEmailTemplate(
 // ─────────────────────────────────────────────────────────────────────────────
 export function getFarewellEmailTemplate(
   userName: string,
-  surveyUrl: string = 'https://forms.google.com/YOUR_SURVEY_LINK_HERE'
+  surveyUrl: string = 'https://forms.gle/p6jbDngdpsxHMhEd8'
 ): string {
   const body = `
           <tr>
@@ -430,8 +430,8 @@ export function getFarewellEmailTemplate(
                   <td style="padding:20px 24px;">
                     <p style="margin:0 0 6px 0; font-family:'Inter', Helvetica, Arial, sans-serif; font-size:15px; font-weight:600; color:${C.ink};">Help us do better</p>
                     <p style="margin:0 0 20px 0; font-family:'Inter', Helvetica, Arial, sans-serif; font-size:13px; line-height:20px; color:${C.inkMid};">
-                      What made you leave? Was something broken, confusing, or missing? Take 2 minutes to tell us.
-                      Your response is anonymous and helps the team prioritize the right improvements.
+                      What made you leave? Was something broken, confusing, or missing? Take 2 minutes to tell us.<br><br>
+                      <em>(If you have already filled this out, please ignore this email)</em>
                     </p>
                     ${primaryButton('Take the Survey', surveyUrl)}
                   </td>

@@ -1043,8 +1043,9 @@ import Layout from "../layouts/Layout.astro";
         localStorage.clear();
         sessionStorage.clear();
 
-        // 5. Redirect to signup
-        window.location.href = '/signup?deleted=true';
+        // 5. Open survey in new tab, then redirect to login
+        window.open('https://forms.gle/p6jbDngdpsxHMhEd8', '_blank');
+        window.location.href = '/login';
 
       } catch (err: any) {
         console.error('Account deletion error:', err);
