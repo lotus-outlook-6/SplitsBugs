@@ -487,10 +487,8 @@ import Layout from "../layouts/Layout.astro";
       <div class="text-center">
         <h3 class="text-xl font-bold text-ink">Delete Account & Data?</h3>
         <p class="text-xs text-mute mt-2">
-          This will permanently erase your Firestore user profile, sign you out,
-          and delete your authentication account. Type <strong
-            class="text-red-500 font-mono">DELETE</strong
-          > below to confirm.
+          This will permanently erase your profile and all data. Type
+          <strong class="text-red-500 font-mono">DELETE</strong> below and enter your password to confirm.
         </p>
       </div>
 
@@ -501,6 +499,17 @@ import Layout from "../layouts/Layout.astro";
           class="w-full p-3 rounded-xl border border-hairline bg-canvas-soft text-ink font-mono text-center uppercase tracking-widest focus:outline-none focus:border-red-500"
           placeholder="DELETE"
         />
+      </div>
+
+      <div>
+        <input
+          type="password"
+          id="deletePasswordInput"
+          class="w-full p-3 rounded-xl border border-hairline bg-canvas-soft text-ink text-sm focus:outline-none focus:border-red-500 transition-colors"
+          placeholder="Enter your password to confirm"
+          autocomplete="current-password"
+        />
+        <p id="deletePasswordError" class="text-xs text-red-500 mt-1.5 hidden">Incorrect password. Please try again.</p>
       </div>
 
       <div class="flex gap-3 mt-2">
@@ -952,19 +961,49 @@ import Layout from "../layouts/Layout.astro";
 
     cancelDeleteBtn?.addEventListener("click", () => {
       deleteModal.close();
+      // Reset state on close
+      const pwInput = document.getElementById('deletePasswordInput') as HTMLInputElement;
+      const pwError = document.getElementById('deletePasswordError');
+      if (pwInput) pwInput.value = '';
+      if (pwError) pwError.classList.add('hidden');
     });
 
-    confirmDeleteInput?.addEventListener("input", () => {
-      confirmDeleteBtn.disabled =
-        confirmDeleteInput.value.trim().toUpperCase() !== "DELETE";
+    const confirmDeleteInput = document.getElementById('confirmDeleteInput') as HTMLInputElement;
+    const deletePasswordInput = document.getElementById('deletePasswordInput') as HTMLInputElement;
+    const deletePasswordError = document.getElementById('deletePasswordError');
+
+    function updateDeleteBtnState() {
+      const confirmOk = confirmDeleteInput?.value.trim().toUpperCase() === 'DELETE';
+      const passwordOk = (deletePasswordInput?.value || '').length > 0;
+      confirmDeleteBtn.disabled = !(confirmOk && passwordOk);
+    }
+
+    confirmDeleteInput?.addEventListener('input', updateDeleteBtnState);
+    deletePasswordInput?.addEventListener('input', () => {
+      if (deletePasswordError) deletePasswordError.classList.add('hidden');
+      updateDeleteBtnState();
     });
 
-    confirmDeleteBtn?.addEventListener("click", async () => {
+    confirmDeleteBtn?.addEventListener('click', async () => {
       const user = auth.currentUser;
-      if (!user) return;
+      if (!user || !user.email) return;
+
+      const password = deletePasswordInput?.value || '';
 
       confirmDeleteBtn.disabled = true;
-      confirmDeleteBtn.textContent = "Deleting...";
+      confirmDeleteBtn.textContent = 'Deleting...';
+
+      try {
+        // Re-authenticate first (Firebase requires recent login for deletion)
+        const credential = EmailAuthProvider.credential(user.email, password);
+        await reauthenticateWithCredential(user, credential);
+      } catch (authErr: any) {
+        console.error('Re-auth failed:', authErr);
+        if (deletePasswordError) deletePasswordError.classList.remove('hidden');
+        confirmDeleteBtn.disabled = false;
+        confirmDeleteBtn.textContent = 'Delete Forever';
+        return;
+      }
 
       try {
         const userEmail = user.email;
@@ -972,11 +1011,9 @@ import Layout from "../layouts/Layout.astro";
 
         // 1. Delete user documents from Firestore
         if (userEmail) {
-          await deleteDoc(doc(db, "users", userEmail)).catch((e) =>
-            console.warn(e),
-          );
+          await deleteDoc(doc(db, 'users', userEmail)).catch((e) => console.warn(e));
         }
-        await deleteDoc(doc(db, "users", uid)).catch((e) => console.warn(e));
+        await deleteDoc(doc(db, 'users', uid)).catch((e) => console.warn(e));
 
         // 2. Delete user from Firebase Auth
         await deleteUser(user);
@@ -985,16 +1022,13 @@ import Layout from "../layouts/Layout.astro";
         localStorage.clear();
         sessionStorage.clear();
 
-        // 4. Redirect to signup as fresh account
-        window.location.href = "/signup?deleted=true";
+        // 4. Redirect to signup
+        window.location.href = '/signup?deleted=true';
       } catch (err: any) {
-        console.error("Account deletion error:", err);
-        alert(
-          err.message ||
-            "Failed to delete account. You may need to log out and log back in to perform this action.",
-        );
+        console.error('Account deletion error:', err);
+        alert(err.message || 'Failed to delete account. Please try again.');
         confirmDeleteBtn.disabled = false;
-        confirmDeleteBtn.textContent = "Delete Forever";
+        confirmDeleteBtn.textContent = 'Delete Forever';
       }
     });
 
