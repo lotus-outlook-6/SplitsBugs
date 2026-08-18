@@ -173,8 +173,19 @@ import Layout from '../layouts/Layout.astro';
 
   <script>
     import { auth, db, googleProvider } from '../firebase';
-    import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, onAuthStateChanged, updatePassword } from 'firebase/auth';
+    import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, onAuthStateChanged, updatePassword, signOut } from 'firebase/auth';
     import { doc, setDoc, getDoc } from 'firebase/firestore';
+
+    // If arriving from account deletion, force sign-out immediately so no stale session causes issues
+    const _urlParams = new URLSearchParams(window.location.search);
+    if (_urlParams.get('deleted') === 'true') {
+      signOut(auth).then(() => {
+        localStorage.clear();
+        sessionStorage.clear();
+        // Replace URL to remove the deleted param so the google flow won't trigger
+        window.history.replaceState({}, '', '/signup');
+      }).catch(() => {});
+    }
 
     // Elements
     const form = document.getElementById('signupForm') as HTMLFormElement;
