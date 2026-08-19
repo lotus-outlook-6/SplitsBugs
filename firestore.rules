@@ -25,10 +25,9 @@ service cloud.firestore {
     }
 
     match /groups/{groupId} {
-      // Allow read, update if authenticated; allow delete if member or admin
-      allow read, update: if isAuthenticated();
+      // Allow read, update, delete if authenticated AND is a member (or admin)
+      allow read, update, delete: if isAuthenticated() && (request.auth.token.email in resource.data.members || isAdmin());
       allow create: if isAuthenticated();
-      allow delete: if isAuthenticated() && (request.auth.token.email in resource.data.members || isAdmin());
     }
 
     match /invites/{inviteId} {
