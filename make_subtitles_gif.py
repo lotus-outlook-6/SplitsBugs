@@ -12,10 +12,10 @@ texts = [
     "User Interface Customization: Showcases multiple premium themes, allowing users to personalize their application aesthetic."
 ]
 
-target_width = 1920 # Default width, will match the first screenshot
-if os.path.exists(".init/files/screenshot-1.png"):
-    first_img = Image.open(".init/files/screenshot-1.png")
-    target_width = first_img.size[0]
+target_width = 1702 # Default width
+if os.path.exists("temp_width.txt"):
+    with open("temp_width.txt", "r") as f:
+        target_width = int(f.read().strip())
 
 try:
     font = ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial.ttf", 36)
@@ -90,12 +90,12 @@ for text in texts:
     images.append(new_img)
 
 if images:
-    images[0].save(
-        "public/subtitles.gif",
-        save_all=True,
-        append_images=images[1:],
-        duration=5000,
-        loop=0,
-        disposal=2
-    )
+    import imageio.v2 as imageio
+    import numpy as np
+    
+    # Convert PIL images to numpy arrays for imageio
+    np_images = [np.array(img) for img in images]
+    
+    # Use imageio to save with better color handling
+    imageio.mimsave("public/subtitles.gif", np_images, duration=8000, loop=0)
     print("Subtitles GIF successfully generated at public/subtitles.gif")
