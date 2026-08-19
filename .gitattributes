@@ -1,0 +1,2 @@
+# Ignore Python helper scripts in GitHub language statistics
+*.py linguist-vendored
