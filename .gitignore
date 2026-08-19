@@ -27,3 +27,6 @@ pnpm-debug.log*
 .vercel
 .env*
 .firebase/
+
+# python virtual environments
+.venv/
