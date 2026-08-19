@@ -5,20 +5,32 @@
   
   <p>
     <a href="https://splits-bugs.vercel.app">Live Demo</a> •
-    <a href="#-features">Features</a> •
-    <a href="#-tech-stack">Tech Stack</a> •
-    <a href="#-getting-started">Getting Started</a>
+    <a href="#features">Features</a> •
+    <a href="#screenshots">Screenshots</a> •
+    <a href="#tech-stack">Tech Stack</a> •
+    <a href="#getting-started">Getting Started</a>
   </p>
 </div>
 
 <hr />
 
-## 💸 About SplitsBug
+## About SplitsBug
 SplitsBug is a fully-featured, full-stack expense tracker and bill-splitting application designed to make managing shared finances effortless. Whether you are splitting rent with roommates, travel expenses with friends, or dinners with a partner, SplitsBug calculates who owes what and keeps everyone in sync in real-time.
 
 It acts as a complete, modern alternative to apps like Splitwise, built from the ground up with a premium dark-mode aesthetic and powerful group management tools.
 
-## ✨ Features
+## Screenshots
+<p align="center">
+  <img src=".init/files/screenshot-1.png" width="48%" style="margin-right: 1%; margin-bottom: 10px;" />
+  <img src=".init/files/screenshot-2.png" width="48%" style="margin-left: 1%; margin-bottom: 10px;" />
+  <img src=".init/files/screenshot-3.png" width="48%" style="margin-right: 1%; margin-bottom: 10px;" />
+  <img src=".init/files/screenshot-4.png" width="48%" style="margin-left: 1%; margin-bottom: 10px;" />
+  <img src=".init/files/screenshot-5.png" width="48%" style="margin-right: 1%; margin-bottom: 10px;" />
+  <img src=".init/files/screenshot-6.png" width="48%" style="margin-left: 1%; margin-bottom: 10px;" />
+  <img src=".init/files/screenshot-7.png" width="98%" style="margin-top: 10px;" />
+</p>
+
+## Features
 - **Real-Time Balances:** Add expenses and watch balances automatically recalculate instantly across all group members.
 - **Advanced Group Management:** Create trips/groups, invite members, and assign custom roles (Admins can manage members and expenses; Viewers can only view balances).
 - **Partial Settle-Up:** Don't want to pay the full debt at once? Members can input custom amounts to partially settle balances and keep the remainder pending.
@@ -30,7 +42,7 @@ It acts as a complete, modern alternative to apps like Splitwise, built from the
 - **Account Data Export:** Users can securely request and download all their data (groups, expenses, history) packed neatly into an `.xlsx` Excel file.
 - **Premium UI:** Fully responsive, glassmorphism-inspired dark mode UI with micro-animations built using Tailwind CSS v4.
 
-## 🛠 Tech Stack
+## Tech Stack
 SplitsBug is built with modern, scalable web technologies:
 
 - **Frontend Framework:** [Astro](https://astro.build/) (Server-Side Rendered)
@@ -43,7 +55,7 @@ SplitsBug is built with modern, scalable web technologies:
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 To run this project locally, follow these steps:
 
@@ -74,11 +86,11 @@ The app will be running at `http://localhost:4321`.
 
 ---
 
-## 🔒 Security
+## Security
 SplitsBug handles financial and personal data carefully:
 - **Firestore Security Rules:** Read/write operations are strictly locked down. Users can only read group data they are verified members of, and only Admins can delete expenses or groups.
 - **New Device Alerts:** If a user logs in from a new or unrecognized device, they are immediately notified via email.
 - **Data Retention Policy:** If a user deletes their account, their authentication data is wiped, but shared group expenses remain visible to other active members to preserve their financial history.
 
-## 📄 License
+## License
 This project is open-source and available under the [MIT License](LICENSE).
