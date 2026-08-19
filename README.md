@@ -22,6 +22,7 @@ It acts as a complete, modern alternative to apps like Splitwise, built from the
 ## App Preview
 <div align="center">
   <img src="public/app-demo.gif" width="100%" />
+  <img src="public/subtitles.gif" width="100%" />
 </div>
 
 <br>

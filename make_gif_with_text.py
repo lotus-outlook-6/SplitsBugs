@@ -5,31 +5,31 @@ from PIL import Image, ImageDraw, ImageFont
 frames = [
     {
         "file": ".init/files/screenshot-1.png",
-        "text": "Dashboard Overview: Provides a comprehensive overview of total user balances, pending settlements, and recent account activity."
+        "text": "Groups Overview: Displays all active groups and overall settlements, allowing users to create new groups, check notifications, and easily search for specific groups."
     },
     {
         "file": ".init/files/screenshot-7.png",
-        "text": "User Interface Design: Showcases the application's responsive, dark-mode user interface designed with modern design principles."
-    },
-    {
-        "file": ".init/files/screenshot-2.png",
-        "text": "Group Management: Facilitates the creation of groups, member management, and the centralized tracking of shared financial obligations."
+        "text": "Group Management: Facilitates comprehensive tracking of group activities, pending balances, expense additions, and member communications."
     },
     {
         "file": ".init/files/screenshot-3.png",
-        "text": "Expense Allocation: Enables users to distribute expenses accurately among group members using equal or custom allocation methods."
+        "text": "Activity Audit Trail: Displays a chronological timeline of all user transactions and account events for complete transparency."
     },
     {
         "file": ".init/files/screenshot-4.png",
-        "text": "Custom Settlements: Supports custom partial payments, allowing users to settle specific portions of outstanding balances."
+        "text": "Account Settings: Serves as the central control hub for managing user preferences, security configurations, and application appearance."
     },
     {
         "file": ".init/files/screenshot-5.png",
-        "text": "Activity Audit Trail: Displays a chronological audit trail of all group activities, ensuring transparency across all transactions."
+        "text": "Notification Preferences: Allows granular control over email and browser alerts for specific account and group events."
     },
     {
         "file": ".init/files/screenshot-6.png",
-        "text": "Account Preferences: Allows users to configure email notification preferences and manage account security settings."
+        "text": "Security & Data Privacy: Provides robust controls for password management, application locking, data exportation, and account deletion."
+    },
+    {
+        "file": ".init/files/screenshot-2.png",
+        "text": "User Interface Customization: Showcases multiple premium themes, allowing users to personalize their application aesthetic."
     }
 ]
 
