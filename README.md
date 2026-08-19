@@ -19,42 +19,12 @@ SplitsBug is a fully-featured, full-stack expense tracker and bill-splitting app
 
 It acts as a complete, modern alternative to apps like Splitwise, built from the ground up with a premium dark-mode aesthetic and powerful group management tools.
 
-## Screenshots
+## App Preview
+<div align="center">
+  <img src="public/app-demo.gif" width="100%" />
+</div>
 
-### 1. Dashboard Overview
-<img src=".init/files/screenshot-1.png" width="100%" />
-<em>Provides a comprehensive overview of total user balances, pending settlements, and recent account activity.</em>
-<br><br>
-
-### 2. User Interface Design
-<img src=".init/files/screenshot-7.png" width="100%" />
-<em>Showcases the application's responsive, dark-mode user interface designed with modern design principles.</em>
-<br><br>
-
-### 3. Group Management
-<img src=".init/files/screenshot-2.png" width="100%" />
-<em>Facilitates the creation of groups, member management, and the centralized tracking of shared financial obligations.</em>
-<br><br>
-
-### 4. Expense Allocation
-<img src=".init/files/screenshot-3.png" width="100%" />
-<em>Enables users to distribute expenses accurately among group members using equal or custom allocation methods.</em>
-<br><br>
-
-### 5. Custom Settlements
-<img src=".init/files/screenshot-4.png" width="100%" />
-<em>Supports custom partial payments, allowing users to settle specific portions of outstanding balances.</em>
-<br><br>
-
-### 6. Activity Audit Trail
-<img src=".init/files/screenshot-5.png" width="100%" />
-<em>Displays a chronological audit trail of all group activities, ensuring transparency across all transactions.</em>
-<br><br>
-
-### 7. Account Preferences
-<img src=".init/files/screenshot-6.png" width="100%" />
-<em>Allows users to configure email notification preferences and manage account security settings.</em>
-<br><br>
+<br>
 
 ## Features
 - **Real-Time Balances:** Add expenses and watch balances automatically recalculate instantly across all group members.
